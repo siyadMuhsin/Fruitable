@@ -1,0 +1,195 @@
+  /* General Styling */
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+}
+
+.login-area {
+    padding: 100px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4); /* Background gradient effect */
+}
+
+.basic-login {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /* More prominent shadow */
+    width: 100%;
+    max-width: 500px;
+    transition: all 0.3s ease;
+}
+
+.basic-login:hover {
+    transform: translateY(-5px); /* Adds slight hover effect to the form */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.basic-login h3 {
+    font-size: 26px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #333;
+}
+
+.basic-login label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.basic-login input[type="text"],
+.basic-login input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 30px; /* Curved input fields */
+    margin-bottom: 20px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.basic-login input[type="text"]:focus,
+.basic-login input[type="password"]:focus {
+    border-color: #ff6b81; /* Pink border on focus */
+    outline: none;
+}
+
+.login-action {
+    display: flex;
+    justify-content: space-between;
+}
+
+.forgot-login a {
+    color: #ff6b81;
+    transition: color 0.3s ease;
+}
+
+.forgot-login a:hover {
+    color: #e74c3c;
+    text-decoration: underline;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 20px;
+    border-radius: 30px; /* Stylish rounded button */
+    font-size: 16px;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    background-color: #ff6b81;
+    border: none;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    margin: 15px auto;
+    width: 100%; /* Button width adjusted to full */
+    box-shadow: 0 4px 15px rgba(255, 107, 129, 0.2); /* Button shadow effect */
+}
+
+.btn:hover {
+    background-color: #e74c3c; /* Darker pink on hover */
+    transform: translateY(-3px); /* Slight upward movement on hover */
+    box-shadow: 0 8px 20px rgba(255, 107, 129, 0.3);
+}
+
+.btn.theme-btn-2 {
+    background-color: #28a745; /* Green button */
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+}
+
+.btn.theme-btn-2:hover {
+    background-color: #218838;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+}
+
+.btn.google-btn {
+    background-color: #db4437; /* Google button color */
+    box-shadow: 0 4px 15px rgba(219, 68, 55, 0.2);
+}
+
+.btn.google-btn:hover {
+    background-color: #c33c29;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(219, 68, 55, 0.3);
+}
+
+.btn i {
+    margin-right: 10px;
+}
+
+.or-divide {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.or-divide span {
+    background-color: #fff;
+    padding: 0 10px;
+    position: relative;
+    top: -10px;
+    display: inline-block;
+}
+
+.or-divide:before {
+    content: '';
+    display: block;
+    height: 1px;
+    background-color: #ccc;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 0;
+}
+
+.text-center p {
+    margin: 20px 0;
+}
+
+.text-center a {
+    color: #ff6b81;
+    transition: color 0.3s ease;
+}
+
+.text-center a:hover {
+    color: #e74c3c;
+    text-decoration: underline;
+}
+
+.otp-field {
+    display: none;
+    margin-top: 20px;
+}
+
+/* Responsive Styling */
+@media (max-width: 767px) {
+    .login-action {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .forgot-login {
+        margin-top: 10px;
+    }
+
+    .basic-login {
+        padding: 30px;
+    }
+
+    .btn {
+        padding: 12px 15px;
+    }
+
+    .basic-login input[type="text"],
+    .basic-login input[type="password"] {
+        padding: 10px;
+        font-size: 13px;
+    }
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="User/css/loginsignup/login.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm" action="/login" method="POST">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            
+            <div>
+                <% if(locals.msg){ %>
+                    <h6 style="color: red; font-size: 15px; text-align: center;" class="text-center text-danger">
+                        <%= msg %>
+                    </h6>
+                <% } %>
+            </div>
+            
+            <button type="submit">Login</button>
+            <a href="/auth/google">
+                <button class="google-button" type="button">
+                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                    Sign in with Google
+                </button>
+
+            </a>
+            
+        </form>
+        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+        <p class="forgot-password"><a href="/forgot-password">Forgot Password?</a></p>
+    </div>
+
+    <script>
+        // Form Validation Script
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (email === '' || password === '') {
+                // e.preventDefault();
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            // Email Validation
+            const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+            if (!email.match(emailPattern)) {
+                e.preventDefault();
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Password Length Validation
+            if (password.length < 6) {
+                e.preventDefault();
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+        });
+    </script>
+</body>
+</html>
