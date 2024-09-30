@@ -42,7 +42,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Category List</h4>
-                            <button class="btn btn-success mb-3" data-toggle="modal" data-target="#createCategoryModal">+Add New Category</button>
+                            <button class="btn btn-success mb-3" data-toggle="modal" data-target="#createCategoryModal">+ Add New Category</button>
                             <div class="table-responsive">
                                 <table class="table">
                                     <thead>
@@ -56,12 +56,12 @@
                                     </thead>
                                     <tbody>
                                         <% categories.forEach((category, index) => { %>
-                                            <tr>
+                                            <tr id="category-<%= category._id %>">
                                                 <td><%= index + 1 %></td>
                                                 <td><%= category.name %></td>
                                                 <td><%= category.description || 'No description' %></td>
                                                 <td>
-                                                    <span class="badge <%= category.isListed ? 'badge-success' : 'badge-danger' %>">
+                                                    <span id="status-<%= category._id %>" class="badge <%= category.isListed ? 'badge-success' : 'badge-danger' %>">
                                                         <%= category.isListed ? 'Listed' : 'Unlisted' %>
                                                     </span>
                                                 </td>
@@ -70,13 +70,9 @@
                                                         Edit
                                                     </button>
                                                     <% if (category.isListed) { %>
-                                                        <form action="/admin/category/unlist/<%= category._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to unlist this category?');">
-                                                            <button class="btn btn-danger">Unlist</button>
-                                                        </form>
+                                                        <button class="btn btn-danger" onclick="unlistCategory('<%= category._id %>')">Unlist</button>
                                                     <% } else { %>
-                                                        <form action="/admin/category/list/<%= category._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to list this category?');">
-                                                            <button class="btn btn-info">List</button>
-                                                        </form>
+                                                        <button class="btn btn-info" onclick="listCategory('<%= category._id %>')">List</button>
                                                     <% } %>
                                                 </td>
                                             </tr>
@@ -88,7 +84,6 @@
                     </div>
                 </div>
             </div>
-            
 
             <!-- Create Category Modal -->
             <div class="modal fade" id="createCategoryModal" tabindex="-1" role="dialog" aria-labelledby="createCategoryLabel" aria-hidden="true">
@@ -133,7 +128,7 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form id="editCategoryForm" action="/admin/category/edit" method="POST">
+                            <form id="editCategoryForm" onsubmit="return false;">
                                 <input type="hidden" id="editCategoryId" name="_id">
                                 <div class="form-group">
                                     <label for="editCategoryName">Category Name</label>
@@ -145,15 +140,13 @@
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="submit" class="btn btn-primary" onclick="submitEditCategory()">Save Changes</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
     <!-- JS Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -164,8 +157,81 @@
     <script src="/admin/assets/js/misc.js"></script>
     <script src="/admin/assets/js/settings.js"></script>
     <script src="/admin/assets/js/todolist.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <script>
+async function submitEditCategory() {
+    console.log('testing')
+    const categoryId = document.getElementById('editCategoryId').value;
+    const categoryName = document.getElementById('editCategoryName').value;
+    const categoryDescription = document.getElementById('editCategoryDescription').value;
+
+    // SweetAlert for confirmation
+    const { value: confirmation } = await Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to save the changes?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, save it!'
+    });
+
+    if (confirmation) {
+        try {
+            // Axios PUT request to update category
+            const response = await axios.put(`/admin/category/edit/${categoryId}`, {
+                name: categoryName,
+                description: categoryDescription
+            });
+            if(response.data.success){
+                Swal.fire({
+                title: 'Success!',
+                text: 'Category updated successfully.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            }else{
+                Swal.fire({
+                title: 'Error!',
+                text: error.response?.data?.message || 'Failed to update the category.',
+                icon: 'error',
+                timer: 1500,
+                
+                showConfirmButton: false
+            });
+
+            }
+            window.location.href=response.data.red
+
+            // SweetAlert success notification
+           
+
+            // Close the modal after success
+            $('#editCategoryModal').modal('hide');
+
+            // Optionally reload the page or update the category list
+            // location.reload(); // Uncomment if you want to reload the page
+        } catch (error) {
+            console.log(error)
+            // SweetAlert error notification
+            Swal.fire({
+                title: 'Error!',
+                text: error.response?.data?.message || 'Failed to update the category.',
+                icon: 'error',
+                timer: 1500,
+                
+                showConfirmButton: false
+            });
+        }
+    }
+}
+
+
+
     $(document).ready(function() {
         $('.edit-button').on('click', function() {
             const categoryId = $(this).data('id');
@@ -179,6 +245,102 @@
             $('#editCategoryModal').modal('show');
         });
     });
+
+
+    //List and Unlist Category
+      // Function to list a category
+      async function listCategory(categoryId) {
+        console.log("testingg...")
+            const { value: confirmation } = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to list this category?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, list it!'
+            });
+
+            if (confirmation) {
+                try {
+                    const response = await axios.patch(`/admin/category/list/${categoryId}`);
+
+                    // Success Alert
+                   
+                    Swal.fire({
+                        title: 'Listed!',
+                        text: 'Category has been listed.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Update the status and buttons dynamically
+                    document.getElementById(`status-${categoryId}`).textContent = 'Listed';
+                    document.getElementById(`status-${categoryId}`).className = 'badge badge-success';
+
+                    // Change button from List to Unlist
+                    const button = document.querySelector(`#category-${categoryId} .btn-info`);
+                    button.textContent = 'Unlist';
+                    button.className = 'btn btn-danger';
+                    button.setAttribute('onclick', `unlistCategory('${categoryId}')`);
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.response?.data?.message || 'Failed to list category.',
+                        icon: 'error',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            }
+        }
+
+        // Function to unlist a category
+        async function unlistCategory(categoryId) {
+            const { value: confirmation } = await Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to unlist this category?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, unlist it!'
+            });
+
+            if (confirmation) {
+                try {
+                    const response = await axios.patch(`/admin/category/unlist/${categoryId}`);
+
+                    // Success Alert
+                    Swal.fire({
+                        title: 'Unlisted!',
+                        text: 'Category has been unlisted.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    // Update the status and buttons dynamically
+                    document.getElementById(`status-${categoryId}`).textContent = 'Unlisted';
+                    document.getElementById(`status-${categoryId}`).className = 'badge badge-danger';
+
+                    // Change button from Unlist to List
+                    const button = document.querySelector(`#category-${categoryId} .btn-danger`);
+                    button.textContent = 'List';
+                    button.className = 'btn btn-info';
+                    button.setAttribute('onclick', `listCategory('${categoryId}')`);
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error!',
+                        text: error.response?.data?.message || 'Failed to unlist category.',
+                        icon: 'error',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            }
+        }
     </script>
 </body>
 </html>

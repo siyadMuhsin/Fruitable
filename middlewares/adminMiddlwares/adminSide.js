@@ -20,12 +20,13 @@ const validateCategory = [
 ];
 
 const adminAuthenticate=(req,res,next)=>{
-    if(req.session && req.session.adminId){
+    // if(req.session && req.session.adminId){
        
-        return next() // User is authenticated, proceed to the next middleware or route handler
-    }else{
-        return res.redirect('/admin/')// User is not authenticated, redirect to login
-    }
+    //     return next() // User is authenticated, proceed to the next middleware or route handler
+    // }else{
+    //     return res.redirect('/admin/')// User is not authenticated, redirect to login
+    // }
+    next()
  
 }
 

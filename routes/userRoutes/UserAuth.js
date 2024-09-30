@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../../controllers/usercontroller/authController');
 const passport=require('passport')
-const {isAuthenticated,isGuest,noCache}=require('../../middlewares/authmiddlwares')
+const {isAuthenticated,isGuest,noCache, isBlocked}=require('../../middlewares/authmiddlwares')
 const shopCtlr=require('../../controllers/usercontroller/shopCtlr')
 
 const { route } = require('moongose/routes');

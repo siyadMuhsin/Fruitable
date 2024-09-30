@@ -112,30 +112,32 @@
                             <!-- Left Side Image Gallery -->
                             <div class="col-lg-2">
                                 <div class="row">
-                                    <!-- Small images for gallery -->
-                                    <div class="col-12 mb-2">
-                                        <img src="/images/<%= product.image1 %>" class="img-fluid small-img" onclick="changeMainImage('/images/<%= product.image1 %>')" alt="Related image 1">
-                                    </div>
-                                    <div class="col-12 mb-2">
-                                        <img src="/images/<%= product.image2 %>" class="img-fluid small-img" onclick="changeMainImage('/images/<%= product.image2 %>')" alt="Related image 2">
-                                    </div>
-                                    <div class="col-12 mb-2">
-                                        <img src="/images/<%= product.image3 %>" class="img-fluid small-img" onclick="changeMainImage('/images/<%= product.image3 %>')" alt="Related image 3">
-                                    </div>
+                                    <!-- Loop through product images array and display each small image for gallery -->
+                                    <% product.images.forEach((image, index) => { %>
+                                        <div class="col-12 mb-2">
+                                            <img src="/images/<%= image %>" class="img-fluid small-img" 
+                                                 onclick="changeMainImage('/images/<%= image %>')" 
+                                                 alt="Related image <%= index + 1 %>">
+                                        </div>
+                                    <% }) %>
                                 </div>
                             </div>
-        
+                    
                             <!-- Main Image Section -->
                             <div class="col-lg-5">
                                 <div class="border rounded position-relative">
                                     <a href="#">
-                                        <img id="mainImage" src="/images/<%= product.image1 %>" class="img-fluid rounded" alt="<%= product.name %> main image" onmousemove="zoom(event)" onmouseleave="hideZoom()">
+                                        <!-- Set the first image from the array as the default main image -->
+                                        <img id="mainImage" src="/images/<%= product.images[0] %>" 
+                                             class="img-fluid rounded" alt="<%= product.name %> main image" 
+                                             onmousemove="zoom(event)" onmouseleave="hideZoom()">
                                     </a>
                                     <!-- Zoomed Image Display -->
-                                    <div id="zoomedImage" class="zoomed-image" style="background-image: url('/images/<%= product.image1 %>');"></div>
+                                    <div id="zoomedImage" class="zoomed-image" 
+                                         style="background-image: url('/images/<%= product.images[0] %>');"></div>
                                 </div>
                             </div>
-        
+                    
                             <!-- Product Details -->
                             <div class="col-lg-5">
                                 <h4 class="fw-bold mb-2"><%= product.name %></h4>
@@ -168,7 +170,6 @@
                             </div>
                         </div>
                     </div>
-        
                     <!-- Review Section -->
                     <div class="col-lg-4 mt-5">
                         <h5 class="fw-bold mb-4">Customer Reviews</h5>
@@ -289,13 +290,13 @@
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../public/User/lib/easing/easing.min.js"></script>
-    <script src="../../public/User/lib/waypoints/waypoints.min.js"></script>
-    <script src="../../public/User/lib/lightbox/js/lightbox.min.js"></script>
-    <script src="../../public/User/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="/User/lib/easing/easing.min.js"></script>
+    <script src="/User/lib/waypoints/waypoints.min.js"></script>
+    <script src="/User/lib/lightbox/js/lightbox.min.js"></script>
+    <script src="/User/lib/owlcarousel/owl.carousel.min.js"></script>
 
     <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+    <script src="/User/main.js"></script>
     </body>
 
 </html>

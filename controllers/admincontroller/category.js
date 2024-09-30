@@ -16,6 +16,7 @@ const getCategories=async(req,res)=>{
 
 // Create a new category
 const createCategory=async (req,res)=>{
+    console.log("hashim")
     console.log(req.body)
     try {
         const {name,description,}=req.body
@@ -24,7 +25,10 @@ const createCategory=async (req,res)=>{
         const exisName=await CategoryDB.findOne({name:nameUpperCase})
         if(exisName){
             console.log('Category name already exists.')
-            return res.send(`
+           
+
+
+return res.send(`
                <html>
     <body>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -43,6 +47,7 @@ const createCategory=async (req,res)=>{
     </body>
 </html>
             `);
+
         }else{
             const newCategory =new CategoryDB({
                 name:nameUpperCase,
@@ -70,11 +75,11 @@ const listCategory =async(req,res)=>{
 
         const {id}=req.params
         await CategoryDB.findByIdAndUpdate(id,{isListed:true})
-        res.redirect('/admin/category') // Redirect back to the category list
+       return res.status(200).json({success:true,message:'Category listed successfully'})
         
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Failed to list category' });
         
     }
 }
@@ -84,11 +89,11 @@ const unListCategory=async (req,res)=>{
     try {
         const {id}=req.params
         await CategoryDB.findByIdAndUpdate(id,{isListed:false})
-        res.redirect('/admin/category')
+       return res.status(200).json({success:true,message:'Category unlisted successfully'})
         
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');
+        res.status(500).json({ message: 'Failed to unlist category' });
         
     }
 }
@@ -97,11 +102,16 @@ const unListCategory=async (req,res)=>{
 const editCategory= async(req,res)=>{
     console.log(req.body);
     try{
-        const {_id,name,description}=req.body
+        const _id=req.params.id
+        const {name,description}=req.body
 
         if(!_id|| _id==''){
-            return res.status(400).send('Invalid category ID');
+            return res.status(400).json({message:'Invalid category ID'});
 
+        }
+        const exisName= await CategoryDB.findOne({name})
+        if(exisName){
+            return res.status(400).json({success:false,message:'Category Name Already Used'});
         }
         
        
@@ -110,9 +120,8 @@ const editCategory= async(req,res)=>{
             name:name.toUpperCase(),
             description
         },{new:true})
-        // Redirect back to the category list with a success message
-        // req.flash('success_msg', 'Category updated successfully.');
-        res.redirect('/admin/category'); // Adjust this path as necessary
+       return res.status(200).json({success:true,message:'Category updated successfully.',red:'/admin/category'})
+       
 
     }catch(error){
         // req.flash('error_msg', 'Error updating category.');

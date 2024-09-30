@@ -22,6 +22,8 @@ const isGuest =(req,res,next)=>{
 }
 
 
+
+
 const noCache=(req,res,next)=>{
     res.set('Cache-Control','no-store');
     next();
@@ -31,5 +33,6 @@ const noCache=(req,res,next)=>{
 module.exports = {
     isAuthenticated,
     isGuest,
-    noCache
+    noCache,
+    
 }

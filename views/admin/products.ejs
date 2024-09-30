@@ -9,15 +9,65 @@
     <link rel="stylesheet" href="/admin/assets/css/style.css">
     <link rel="shortcut icon" href="/admin/assets/images/favicon.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.11.0/Toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Toastify CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/Toastify.min.css">
+
+<!-- Cropper.js CSS -->
+<link  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+
+<!-- Cropper.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.11.0/Toastify.min.js"></script>
     <style>
         .form-control {
-    color: #4A90E2; /* Change this to your desired color */
+            color: #4A90E2;
+        }
+
+        .form-control option {
+            color: #4A90E2;
+        }
+      /* Container to display images in rows with max 3 per row */
+.existing-images-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: flex-start;
 }
 
-/* Change the color of the options */
-.form-control option {
-    color: #4A90E2; /* Change this to your desired color */
+/* Wrapper for each image */
+.existing-image-wrapper {
+    position: relative;
+    width: calc(33.33% - 10px); /* 3 images per row, with a gap of 15px */
+    max-width: 150px; /* Optional, to control max size of each image wrapper */
+}
+
+/* Delete icon (trash) styling */
+.image-delete-icon {
+    position: absolute; /* Position it relative to the wrapper */
+    top: -10px; /* Adjust the position as needed */
+    right: -10px; /* Adjust the position as needed */
+    background-color: white; /* Background to ensure visibility */
+    border-radius: 50%; /* Make it round */
+    padding: 5px; /* Space around the icon */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 1.2rem; /* Size of the icon */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Optional shadow for better visibility */
+}
+
+/* Adjust icon color */
+.image-delete-icon i {
+    color: #dc3545; /* Red color for delete icon */
+}
+
+/* Image styling */
+.existing-image-wrapper img {
+    width: 100%; /* Ensures image fills its wrapper */
+    height: auto;
+    object-fit: cover;
+    border: 1px solid #ddd;
 }
     </style>
 </head>
@@ -26,7 +76,6 @@
         <%- include('_partials/_sidebar') %>
         <div class="container-fluid page-body-wrapper">
             <nav class="navbar p-0 fixed-top d-flex flex-row">
-                
                 <%- include('_partials/_navbar') %>
             </nav>
             <div class="main-panel">
@@ -44,7 +93,7 @@
                                             <th>Category</th>
                                             <th>Price</th>
                                             <th>Stock</th>
-                                            <th>Image</th>
+                                            <th>Images</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
@@ -54,93 +103,100 @@
                                             <tr>
                                                 <td><%= index + 1 %></td>
                                                 <td><%= product.name %></td>
-                                                <!-- Check if category exists before accessing its name -->
                                                 <td><%= product.category ? product.category.name : 'No Category' %></td>
                                                 <td><%= product.price %></td>
                                                 <td><%= product.stock %></td>
-                                                <td><img src="http://localhost:3000/images/<%= product.image %>" alt="Product Image" style="width: 50px; height: 50px;"></td>
-                                                <td><span class="badge <%= product.isListed ? 'badge-success' : 'badge-danger' %>"><%= product.isListed ? 'Listed' : 'Unlisted' %></span></td>
                                                 <td>
-                                                    <button class="btn btn-warning edit-button" data-description="<%= product.description %>" data-id="<%= product._id %>" data-name="<%= product.name %>" data-category="<%= product.category ? product.category._id : '' %>" data-price="<%= product.price %>" data-stock="<%= product.stock %>" data-image="<%= product.image1 %>">
-                                                        Edit
+                                                    <img src="/images/<%= product.images[0] %>" alt="Product Image" style="width: 50px; height: 50px; margin-right: 5px;">
+                                                </td>
+                                                <!-- Status Badge with unique ID -->
+                                               
+                                                <td>
+                                                   
+                                                    <span id="status-badge-<%= product._id %>" class="badge <%= product.isListed ? 'badge-success' : 'badge-danger' %>">
+                                                        <%= product.isListed ? 'Listed' : 'Unlisted' %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-warning edit-button" data-toggle="modal" data-target="#editProductModal" data-id="<%= product._id %>" data-name="<%= product.name %>" data-category="<%= product.category ? product.category._id : '' %>" data-price="<%= product.price %>" data-stock="<%= product.stock %>" data-description="<%= product.description %>" data-images="<%= product.images.join(',') %>" ondblclick="setEditProductValues(this)">Edit</button>
+                                                    <!-- List/Unlist Button with unique ID -->
+                                                    <button id="list-unlist-btn-<%= product._id %>" class="btn <%= product.isListed ? 'btn-danger' : 'btn-info' %>"
+                                                            onclick="<%= product.isListed ? 'unlistProduct' : 'listProduct' %>('<%= product._id %>')">
+                                                        <%= product.isListed ? 'Unlist' : 'List' %>
                                                     </button>
-                                                    <% if (product.isListed) { %>
-                                                        <form class="list-unlist-form" action="/admin/product/unlist/<%= product._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to unlist this product?');">
-                                                            <button class="btn btn-danger">Unlist</button>
-                                                        </form>
-                                                    <% } else { %>
-                                                        <form class="list-unlist-form" action="/admin/product/list/<%= product._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to list this product?');">
-                                                            <button class="btn btn-info">List</button>
-                                                        </form>
-                                                    <% } %>
                                                 </td>
                                             </tr>
                                         <% }) %>
                                     </tbody>
-                                    
                                 </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Create Product Modal -->
-            <div class="modal fade" id="createProductModal" tabindex="-1" role="dialog" aria-labelledby="createProductModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createProductModalLabel">Add New Product</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form id="createProductForm" action="/admin/product/create" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
-                                <div class="form-group">
-                                    <label for="productName">Product Name</label>
-                                    <input type="text" class="form-control" id="productName" name="name" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="productCategory">Category</label>
-                                    <select  class="form-control" id="productCategory" name="category" required>
-                                        <% categories.forEach(category => { %>
-                                            <option value="<%= category._id %>"><%= category.name %></option>
-                                        <% }) %>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="productPrice">Price</label>
-                                    <input type="number" class="form-control" id="productPrice" name="price" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="productStock">Stock</label>
-                                    <input type="number" class="form-control" id="productStock" name="stock" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="productDescription">Description (Minimum 30 words)</label>
-                                    <textarea class="form-control" id="productDescription" name="description" rows="4" required></textarea>
-                                    <small id="descriptionHelp" class="form-text text-muted">Minimum 30 words required.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Upload 3 Images</label>
-                                    <input type="file" class="form-control-file" id="productImage1" name="image1" accept="image/*" required>
-                                    <small id="image1Help" class="form-text text-muted">First image (Only image files are allowed).</small>
-                                    
-                                    <input type="file" class="form-control-file mt-2" id="productImage2" name="image2" accept="image/*" required>
-                                    <small id="image2Help" class="form-text text-muted">Second image (Only image files are allowed).</small>
-            
-                                    <input type="file" class="form-control-file mt-2" id="productImage3" name="image3" accept="image/*" required>
-                                    <small id="image3Help" class="form-text text-muted">Third image (Only image files are allowed).</small>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Create Product</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+            <!-- Create Product Modal -->
+<div class="modal fade" id="createProductModal" tabindex="-1" role="dialog" aria-labelledby="createProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createProductModalLabel">Add New Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            
+            <div class="modal-body">
+                <form id="createProductForm" onsubmit="createProduct(event)">
+                    <!-- Other input fields -->
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" class="form-control" id="productName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Category</label>
+                        <select class="form-control" id="productCategory" name="category" required>
+                            <% categories.forEach(category => { %>
+                                <option value="<%= category._id %>"><%= category.name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productPrice">Price</label>
+                        <input type="number" class="form-control" id="productPrice" name="price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productStock">Stock</label>
+                        <input type="number" class="form-control" id="productStock" name="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productDescription">Description (Minimum 30 words)</label>
+                        <textarea class="form-control" id="productDescription" name="description" rows="4" required></textarea>
+                    </div>
+
+                    <!-- Image upload section with cropping -->
+                    <div class="form-group">
+                        <label>Upload Images</label>
+                        <input type="file" class="form-control-file" id="productImages" accept="image/*" multiple required onchange="startCropperForMultipleImages(event)">
+                    </div>
+
+                    <!-- Cropping Area -->
+                    <div class="form-group" id="cropContainer" style="display:none;">
+                        <label for="cropImagePreview">Crop Image</label>
+                        <img id="cropImagePreview" src="" class="img-fluid" alt="Image Preview">
+                        <button type="button" class="btn btn-primary mt-2" id="cropNextButton" onclick="cropNextImage()">Crop & Next</button>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
             <!-- Edit Product Modal -->
+       
+
+            <!-- test  -->
             <div class="modal fade" id="editProductModal" tabindex="-1" role="dialog" aria-labelledby="editProductModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -151,13 +207,16 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form id="editProductForm" action="/admin/product/edit/" method="POST" enctype="multipart/form-data" onsubmit="return validateEditForm()">
-                                <input type="hidden" id="editProductId" name="id"> <!-- Hidden input for product ID -->
-                                
+                            <form id="editProductForm" onsubmit="submitEditedProduct(event)" enctype="multipart/form-data">
+                                <input type="hidden" id="editProductId" name="id" value="">
+            
+                                <!-- Product Name -->
                                 <div class="form-group">
                                     <label for="editProductName">Product Name</label>
                                     <input type="text" class="form-control" id="editProductName" name="name" required>
                                 </div>
+            
+                                <!-- Category -->
                                 <div class="form-group">
                                     <label for="editProductCategory">Category</label>
                                     <select class="form-control" id="editProductCategory" name="category" required>
@@ -166,113 +225,355 @@
                                         <% }) %>
                                     </select>
                                 </div>
+            
+                                <!-- Price -->
                                 <div class="form-group">
                                     <label for="editProductPrice">Price</label>
                                     <input type="number" class="form-control" id="editProductPrice" name="price" required>
                                 </div>
+            
+                                <!-- Stock -->
                                 <div class="form-group">
                                     <label for="editProductStock">Stock</label>
                                     <input type="number" class="form-control" id="editProductStock" name="stock" required>
                                 </div>
-                                <div class="form-group">
-                                    <label for="editProductDescription">Description (Minimum 30 words)</label>
-                                    <textarea class="form-control" id="editProductDescription" name="description" rows="4" required></textarea>
-                                    <small id="descriptionHelp" class="form-text text-muted">Minimum 30 words required.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label>Upload 3 Images (Optional)</label>
-                                    <input type="file" class="form-control-file" id="editProductImage1" name="image1" accept="image/*">
-                                    <small id="image1Help" class="form-text text-muted">First image (Only image files are allowed).</small>
-                                    
-                                    <input type="file" class="form-control-file mt-2" id="editProductImage2" name="image2" accept="image/*">
-                                    <small id="image2Help" class="form-text text-muted">Second image (Only image files are allowed).</small>
             
-                                    <input type="file" class="form-control-file mt-2" id="editProductImage3" name="image3" accept="image/*">
-                                    <small id="image3Help" class="form-text text-muted">Third image (Only image files are allowed).</small>
+                                <!-- Description -->
+                                <div class="form-group">
+                                    <label for="editProductDescription">Description</label>
+                                    <textarea class="form-control" id="editProductDescription" name="description" rows="4" required></textarea>
                                 </div>
+            
+                                <!-- Existing Images with Remove Option -->
+                                <div class="form-group">
+                                    <label>Existing Images</label>
+                                    <div id="existingImages" class="existing-images-container">
+                                        <% if (products.images && products.images.length > 0) { %>
+                                            <% products.images.forEach((image, index) => { %>
+                                                <div class="existing-image-wrapper" id="image-<%= index %>">
+                                                    <img src="/images/<%= image %>" alt="Product Image" class="img-thumbnail" width="200px" height="200px">
+                                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeImage(<%= index %>)">Remove</button>
+                                                    <input type="hidden" name="existingImages[]" value="<%= image %>">
+                                                </div>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <p>No images available.</p>
+                                        <% } %>
+                                    </div>
+                                </div>
+            
+                                <!-- Upload New Images -->
+                                <div class="form-group">
+                                    <label>Upload Images</label>
+                                    <input type="file" class="form-control-file" id="editProductImages" accept="image/*" multiple required onchange="startCropperForEditImages(event)">
+                                </div>
+            
+                                <!-- Cropping Area -->
+                                <div class="form-group" id="editCropContainer" style="display:none;">
+                                    <label for="editCropImagePreview">Crop Image</label>
+                                    <img id="editCropImagePreview" src="" class="img-fluid" alt="Image Preview">
+                                    <button type="button" class="btn btn-primary mt-2" id="editCropNextButton" onclick="editCropNextImage()">Crop & Next</button>
+                                </div>
+            
                                 <button type="submit" class="btn btn-primary">Update Product</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+    <!-- crop edit images -->
+
+    <!-- Image Crop Modal -->
+<div class="modal fade" id="cropImageModal" tabindex="-1" role="dialog" aria-labelledby="cropImageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cropImageModalLabel">Crop Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" id="cropContainer" style="display:none;">
+                    <label for="cropImagePreview">Crop Image</label>
+                    <img id="cropImagePreview" src="" class="img-fluid" alt="Image Preview">
+                    <button type="button" class="btn btn-primary mt-2" id="cropNextButton" onclick="cropNextImage()">Crop & Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/admin/assets/vendors/js/vendor.bundle.base.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="/admin/assets/js/off-canvas.js"></script>
+<script src="/admin/assets/js/hoverable-collapse.js"></script>
+<script src="/admin/assets/js/misc.js"></script>
+<script src="/admin/assets/js/settings.js"></script>
+<script src="/admin/assets/js/todolist.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+ 
+    <!-- crop edit images -->
+
             
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Toastify JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/Toastify.min.js"></script>
 
            
-    <!-- JS Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/admin/assets/vendors/js/vendor.bundle.base.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    <script src="/admin/assets/js/off-canvas.js"></script>
-    <script src="/admin/assets/js/hoverable-collapse.js"></script>
-    <script src="/admin/assets/js/misc.js"></script>
-    <script src="/admin/assets/js/settings.js"></script>
-    <script src="/admin/assets/js/todolist.js"></script>
 
+            <script src="/admin/admin.js"> </script>
+<!-- edit croper -->
+ <script>
+   let editCropper;  // Cropper.js instance for editing
+let editSelectedFiles = [];  // Array to hold selected files for editing
+let editCroppedImages = [];  // Array to hold cropped images (blobs) for editing
+let editCurrentIndex = 0;    // Track which image is being cropped in edit
+
+// Function to handle the selection of multiple images for editing
+function startCropperForEditImages(event) {
+    editSelectedFiles = event.target.files;  // Get selected files
+    editCurrentIndex = 0;  // Start with the first image
+
+    if (editSelectedFiles && editSelectedFiles.length > 0) {
+        showEditCropperForImage(editCurrentIndex);  // Show the cropper for the first image
+    }
+}
+
+// Function to display the cropper for a specific image in edit
+function showEditCropperForImage(index) {
+    if (index < editSelectedFiles.length) {
+        const file = editSelectedFiles[index];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const imageUrl = e.target.result;
+            const imagePreview = document.getElementById('editCropImagePreview');
+
+            // Show the cropping area and load the selected image
+            document.getElementById('editCropContainer').style.display = 'block';
+            imagePreview.src = imageUrl;
+            
+            // Destroy any existing cropper instance
+            if (editCropper) {
+                editCropper.destroy();
+            }
+
+            // Initialize Cropper.js
+            editCropper = new Cropper(imagePreview, {
+                aspectRatio: 4 / 3,  // Set the aspect ratio (customize as needed)
+                viewMode: 2,
+                autoCropArea: 1,
+            });
+        };
+
+        reader.readAsDataURL(file);  // Read the selected image file
+    } else {
+        // Hide the cropper when all images are processed
+        document.getElementById('editCropContainer').style.display = 'none';
+    }
+}
+
+// Function to crop the current image and move to the next one in edit
+function editCropNextImage() {
+    editCropper.getCroppedCanvas().toBlob((blob) => {
+        editCroppedImages.push(blob);  // Add cropped image to array
+
+        // Move to the next image
+        editCurrentIndex++;
+        if (editCurrentIndex < editSelectedFiles.length) {
+            showEditCropperForImage(editCurrentIndex);  // Show next image in the cropper
+        } else {
+            // All images cropped, hide the cropper
+            document.getElementById('editCropContainer').style.display = 'none';
+            console.log('All images cropped');
+        }
+    });
+}
+
+ </script>
+
+
+
+<!-- create product  -->
+<script>
+   let cropper;  // Cropper.js instance
+let selectedFiles = [];  // Array to hold selected files
+let croppedImages = [];  // Array to hold cropped images (blobs)
+let currentIndex = 0;    // Track which image is being cropped
+
+// Function to handle the selection of multiple images
+function startCropperForMultipleImages(event) {
 
     
+    selectedFiles = event.target.files;  // Get selected files
+    currentIndex = 0;  // Start with the first image
 
-    <script>
-        // Function to validate the form
-         // Function to validate the form
-    function validateForm() {
-        const description = document.getElementById('productDescription').value;
-
-        // Validate description length (at least 30 words)
-        const wordCount = description.split(' ').filter(word => word !== '').length;
-        if (wordCount < 30) {
-            alert('Description must be at least 30 words.');
-            return false;
-        }
-
-        // Validate images
-        const image1 = document.getElementById('productImage1').files[0];
-        const image2 = document.getElementById('productImage2').files[0];
-        const image3 = document.getElementById('productImage3').files[0];
-
-        if (!image1 || !image2 || !image3) {
-            alert('You must upload all 3 images.');
-            return false;
-        }
-
-        // Validate that only image files are uploaded
-        if (!image1.type.startsWith('image/') || !image2.type.startsWith('image/') || !image3.type.startsWith('image/')) {
-            alert('Only image files are allowed.');
-            return false;
-        }
-
-        // If everything is valid
-        return true;
+    if (selectedFiles && selectedFiles.length > 0) {
+        
+        showCropperForImage(currentIndex);  // Show the cropper for the first image
     }
+}
 
-    $(document).ready(function () {
-        // Event listener for the edit buttons
-        $('.edit-button').on('click', function () {
-            // Get product details from the data attributes
-            const productId = $(this).data('id');
-            const productName = $(this).data('name');
-            const productCategory = $(this).data('category');
-            const productDescription=$(this).data('description')
-            const productPrice = $(this).data('price');
-            const productStock = $(this).data('stock');
-            const productImage = $(this).data('image');
+// Function to display the cropper for a specific image
+function showCropperForImage(index) {
+    if (index < selectedFiles.length) {
+     
+        const file = selectedFiles[index];
+        const reader = new FileReader();
 
-            // Populate the edit modal fields
-            $('#editProductId').val(productId);
-            $('#editProductName').val(productName);
-            $('#editProductCategory').val(productCategory);
-           
-            $('#editProductPrice').val(productPrice);
-            $('#editProductStock').val(productStock);
-            $('#editProductDescription').val(productDescription); // Optionally set a default value if needed
+        reader.onload = function(e) {
+            const imageUrl = e.target.result;
+            const imagePreview = document.getElementById('cropImagePreview');
 
-            // Show the edit modal
-            $('#editProductModal').modal('show');
-        });
+            // Show the cropping area and load the selected image
+            document.getElementById('cropContainer').style.display = 'block';
+            imagePreview.src = imageUrl;
+            
+            // Destroy any existing cropper instance
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            // Initialize Cropper.js
+            cropper = new Cropper(imagePreview, {
+                aspectRatio: 4/3,  // Set the aspect ratio (customize as needed)
+                viewMode: 2,
+                autoCropArea: 1,
+            });
+        };
+
+        reader.readAsDataURL(file);  // Read the selected image file
+    } else {
+        // Hide the cropper when all images are processed
+        document.getElementById('cropContainer').style.display = 'none';
+    }
+}
+
+// Function to crop the current image and move to the next one
+function cropNextImage() {
+    cropper.getCroppedCanvas().toBlob((blob) => {
+        croppedImages.push(blob);  // Add cropped image to array
+
+        // Move to the next image
+        currentIndex++;
+        if (currentIndex < selectedFiles.length) {
+            showCropperForImage(currentIndex);  // Show next image in the cropper
+        } else {
+            // All images cropped, hide the cropper
+            document.getElementById('cropContainer').style.display = 'none';
+            console.log('All images cropped');
+        }
     });
-    </script>
-    <script>
-   
-    </script>
+}
+</script>
+<!-- create product  -->
+
+
+
+
+
+            <script>
+
+async function listProduct(productId) {
+    const { value: confirmation } = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to list this product!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, list it!'
+    });
+
+    if (confirmation) {
+        try {
+            const response = await axios.patch(`/admin/product/list/${productId}`);
+            
+            // Show success alert
+            Swal.fire({
+                title: 'Listed!',
+                text: response.data.message,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            // Update button text and class to "Unlist"
+            const button = document.getElementById(`list-unlist-btn-${productId}`);
+            button.textContent = 'Unlist';
+            button.classList.remove('btn-info');
+            button.classList.add('btn-danger');
+            button.setAttribute('onclick', `unlistProduct('${productId}')`);
+
+            // Update status field to "Listed"
+            const statusBadge = document.getElementById(`status-badge-${productId}`);
+            statusBadge.textContent = 'Listed';
+            statusBadge.classList.remove('badge-danger');  // Remove "Unlisted" class
+            statusBadge.classList.add('badge-success');    // Add "Listed" class
+        } catch (error) {
+            Swal.fire({
+                title: 'Error!',
+                text: error.response.data.message || 'Failed to list the product.',
+                icon: 'error',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    }
+}
+
+async function unlistProduct(productId) {
+    const { value: confirmation } = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to unlist this product!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, unlist it!'
+    });
+
+    if (confirmation) {
+        try {
+            const response = await axios.patch(`/admin/product/unlist/${productId}`);
+            
+            // Show success alert
+            Swal.fire({
+                title: 'Unlisted!',
+                text: response.data.message,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            // Update button text and class to "List"
+            const button = document.getElementById(`list-unlist-btn-${productId}`);
+            button.textContent = 'List';
+            button.classList.remove('btn-danger');
+            button.classList.add('btn-info');
+            button.setAttribute('onclick', `listProduct('${productId}')`);
+
+            // Update status field to "Unlisted"
+            const statusBadge = document.getElementById(`status-badge-${productId}`);
+            statusBadge.textContent = 'Unlisted';
+            statusBadge.classList.remove('badge-success');  // Remove "Listed" class
+            statusBadge.classList.add('badge-danger');      // Add "Unlisted" class
+        } catch (error) {
+            Swal.fire({
+                title: 'Error!',
+                text: error.response.data.message || 'Failed to unlist the product.',
+                icon: 'error',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    }
+}
+
+
+            </script>
+    
 </body>
 </html>
