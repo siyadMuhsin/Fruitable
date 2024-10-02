@@ -154,7 +154,11 @@ exports.checkDetails=async (req,res)=>{
             const isMatch = bcrypt.compare(password,check.password)
           if(isMatch){
             if(!check.isBlocked){
-                req.session.user=true;
+
+                req.session.user=check._id
+                console.log(req.session.user)
+
+                
                 res.redirect('/home')
 
             }else{

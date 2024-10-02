@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <title>Fruitables - Vegetable Website Template</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="" name="keywords">
+        <meta content="" name="description">
+
+        <!-- Google Web Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+
+        <!-- Icon Font Stylesheet -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+        <!-- Libraries Stylesheet -->
+        <link href="User/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+        <link href="User/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="User/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Template Stylesheet -->
+        <link href="User/css/style.css" rel="stylesheet">
+        <style>
+            /* Styling matching the cart page */
+        .table-stylish {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 15px;
+        }
+
+        .table-stylish th {
+            color: #555;
+            text-transform: uppercase;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eaeaea;
+        }
+
+        .table-stylish td {
+            background-color: #f9f9f9;
+            border: none;
+            padding: 20px;
+            vertical-align: middle;
+        }
+
+        .product-img {
+            width: 80px;
+            height: 80px;
+            transition: transform 0.3s ease;
+        }
+
+        .product-img:hover {
+            transform: scale(1.1);
+        }
+
+        .item-name, .item-price {
+            font-weight: 500;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .item-price {
+            font-weight: bold;
+            color: #81C408; /* Match with your theme color */
+        }
+
+        .wishlist-item {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .wishlist-item:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Add some subtle shadow effect */
+        .table-stylish td {
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Add hover effect for rows */
+        .wishlist-item:hover td {
+            background-color: #f1f1f1;
+        }
+        </style>
+    </head>
+
+    <body>
+
+        <!-- Spinner Start -->
+      
+        <!-- Spinner End -->
+
+
+        <!-- Navbar start -->
+        <%- include('partials/header') %>
+        <!-- Navbar End -->
+
+
+        <!-- Modal Search Start -->
+        <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content rounded-0">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Search by keyword</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex align-items-center">
+                        <div class="input-group w-75 mx-auto d-flex">
+                            <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
+                            <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Search End -->
+        
+
+        <!-- Single Page Header start -->
+     <!-- Page Header Start -->
+     <div class="container-fluid page-header py-5">
+        <h1 class="text-center text-white display-6">Wishlist</h1>
+        <ol class="breadcrumb justify-content-center mb-0">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Pages</a></li>
+            <li class="breadcrumb-item active text-white">Wishlist</li>
+        </ol>
+    </div>
+    <!-- Page Header End -->
+
+    <!-- Wishlist Page Start -->
+    <div class="container-fluid py-5">
+        <div class="container py-5">
+            <div class="table-responsive">
+                <table class="table table-stylish">
+                    <thead>
+                        <tr>
+                            <th scope="col">Product Image</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wishlistTableBody">
+                        <!-- Wishlist items will be injected here by JavaScript -->
+                        <% wishlistItems.forEach(item => { %>
+                        <tr class="wishlist-item">
+                            <td>
+                                <img src="/images/<%= item.product.images[0] %>" class="img-fluid me-5 rounded-circle product-img" alt="Product Image">
+                            </td>
+                            <td>
+                                <p class="item-name"><%= item.product.name %></p>
+                            </td>
+                            <td>
+                                <p class="item-price"><%= item.product.price %> $</p>
+                            </td>
+                            <td>
+                                <!-- Remove from Wishlist Button -->
+                                <button class="btn btn-md rounded-circle bg-light border remove-btn" onclick="removeFromWishlist('<%= item.product._id %>')">
+                                    <i class="fa fa-times text-danger"></i> 
+                                </button>
+                                <!-- Add to Cart Button -->
+                                <button class="btn border border-secondary rounded-pill px-4 py-2 text-primary" onclick="addToCart('<%= item.product._id %>',1)">
+                                    <i class="fa fa-shopping-cart"></i> Add to Cart
+                                </button>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+       
+
+
+        <!-- Footer Start -->
+        <%- include('partials/foooter') %>
+        <!-- Footer End -->
+
+        <!-- Copyright Start -->
+        <div class="container-fluid copyright bg-dark py-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>Your Site Name</a>, All right reserved.</span>
+                    </div>
+                    <div class="col-md-6 my-auto text-center text-md-end text-white">
+                        <!--/*** This template is free as long as you keep the below author’s credit link/attribution link/backlink. ***/-->
+                        <!--/*** If you'd like to use the template without the below author’s credit link/attribution link/backlink, ***/-->
+                        <!--/*** you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". ***/-->
+                        Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a> Distributed By <a class="border-bottom" href="https://themewagon.com">ThemeWagon</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Copyright End -->
+
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+<script>
+     // Function to remove from wishlist
+     function removeFromWishlist(productId) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to remove this product from your wishlist!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`/wishlist/remove/${productId}`)
+                        .then((response) => {
+                            if (response.data.success) {
+                                Swal.fire(
+                                    'Removed!',
+                                    response.data.message,
+                                    'success'
+                                ).then(() => {
+                                    location.reload(); // Reload page to refresh the wishlist
+                                });
+                            } else {
+                                Swal.fire('Error', response.data.message, 'error');
+                            }
+                        })
+                        .catch((error) => {
+                            Swal.fire('Oops...', 'Something went wrong!', 'error');
+                            console.error('Error removing from wishlist:', error);
+                        });
+                }
+            });
+        }
+</script>
+
+<script>
+  
+</script>
+        
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/User/lib/easing/easing.min.js"></script>
+    <script src="/User/lib/waypoints/waypoints.min.js"></script>
+    <script src="/User/lib/lightbox/js/lightbox.min.js"></script>
+    <script src="/User/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="/User/main.js"></script>
+    </body>
+
+</html>
