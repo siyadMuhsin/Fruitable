@@ -5,6 +5,8 @@ const passport=require('passport')
 const {isAuthenticated,isGuest,noCache, isBlocked}=require('../../middlewares/authmiddlwares')
 const shopCtlr=require('../../controllers/usercontroller/shopCtlr')
 
+const {getCart,addToCart,removeFromCart,updateQuantity}=require('../../controllers/usercontroller/CartController')
+const {addToWishlist,getWishlist,removeFromwishlist}=require('../../controllers/usercontroller/wishlistController')
 const { route } = require('moongose/routes');
 //User Authentication (Signup,login and google authentication)
 router.get('/signup', isGuest,noCache, authController.showSignup);
@@ -24,13 +26,23 @@ router.post('/logout', isAuthenticated, authController.logout);
 router.get('/shop',shopCtlr.showProducts)
 router.get('/product/:id',shopCtlr.productDetail)
 
+//cart page
+router.get('/cart',getCart)
+router.post('/cart/add',addToCart)
+router.post('/cart/remove',removeFromCart)
+router.patch('/cart/update-quantity',updateQuantity)
 
 
+// Wishlist Page
+router.get("/wishlist",getWishlist)
+router.post('/wishlist/add',addToWishlist)
+router.delete('/wishlist/remove/:id',removeFromwishlist)
 
 
-
-
-
+router.get('/profile',(req,res)=>{
+    const user=req.session.user
+    res.render('../views/user/profile',{user})
+})
 
 // Initiate Google OAuth for sign-up
 router.get('/auth/google',isGuest,passport.authenticate('google',{
@@ -40,9 +52,10 @@ router.get('/auth/google',isGuest,passport.authenticate('google',{
 // Callback route after successful authentication
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),
 (req,res)=>{
-    req.session.user=true;
+    req.session.user=req.user._id;
+    console.log(req.session.user)
     // Successful authentication, redirect to home or profile
-    console.log('hommeme')
+
     res.redirect('/home')
 })
 

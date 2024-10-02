@@ -1,5 +1,5 @@
 const passport=require("passport")
-
+const session=require("express-session")
 const GoogleStrategy=require("passport-google-oauth20").Strategy
 const User =require("../../models/usermodel")
 require('dotenv').config()
@@ -27,6 +27,7 @@ async (accessToken,refreshToken,profile,done)=>{
             })
             
             await user.save()
+            
 
             
         }

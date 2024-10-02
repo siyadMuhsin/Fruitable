@@ -151,21 +151,12 @@
                                     <i class="fa fa-star"></i>
                                 </div>
                                 <p class="mb-4"><%= product.description %></p>
-                                <div class="input-group quantity mb-3" style="width: 100px;">
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-minus rounded-circle bg-light border">
-                                            <i class="fa fa-minus"></i>
-                                        </button>
-                                    </div>
-                                    <input type="text" class="form-control form-control-sm text-center border-0" value="1">
-                                    <div class="input-group-btn">
-                                        <button class="btn btn-sm btn-plus rounded-circle bg-light border">
-                                            <i class="fa fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <a href="#" class="btn border border-secondary rounded-pill px-4 py-2 text-primary">
+                         
+                                <a  class="btn border border-secondary rounded-pill px-4 py-2 text-primary" onclick="addToCart('<%= product._id %>',1)">
                                     <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                                </a>
+                                <a onclick="addToWishlist('<%= product._id %>')" class="btn border border-secondary rounded-pill px-2 text-danger">
+                                    <i class="fa fa-heart me-1 text-danger"></i> Wishlist
                                 </a>
                             </div>
                         </div>
@@ -256,7 +247,9 @@
         </div>
         <!-- Copyright End -->
 
+<script>
 
+</script>
 
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
@@ -285,6 +278,12 @@
                 let zoomedImage = document.getElementById("zoomedImage");
                 zoomedImage.style.display = "none";
             }
+
+            
+        </script>
+        <script>
+    
+            
         </script>
         
     <!-- JavaScript Libraries -->
@@ -294,6 +293,8 @@
     <script src="/User/lib/waypoints/waypoints.min.js"></script>
     <script src="/User/lib/lightbox/js/lightbox.min.js"></script>
     <script src="/User/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Template Javascript -->
     <script src="/User/main.js"></script>

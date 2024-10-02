@@ -132,20 +132,128 @@
 
 
     // Product Quantity
-    $('.quantity button').on('click', function () {
-        var button = $(this);
-        var oldValue = button.parent().parent().find('input').val();
-        if (button.hasClass('btn-plus')) {
-            var newVal = parseFloat(oldValue) + 1;
-        } else {
-            if (oldValue > 0) {
-                var newVal = parseFloat(oldValue) - 1;
-            } else {
-                newVal = 0;
-            }
-        }
-        button.parent().parent().find('input').val(newVal);
-    });
+    // $('.quantity button').on('click', function () {
+    //     var button = $(this);
+    //     var oldValue = button.parent().parent().find('input').val();
+    //     if (button.hasClass('btn-plus')) {
+    //         var newVal = parseFloat(oldValue) + 1;
+    //     } else {
+    //         if (oldValue > 0) {
+    //             var newVal = parseFloat(oldValue) - 1;
+    //         } else {
+    //             newVal = 0;
+    //         }
+    //     }
+    //     button.parent().parent().find('input').val(newVal);
+    // });
 
 })(jQuery);
 
+
+// add to cart and add to wishlist functions
+// add to cart 
+async function addToCart(productId, quantity) {
+    try {
+        // Show confirmation dialog using SweetAlert
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to add this item to the cart?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, add it!',
+            cancelButtonText: 'No, cancel!'
+        });
+
+        // Check if the user confirmed the action
+        if (result.isConfirmed) {
+            // Send POST request to add product to cart
+            axios.post('/cart/add', { productId, quantity })
+                .then((response) => {
+                    if (response.data.success) {
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Added to Cart!',
+                            text: response.data.message,
+                        });
+                    } else {
+                        // Show error message if the backend responds with failure
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Add!',
+                            text: response.data.message,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    // Handle error from Axios
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'An error occurred while adding the product to the cart.  Please Login',
+                    });
+                });
+        }
+    } catch (error) {
+        // Handle any unexpected errors
+        console.error('Unexpected error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'An unexpected error occurred.',
+        });
+    }
+}
+
+//add to wishlist
+function addToWishlist(productId) {
+    console.log("Add to Wishlist button clicked");
+
+    // SweetAlert confirmation
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to add this product to your wishlist?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, add it!',
+        cancelButtonText: 'No, cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, make the axios request
+            axios.post('/wishlist/add', {
+                productId: productId
+            })
+            .then((response) => {
+                // Check if the response was successful
+                if (response.data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Wishlist!',
+                        text: response.data.message, // Use the message from the response
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.data.message // Use the error message from the response
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error('Error adding to wishlist:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong. Please try again later.'
+                });
+            });
+        }
+    });
+}
