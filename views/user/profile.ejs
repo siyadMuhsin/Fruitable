@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
     <head>
@@ -223,8 +223,53 @@ h4 {
     font-size: 14px; /* Smaller font for the email */
     color: #777; /* Gray color for email */
 }
+/* Style to make the modal full-height and adjust for padding */
+.modal-dialog {
+    max-width: 800px; /* Set max-width for the modal */
+    width: 100%; /* Ensure it takes the full available width */
+    margin: 1.75rem auto; /* Center the modal vertically */
+}
 
-       </style>
+.modal-content {
+    height: 90vh; /* Set height to fill 90% of the viewport height */
+    overflow-y: auto; /* Enable scrolling inside the modal if content overflows */
+    padding: 20px; /* Add some padding inside the modal */
+}
+
+.modal-header, .modal-footer {
+    background-color: #f8f9fa; /* Optional: Set background color for header and footer */
+    border-bottom: none; /* Remove border from header */
+    border-top: none; /* Remove border from footer */
+}
+
+.modal-body {
+    padding: 20px; /* Add padding to the body */
+}
+
+.form-control {
+    margin-bottom: 10px; /* Add space between form inputs */
+}
+.modal-lg {
+  max-width: 50%; /* Ensures the modal takes up 90% of the screen width */
+}
+
+.form-group label {
+  font-weight: bold; /* Emphasize labels */
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%; /* Ensure all form fields take up the full width of the column */
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.form-check-inline {
+  margin-right: 20px; /* Adds spacing between address type options */
+}
+
+
+       </style> 
     </head>
 
     <body>
@@ -272,8 +317,8 @@ h4 {
                 <!-- user profile section -->
                 <div class="user-profile text-center mb-4">
                     <i class="fas fa-user-circle" style="font-size: 50px; color: #81C408;"></i>
-                    <h5 class="mt-2">Siyad Muhsin K</h5>
-                    <p class="mb-0">siyad@gmail.com</p>
+                    <h5 class="mt-2"><%= userDetails.username %></h5>
+                    <p class="mb-0"><%= userDetails.email %></p>
                 </div>
                 <!-- Nav tabs -->
                 <div class="dashboard_tab_button" data-aos="fade-up" data-aos-delay="0">
@@ -296,60 +341,90 @@ h4 {
                 <!-- Tab panes -->
                 <div class="tab-content dashboard_content" data-aos="fade-up" data-aos-delay="200">
                     <!-- Personal Details Tab -->
-                  <!-- Personal Details Tab -->
-<div class="tab-pane fade show active" id="personal-details">
-    <h4>
-        <i class="fas fa-user-circle" style="font-size: 40px; color: #81C408;"></i> 
-        Personal Details
-    </h4>
-    <div class="personal-details-content">
-        <table class="table table-bordered">
-            <tbody>
-                <tr>
-                    <td><strong>Name:</strong></td>
-                    <td>Ashwani Kumar</td>
-                </tr>
-                <tr>
-                    <td><strong>Email:</strong></td>
-                    <td>ashwani.kumar@example.com</td>
-                </tr>
-                <tr>
-                    <td><strong>Mobile:</strong></td>
-                    <td>+1 234 567 8901</td>
-                </tr>
-                <tr>
-                    <td><strong>Address:</strong></td>
-                    <td>1234, Sector 23, New Delhi, 110001</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="save_button mt-3">
-        <a href="#" class="btn btn-md btn-black-default-hover">Edit</a>
-    </div>
-</div>
+                    <div class="tab-pane fade show active" id="personal-details">
+                        <h4><i class="fas fa-user-circle" style="font-size: 40px; color: #81C408;"></i> Personal Details</h4>
+                        
+                        <!-- View Mode: Display the personal details -->
+                        <div id="details-view">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Name:</strong></td>
+                                        <!-- Display the user's name dynamically -->
+                                        <td><%= userDetails.username %></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Email:</strong></td>
+                                        <!-- Display the user's email dynamically -->
+                                        <td><%= userDetails.email %></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Mobile:</strong></td>
+                                        <!-- Display the user's mobile number dynamically -->
+                                        <td><%= userDetails.phone %></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="save_button mt-3">
+                                <a href="#" class="btn btn-md btn-black-default-hover" onclick="toggleEditForm()">Edit</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Edit Mode: Display the form for editing personal details -->
+                        <div id="details-edit" style="display: none;">
+                            <form onsubmit="editDetails(event)">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Name:</strong></td>
+                                            <td>
+                                                <input type="text" id="username" value="<%= userDetails.username %>" class="form-control">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Email:</strong></td>
+                                            <td>
+                                                <input type="email" id="email" value="<%= userDetails.email %>" class="form-control" readonly>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Mobile:</strong></td>
+                                            <td>
+                                                <input type="text" id="phone" class="form-control" value="<%= userDetails.phone %>" pattern="\d{10}" maxlength="10" required>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="save_button mt-3">
+                                    <button type="submit" class="btn btn-md btn-black-default-hover">Save</button>
+                                    <a style="background-color: rgb(40, 101, 255);" class="btn btn-md " onclick="toggleEditForm()">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                     
                     <!-- Change Password Tab -->
                     <div class="tab-pane fade" id="change-password">
                         <h4>Change Password</h4>
                         <div class="login_form_container">
                             <div class="account_login_form">
-                                <form action="#">
+                                <form action="#" onsubmit="changePassword(event)">
                                     <div class="default-form-box mb-20">
                                         <label>Current Password</label>
-                                        <input type="password" name="current-password">
+                                        <input type="password" name="current-password" id="current-password" required>
                                     </div>
                                     <div class="default-form-box mb-20">
-                                        <label>New Password</label>
-                                        <input type="password" name="new-password">
+                                        <label>New Password (min 6 characters)</label>
+                                        <input type="password" name="new-password" id="new-password" required>
+                                        <small id="new-password-error" style="color: red; display: none;">Password must be at least 6 characters long</small>
                                     </div>
                                     <div class="default-form-box mb-20">
                                         <label>Confirm New Password</label>
-                                        <input type="password" name="confirm-new-password">
+                                        <input type="password" name="confirm-new-password" id="confirm-new-password" required>
+                                        <small id="confirm-password-error" style="color: red; display: none;">Passwords do not match</small>
                                     </div>
                                     <div class="save_button mt-3">
-                                        <button class="btn btn-md btn-black-default-hover"
-                                            type="submit">Save</button>
+                                        <button class="btn btn-md btn-black-default-hover" type="submit">Save</button>
                                     </div>
                                 </form>
                             </div>
@@ -391,165 +466,256 @@ h4 {
                     </div>
 
                     <!-- Addresses Tab -->
-                   <!-- Addresses Tab -->
-<div class="tab-pane fade" id="address">
-    <h4>Addresses</h4>
-    <p>The following addresses will be used on the checkout page by default.</p>
+                    <div class="tab-pane fade" id="address">
+                        <h4>Addresses</h4>
+                        <p>The following addresses will be used on the checkout page by default.</p>
 
-    <!-- Billing Address -->
-    <div class="address-section">
-        <h5>Billing Address</h5>
-        <address>
-            <p><strong>Name:</strong> Ashwani Kumar</p>
-            <p><strong>Address:</strong> 1234, Sector 23, New Delhi, 110001</p>
-            <p><strong>Phone:</strong> +1 234 567 8901</p>
-            <p><strong>Email:</strong> ashwani.kumar@example.com</p>
-        </address>
-        <div class="save_button mt-3">
-            <a href="#" class="btn btn-md btn-black-default-hover">Edit</a>
-        </div>
-    </div>
+                        <!-- Add Address Button -->
+                        <div class="add-address-button mb-4">
+                            <a id="add-address-btn" data-bs-toggle="modal" data-bs-target="#addAddressModal"
+                                class="btn border border-secondary rounded-pill px-4 py-2 text-primary">
+                                <i class="fa fa-address me-2 text-primary"></i> Add Address
+                            </a>
+                        </div>
 
-    <hr>
+                        <!-- Address List -->
+                        <hr>
+                        <div id="address-list">
+                            <% addresses.forEach(function(address, index) { %>
+                                <div class="address-section">
+                                    <h5>Shipping Address <%= index + 1 %></h5>
+                                    <address>
+                                        <p><strong>Name:</strong> <%= address.name %></p>
+                                        <p><strong>Address:</strong> <%= address.address %>, <%= address.locality %>, <%= address.district %>, <%= address.pincode %></p>
+                                        <p><strong>Phone:</strong> <%= address.phone %></p>
+                                    </address>
+                                    <div class="save_button mt-3">
+                                        <a class="btn btn-md btn-black-default-hover editAddressBtn" 
+                                           data-bs-toggle="modal" data-bs-target="#editAddressModal"
+                                           data-id="<%= address._id %>" 
+                                           data-name="<%= address.name %>"
+                                           data-phone="<%= address.phone %>"
+                                           data-address="<%= address.address %>"
+                                           data-locality="<%= address.locality %>"
+                                           data-district="<%= address.district %>"
+                                           data-pincode="<%= address.pincode %>"
+                                           data-email="<%= address.email %>"
+                                           data-state="<%= address.state %>"
+                                           data-country="<%= address.country %>">Edit</a>
+                                        <a style="background-color: red;" class="btn btn-md btn-danger deleteAddressBtn" onclick="deleteAddress('<%= address._id %>')">Delete</a>
+                                    </div>
+                                    <hr>
+                                </div>
+                            <% }); %>
+                        </div>
+                    </div>
 
-    <!-- Shipping Address 1 -->
-    <div class="address-section">
-        <h5>Shipping Address 1</h5>
-        <address>
-            <p><strong>Name:</strong> Ashwani Kumar</p>
-            <p><strong>Address:</strong> 5678, Park Lane, Mumbai, 400001</p>
-            <p><strong>Phone:</strong> +1 987 654 3210</p>
-            <p><strong>Email:</strong> ashwani.kumar@example.com</p>
-        </address>
-        <div class="save_button mt-3">
-            <a href="#" class="btn btn-md btn-black-default-hover">Edit</a>
-        </div>
-    </div>
-
-    <hr>
-
-    <!-- Shipping Address 2 -->
-    <div class="address-section">
-        <h5>Shipping Address 2</h5>
-        <address>
-            <p><strong>Name:</strong> Ashwani Kumar</p>
-            <p><strong>Address:</strong> 9101, Green Street, Bangalore, 560001</p>
-            <p><strong>Phone:</strong> +1 765 432 1098</p>
-            <p><strong>Email:</strong> ashwani.kumar@example.com</p>
-        </address>
-        <div class="save_button mt-3">
-            <a href="#" class="btn btn-md btn-black-default-hover">Edit</a>
-        </div>
-    </div>
-</div>
-
-
-<!-- Wallet Tab -->
-<div class="tab-pane fade" id="wallet">
-    <h4>
-        <i class="fas fa-wallet" style="font-size: 40px; color: #81C408;"></i> 
-        My Wallet
-    </h4>
-    
-    <!-- Wallet Balance -->
-    <div class="wallet-balance">
-        <h5>Current Balance: <span style="color: #81C408;">$150.00</span></h5>
-    </div>
-
-    <!-- Transaction History -->
-    <h5>Transaction History</h5>
-    <div class="table_page table-responsive">
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>October 1, 2024</td>
-                    <td>Order #1001 Payment</td>
-                    <td>-$25.00</td>
-                    <td><span class="success">Completed</span></td>
-                </tr>
-                <tr>
-                    <td>September 20, 2024</td>
-                    <td>Refund for Order #1002</td>
-                    <td>+$15.00</td>
-                    <td><span class="success">Completed</span></td>
-                </tr>
-                <tr>
-                    <td>September 15, 2024</td>
-                    <td>Order #1003 Payment</td>
-                    <td>-$30.00</td>
-                    <td><span class="success">Completed</span></td>
-                </tr>
-                <tr>
-                    <td>September 5, 2024</td>
-                    <td>Deposit</td>
-                    <td>+$100.00</td>
-                    <td><span class="success">Completed</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Add Funds Button -->
-    <div class="add-funds mt-3">
-        <a href="#" class="btn btn-md btn-black-default-hover">Add Funds</a>
-    </div>
-</div>
-
-
-
-
-
-
+                    <!-- Wallet Tab -->
+                    <div class="tab-pane fade" id="wallet">
+                        <h4><i class="fas fa-wallet" style="font-size: 40px; color: #81C408;"></i> My Wallet</h4>
+                        <!-- Wallet Balance -->
+                        <div class="wallet-balance">
+                            <h5>Current Balance: <span style="color: #81C408;">$150.00</span></h5>
+                        </div>
+                        <!-- Transaction History -->
+                        <h5>Transaction History</h5>
+                        <div class="table_page table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>October 1, 2024</td>
+                                        <td>Order #1001 Payment</td>
+                                        <td>-$25.00</td>
+                                        <td><span class="success">Completed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>September 20, 2024</td>
+                                        <td>Refund for Order #1002</td>
+                                        <td>+$15.00</td>
+                                        <td><span class="success">Completed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>September 15, 2024</td>
+                                        <td>Order #1003 Payment</td>
+                                        <td>-$30.00</td>
+                                        <td><span class="pending">Pending</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
                 </div>
             </div>
         </div>
     </div>
-</div> <!-- ...:::: End Account Dashboard Section:::... -->
+</div>
+
+ <!-- ...:::: End Account Dashboard Section:::... -->
 
 
 
+<!--  -->
+<!-- Modal for Adding Address -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAddressForm" onsubmit="submitAddressForm(event)">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Full Name" pattern="[A-Za-z]+" title="Name should contain only characters with no spaces." required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="phone">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Number" pattern="\d{10}" title="Phone number must  be 10 digits." required>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        
+                        <div class="form-group col-md-6">
+                            <label for="pincode">Pin Code</label>
+                            <input type="text" class="form-control" id="pincode" name="pincode" pattern="\d{6}" placeholder="6-digit PIN code" title="PIN code must be 6 digits." required>
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="locality">Locality</label>
+                            <input type="text" class="form-control" id="locality" name="locality" placeholder="Locality" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="landmark">Landmark (Optional)</label>
+                            <input type="text" class="form-control" id="landmark" name="landmark" placeholder="Landmark">
+                        </div>
+                    </div>
+                
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <label for="district">District</label>
+                            <input type="text" class="form-control" id="district" name="district" placeholder="District" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="state">State</label>
+                            <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="country">Country</label>
+                            <input type="text" class="form-control" id="country" name="country" placeholder="Country" required>
+                        </div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="2" placeholder="Address Line" required></textarea>
+                    </div>
+                
+                    <div class="form-group">
+                        <label>Address Type</label><br>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="addressType" id="home" value="Home" required>
+                            <label class="form-check-label" for="home">Home</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="addressType" id="office" value="Office">
+                            <label class="form-check-label" for="office">Office</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="addressType" id="other" value="Other">
+                            <label class="form-check-label" for="other">Other</label>
+                        </div>
+                    </div>
+                
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary py-3 px-5">Add Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 
+<!-- Edit Address form modal -->
+<!-- Edit Address Modal -->
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAddressForm" onsubmit="submitEditAddressForm(event)">
+                    <input type="hidden" id="editAddressId" name="addressId">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editName">Name</label>
+                            <input type="text" class="form-control" id="editName" name="editName" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="editPhone">Phone Number</label>
+                            <input type="text" class="form-control" id="editPhone" name="editPhone" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editLocality">Locality</label>
+                            <input type="text" class="form-control" id="editLocality" name="editLocality" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="editPincode">Pin Code</label>
+                            <input type="text" class="form-control" id="editPincode" name="editPincode" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editDistrict">District</label>
+                            <input type="text" class="form-control" id="editDistrict" name="editDistrict" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editState">State</label>
+                            <input type="text" class="form-control" id="editState" name="editState" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="editCountry">Country</label>
+                            <input type="text" class="form-control" id="editCountry" name="editCountry" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Address</label>
+                        <textarea class="form-control" id="editAddress" name="editAddress" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary py-3 px-5">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+            
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            
 
 
          <!-- Footer Start -->
@@ -573,14 +739,129 @@ h4 {
              </div>
          </div>
          <!-- Copyright End -->
+
+
+
+
  <script>
- 
- 
+    // Function to populate modal with the clicked address data
+    document.querySelectorAll('.editAddressBtn').forEach(button => {
+        button.addEventListener('click', function () {
+            // Retrieve data-* attributes from the clicked button
+            const addressId = this.dataset.id;
+            const name = this.dataset.name;
+            const phone = this.dataset.phone;
+            const address = this.dataset.address;
+            const locality = this.dataset.locality;
+            const district = this.dataset.district;
+            const pincode = this.dataset.pincode;
+            const email = this.dataset.email;
+            const state = this.dataset.state;
+            const country = this.dataset.country;
+
+            // Populate modal form fields with the data
+            document.getElementById('editAddressId').value = addressId; // Add this line
+            document.getElementById('editName').value = name;
+            document.getElementById('editPhone').value = phone;
+            document.getElementById('editAddress').value = address;
+            document.getElementById('editLocality').value = locality;
+            document.getElementById('editDistrict').value = district;
+            document.getElementById('editPincode').value = pincode;
            
- 
- 
+            document.getElementById('editState').value = state;
+            document.getElementById('editCountry').value = country;
+
+            // Optionally, set the form action URL or hidden input if needed
+            // document.getElementById('editAddressForm').action = `/address/update-address/${addressId}`;
+        });
+    });
  </script>
- 
+
+<script>
+  function changePassword(event) {
+    event.preventDefault();
+
+    console.log('Change password initiated');
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-new-password').value;
+    console.log(currentPassword, newPassword, confirmPassword);
+
+    document.getElementById('new-password-error').style.display = 'none';
+    document.getElementById('confirm-password-error').style.display = 'none';
+
+    if (newPassword.length < 6) {
+        document.getElementById('new-password-error').style.display = 'block';
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        document.getElementById('confirm-password-error').style.display = 'block';
+        return;
+    }
+
+    // Confirmation before submitting
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to change your password?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, change it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const data = {
+                currentPassword,
+                newPassword,
+                confirmPassword
+            };
+
+            axios.post('/profile/changePassword', data)
+                .then(response => {
+                    // Success message
+                    if (response.data.success) {
+                       Swal.fire({
+                           icon: 'success',
+                           title: 'Success!',
+                           text: response.data.message || 'Password changed successfully!',
+                           showConfirmButton: false,
+                           timer: 2000,
+                           customClass: {
+                               confirmButton: 'btn btn-success' // Add your custom class here
+                           }
+                       }).then(() => {
+                           // Optionally reload the page or redirect
+                           window.location.reload(); // Reload to show updated details
+                       });
+                   } else {
+                       Swal.fire({
+                           icon: 'error',
+                           title: 'Oops!',
+                           text: response.data.message || 'There was a problem changing your password. Please try again.',
+                           showConfirmButton: true,
+                           customClass: {
+                               confirmButton: 'btn btn-danger' // Add your custom class here
+                           }
+                       });
+                   }
+                                       
+                })
+                .catch(error => {
+                    // Error message
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: error.response.data.message || 'There was an error changing your password.',
+                        customClass: {
+                            confirmButton: 'btn btn-danger' // Add your custom class here
+                        }
+                    });
+                });
+        }
+    });
+}
+</script>
  
          <!-- Back to Top -->
          <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
@@ -595,11 +876,17 @@ h4 {
      <script src="User/lib/owlcarousel/owl.carousel.min.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
- 
+ <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
+<script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
  
  
      <!-- Template Javascript -->
      <script src="/User/main.js"></script>
+     <script src="/User/profile.js"></script>
      </body>
  
- </html>
+ </html> -->

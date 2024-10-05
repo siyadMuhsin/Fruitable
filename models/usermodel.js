@@ -21,6 +21,10 @@ const userSchema =new moongose.Schema({
         unique: true
       },
     password: String,
+    phone:{
+      type:String
+
+    },
 
     profilePhoto: {
         type: String,  // Store the photo URL as a string

@@ -8,7 +8,12 @@ const shopCtlr=require('../../controllers/usercontroller/shopCtlr')
 const {getCart,addToCart,removeFromCart,updateQuantity}=require('../../controllers/usercontroller/CartController')
 const {addToWishlist,getWishlist,removeFromwishlist}=require('../../controllers/usercontroller/wishlistController')
 const { route } = require('moongose/routes');
-//User Authentication (Signup,login and google authentication)
+
+const {getProfile,addAddress,editAddress,deleteAddress,editDetails,changePassword}=require('../../controllers/usercontroller/AddressController')
+
+
+
+
 router.get('/signup', isGuest,noCache, authController.showSignup);
 router.post('/request-otp', isGuest, noCache,authController.requestOtp); // Optional: only if you want to restrict this too
 router.post('/verify-otp', isGuest,noCache, authController.verifyOtp); // Optional
@@ -16,35 +21,41 @@ router.post('/resendOTP',isGuest,noCache,authController.resendOTP)
 router.get('/login', isGuest,noCache, authController.userLogin);
 router.post('/login', isGuest, authController.checkDetails);
 
-
+router.get('/forgot-password',authController.forgetPassword)
+router.post('/reset-password',authController.resetPassword)
 //Home page Rendering
 router.get('/',authController.basic)
 router.get('/home',noCache, authController.getHome); 
 router.post('/logout', isAuthenticated, authController.logout);
 
 //Products Shop 
-router.get('/shop',shopCtlr.showProducts)
-router.get('/product/:id',shopCtlr.productDetail)
+router.get('/shop',isBlocked,shopCtlr.showProducts)
+router.get('/product/:id',isBlocked,shopCtlr.productDetail)
 
 //cart page
-router.get('/cart',getCart)
+router.get('/cart',isBlocked,getCart)
 router.post('/cart/add',addToCart)
 router.post('/cart/remove',removeFromCart)
 router.patch('/cart/update-quantity',updateQuantity)
 
 
 // Wishlist Page
-router.get("/wishlist",getWishlist)
+router.get("/wishlist",isBlocked,getWishlist)
 router.post('/wishlist/add',addToWishlist)
 router.delete('/wishlist/remove/:id',removeFromwishlist)
 
+//Profile Page Functionality
+router.get('/profile',isBlocked,getProfile)
+router.post('/address/add',deleteAddress)
 
-router.get('/profile',(req,res)=>{
-    const user=req.session.user
-    res.render('../views/user/profile',{user})
-})
+//personal details edit
+router.patch('/profile/edit',editDetails)
 
-// Initiate Google OAuth for sign-up
+//Change Password
+router.post('/profile/changePassword',changePassword)
+
+
+
 router.get('/auth/google',isGuest,passport.authenticate('google',{
     scope:['profile','email']  // Requesting profile and email from Google
 }))

@@ -15,11 +15,13 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.basic=async (req,res)=>{
+    
     res.redirect('/home')
 }
 ,
 exports.getHome=async (req,res)=>{
     const user=req.session.user
+    console.log('session user id ',user)
 
    res.render('../views/user/index',{user});
 }
@@ -128,12 +130,13 @@ exports.verifyOtp = async (req, res) => {
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
-    res.redirect('/home')
+    res.redirect('/login')
 };
 
 
 //login 
 exports.userLogin=async (req,res)=>{  
+    console.log("login getting")
     // if(req.session.user){    
     //     res.redirect('/home')   
     // }else{
@@ -144,6 +147,7 @@ exports.userLogin=async (req,res)=>{
 
 //Check login Detailes..
 exports.checkDetails=async (req,res)=>{
+    console.log('check details')
     const{email,password}=req.body
     try{
         const check= await User.findOne({email});
@@ -151,7 +155,8 @@ exports.checkDetails=async (req,res)=>{
             res.render('../views/user/userLogin',{msg:'Invalid Email or Password'})
         }else{
          
-            const isMatch = bcrypt.compare(password,check.password)
+            const isMatch = await bcrypt.compare(password,check.password)
+           
           if(isMatch){
             if(!check.isBlocked){
 
@@ -162,6 +167,7 @@ exports.checkDetails=async (req,res)=>{
                 res.redirect('/home')
 
             }else{
+
                 return res.send(`
                     <html>
          <body>
@@ -195,12 +201,39 @@ exports.checkDetails=async (req,res)=>{
 }
 
 //logout 
-exports.logout=async (req,res)=>{
+exports.logout = async (req, res) => {
+    console.log("logout")
+   
     try {
-        req.session.user=false
-        res.redirect('/home')
+        req.session.destroy((err) => {
+            console.log("distroyed")
+            if (err) {
+                console.error("Error during logout:", err);
+                return res.status(500).send("Internal Server Error");
+            }
+            res.redirect('/home'); 
+        });
     } catch (error) {
-        console.error("Error during logout:", err);
+        console.error("Error during logout:", error);
         res.status(500).send("Internal Server Error");
+    }
+};
+
+exports.forgetPassword=(req,res)=>{
+    console.log("forget password get")
+    res.render('../views/User/forgetPassword')
+}
+
+exports.resetPassword=async (req,res)=>{
+    const {email}=req.body
+
+    try {
+        const user= await User.findOne({email})
+        if(!user){
+            return res.json({success:false,message:'User with this email does not exist.'})
+        }
+        
+    } catch (error) {
+        
     }
 }
