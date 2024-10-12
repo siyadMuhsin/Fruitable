@@ -5,7 +5,7 @@ const moongose = require('mongoose');
 const app = express();
 const passport=require('passport')
 const morgan = require("morgan")
-const bodyParser=require("body-parser")
+
 require('./controllers/usercontroller/googleAuth')// Ensure Passport config is loaded
 
 // Session middleware
@@ -16,13 +16,12 @@ app.use(session({
 }));
 
 
-app.use(bodyParser.urlencoded({extended:true}))
+
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static('public'));
 app.use(express.static('uploads'));
-// Connect to MongoDB
-const moongoUrl='mongodb://localhost:27017/fruitable';
-moongose.connect(moongoUrl)
+const mongoUrl=process.env.MONGO_URL
+moongose.connect(mongoUrl)
 .then(()=>{
     console.log("mongodb connected")
 })
@@ -31,19 +30,17 @@ moongose.connect(moongoUrl)
 })
 
 
-// Set the view engine to EJS
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 
 app.use(express.json())
-// Middleware for parsing request bodies
 app.use(express.urlencoded({ extended: true }));
 
-// Initialize Passport
+
 app.use(passport.initialize());
 app.use(passport.session());
-
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 // Import and use routes

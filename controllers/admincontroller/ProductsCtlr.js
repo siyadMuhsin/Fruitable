@@ -9,11 +9,32 @@ const { console } = require("inspector")
 
 
 const getProducts=async (req,res)=>{
-    
-    const categories= await CategoryDB.find()
-    const products = await ProducDB.find().populate('category'); // Populating the category
 
-    res.render('../views/admin/products',{products,categories})  
+    const page= parseInt(req.query.page)||1
+    const limit=8
+    const skip= (page -1)* limit
+   try {
+    console.log("ivade")
+    const trotalProducts= await ProducDB.countDocuments()
+    const totalPages=Math.ceil(trotalProducts/limit)
+    const products= await ProducDB.find()
+    .populate('category')
+    .skip(skip)
+    .limit(limit)
+
+    res.render('../views/admin/products',{
+        products,
+        categories,
+        currentPage:page,
+        totalPages
+    })
+    
+   } catch (error) {
+    console.log(error)
+    res.status(500).send(error);
+    
+   }
+     
 }
 
 const listProduct=async(req,res)=>{

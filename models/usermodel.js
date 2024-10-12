@@ -35,6 +35,12 @@ const userSchema =new moongose.Schema({
         default:false
 
       },
+      resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
 
     otp: String,
     otpExpires: Date,

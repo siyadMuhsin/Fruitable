@@ -32,7 +32,7 @@ if (!phoneRegex.test(phone)) {
     phoneInput.style.borderColor = 'green'; // Change border color to green
 }
 
-// Create the payload for the Axios request
+
 const data = {
     username: username,
     phone: phone
@@ -84,32 +84,74 @@ Swal.fire({
 //address submission
 
 function submitAddressForm(event) {
-    event.preventDefault(); // Prevent default form submission behavior
+    event.preventDefault();
 
-// validation 
-const name = document.getElementById('name').value.trim();
-        const phone = document.getElementById('phone').value;
-        const namePattern = /^[A-Za-z]+$/;
-        const phonePattern = /^\d{10}$/;
+    // Get form field values
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const pincode = document.getElementById('pincode').value.trim();
+    const locality = document.getElementById('locality').value.trim();
+    const district = document.getElementById('district').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const country = document.getElementById('country').value.trim();
+    const address = document.getElementById('address').value.trim();
+    const addressType = document.querySelector('input[name="addressType"]:checked');
 
-        // Validate name
-        if (!namePattern.test(name)) {
-            alert("Name should contain only characters with no spaces.");
-            return false;
-        }
+    // Regex patterns for validation
+    const namePattern = /^[A-Za-z]+$/;
+    const phonePattern = /^\d{10}$/;
+    const pincodePattern = /^\d{6}$/;
 
-     
-        // if (!phonePattern.test(phone)) {
-        //     alert("Phone number must be exactly 101 digits.");
-        //     return ;
-        // }
-    // Get the form element
+    // Validate name
+    if (!namePattern.test(name)) {
+        alert("Name should contain only characters with no spaces.");
+        return false;
+    }
+
+    // Validate phone number
+    if (!phonePattern.test(phone)) {
+        alert("Phone number must be exactly 10 digits.");
+        return false;
+    }
+
+    // Validate pincode
+    if (!pincodePattern.test(pincode)) {
+        alert("PIN code must be exactly 6 digits.");
+        return false;
+    }
+
+    // Validate required fields
+    if (!locality) {
+        alert("Locality is required.");
+        return false;
+    }
+    if (!district) {
+        alert("District is required.");
+        return false;
+    }
+    if (!state) {
+        alert("State is required.");
+        return false;
+    }
+    if (!country) {
+        alert("Country is required.");
+        return false;
+    }
+    if (!address) {
+        alert("Address is required.");
+        return false;
+    }
+
+    // Validate address type selection
+    if (!addressType) {
+        alert("Please select an address type.");
+        return false;
+    }
+
+    // Proceed to form submission if validation is successful
     const addAddressForm = document.getElementById('addAddressForm');
-
-    // Create a FormData object from the form
     const formData = new FormData(addAddressForm);
 
-    // Create an object to hold the form data
     const addressData = {};
     formData.forEach((value, key) => {
         addressData[key] = value;
@@ -124,8 +166,8 @@ const name = document.getElementById('name').value.trim();
         confirmButtonText: 'Yes, add it!',
         cancelButtonText: 'No, cancel!',
         customClass: {
-            confirmButton: 'btn btn-success', // Success button styling
-            cancelButton: 'btn btn-danger' // Cancel button styling
+            confirmButton: 'btn btn-success', 
+            cancelButton: 'btn btn-danger' 
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -136,47 +178,41 @@ const name = document.getElementById('name').value.trim();
                         // SweetAlert success notification
                         Swal.fire({
                             title: 'Success!',
-
                             text: 'Address added successfully!',
                             icon: 'success',
                             confirmButtonText: 'OK',
                             customClass: {
-                                confirmButton: 'btn btn-success' // Add your custom button class
+                                confirmButton: 'btn btn-success' 
                             }
                         }).then(() => {
                             document.querySelector('#addAddressModal .btn-close').click(); // Close the modal
-                            // Optionally, refresh the address list or update UI
-                            location.reload()
+                            location.reload();
                         });
                     } else {
-                        // SweetAlert error notification
                         Swal.fire({
                             title: 'Error!',
                             text: 'Failed to add address. Please try again.',
                             icon: 'error',
-                            confirmButtonText: 'OK',
-                            customClass: {
-                                confirmButton: 'btn btn-danger' // Add your custom button class
-                            }
+                            showConfirmButton: false,
+                            timer: 1500
                         });
                     }
                 })
                 .catch(error => {
-                    console.error('Error adding address:', error);
-                    // SweetAlert server error notification
                     Swal.fire({
                         title: 'Server Error!',
                         text: 'Please try again later.',
                         icon: 'error',
                         confirmButtonText: 'OK',
                         customClass: {
-                            confirmButton: 'btn btn-danger' // Add your custom button class
+                            confirmButton: 'btn btn-danger'
                         }
                     });
                 });
         }
     });
 }
+
 
 
 
@@ -227,14 +263,14 @@ formData.forEach((value, key) => {
                             title: 'Success!',
                             text: 'Address editted  successfully!',
                             icon: 'success',
-                            confirmButtonText: 'OK',
-                            customClass: {
-                                confirmButton: 'btn btn-success' // Add your custom button class
-                            }
+                            showConfirmButton: false,
+                            timer: 1500
+                            
                         }).then(() => {
                             document.querySelector('#addAddressModal .btn-close').click(); // Close the modal
                             // Optionally, refresh the address list or update UI
                             $('#editAddressModal').modal('hide');
+                            location.reload()
                         });
                     } else {
                         // SweetAlert error notification

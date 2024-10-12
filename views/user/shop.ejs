@@ -30,7 +30,99 @@
     </head>
 
     <body>
+<style>
+    /* Search Bar Styles */
+.search-container {
+    position: relative;
+    max-width: 350px; /* Custom width for a professional look */
+    width: 100%;
+    margin-left: 12px; /* Positioned to the left */
+}
 
+.search-box {
+    width: 100%;
+    padding: 10px 20px;
+    border: 1px solid #ddd; /* Light grey border for a sleek look */
+    border-radius: 30px; /* Rounded corners for a modern look */
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-shadow: none;
+}
+
+.search-box:focus {
+    border-color: #81C408; /* Green border on focus */
+    box-shadow: 0 0 10px rgba(0, 128, 0, 0.1); /* Subtle shadow */
+}
+
+.search-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #81C408; /* Green search icon color */
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    color: #5f9e06; /* Darker green on hover */
+}
+
+/* Media query to adjust the size on smaller screens */
+@media (max-width: 576px) {
+    .search-container {
+        max-width: 250px; /* Adjust search bar width for small devices */
+    }
+}
+
+</style>
+
+<style>
+    .custom-dropdown {
+position: relative;
+}
+
+.custom-dropdown .dropdown-toggle {
+background-color: #f8f9fa;
+border: 1px solid #dee2e6;
+border-radius: 30px;
+padding: 0.5rem 1.5rem;
+font-weight: 500;
+color: #343a40;
+box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+transition: all 0.3s ease;
+}
+
+.custom-dropdown .dropdown-toggle:hover {
+background-color: #e9ecef;
+box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-dropdown .dropdown-menu {
+border-radius: 10px;
+box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.1);
+border: none;
+}
+
+.custom-dropdown .dropdown-item {
+padding: 10px 20px;
+color: #495057;
+transition: background-color 0.3s ease;
+}
+
+.custom-dropdown .dropdown-item:hover {
+background-color: #f1f3f5;
+}
+
+.custom-dropdown .dropdown-item.active {
+background-color: #343a40;
+color: white;
+font-weight: 600;
+}
+</style>
         <!-- Spinner Start -->
         <!-- <div id="spinner" class="show w-100 vh-100 bg-white position-fixed translate-middle top-50 start-50  d-flex align-items-center justify-content-center">
             <div class="spinner-grow text-primary" role="status"></div>
@@ -39,120 +131,169 @@
 
 
         <!-- Navbar start -->
-        <%- include('partials/header') %>
-        <!-- Navbar End -->
-
-
-        <!-- Modal Search Start -->
-        <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-fullscreen">
-                <div class="modal-content rounded-0">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Search by keyword</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body d-flex align-items-center">
-                        <div class="input-group w-75 mx-auto d-flex">
-                            <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
-                            <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-                        </div>
-                    </div>
+        <div class="container-fluid fixed-top"></div>
+        <div class="container topbar bg-primary d-none d-lg-block">
+            <div class="d-flex justify-content-between">
+                <div class="top-info ps-2">
+                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">123 Street, New York</a></small>
+                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">helo</a></small>
+                </div>
+                <div class="top-link pe-2">
+                    <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
+                    <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
+                    <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
                 </div>
             </div>
         </div>
-        <!-- Modal Search End -->
+        <div class="container px-0">
+            <nav class="navbar navbar-light bg-white navbar-expand-xl">
+                <a href="/" class="navbar-brand"><h1 class="text-primary display-6">Fruitables</h1></a>
+                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="fa fa-bars text-primary"></span>
+                </button>
+                <div style="z-index: 99;" class="collapse navbar-collapse bg-white" id="navbarCollapse">
+                    <div class="navbar-nav mx-auto">
+                        <a href="/" class="nav-item nav-link ">Home</a>
+                        <a href="/shop" class="nav-item nav-link ">Shop</a>
+                        <a href="/contact" class="nav-item nav-link ">Contact</a>
+                    </div>
+                    <div class="d-flex m-3 me-0">
+                        <!-- Conditionally show login button if on home page -->
+                        <% if (user) { %>
+                            <!-- If user is logged in, show Log Out button -->
+                            <form action="/logout" method="post">
+                                <button class="btn btn-danger me-3" type="submit">Log Out</button>
+                            </form>
+    
+                            <!-- Wishlist Icon -->
+                            <a href="/wishlist" class="position-relative me-4 my-auto">
+                                <i class="fas fa-heart fa-2x text-danger"></i>
+                            </a>
+    
+                            <!-- Cart Icon -->
+                            <a href="/cart" class="position-relative me-4 my-auto">
+                                <i class="fa fa-shopping-bag fa-2x"></i>
+                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
+                            </a>
+    
+                            <!-- User Profile Icon -->
+                            <a href="/profile" class="my-auto">
+                                <i class="fas fa-user fa-2x"></i>
+                            </a>
+                        <% } else { %>
+                            <!-- If user is not logged in, show Log In button -->
+                            <a href="/login" class="btn btn-secondary me-3">Log In</a>
+                        <% } %>
+                        <!-- Search Button -->
+                        
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    
+        <!-- Navbar End -->
+
+
+        
 
 
         <!-- Single Page Header start -->
-        <!-- <div class="container-fluid page-header py-5">
+        <div class="container-fluid page-header py-5">
             <h1 class="text-center text-white display-6">Shop</h1>
             <ol class="breadcrumb justify-content-center mb-0">
                 <li class="breadcrumb-item"><a href="#">Home</a></li>
                 <li class="breadcrumb-item"><a href="#">Pages</a></li>
                 <li class="breadcrumb-item active text-white">Shop</li>
             </ol>
-        </div> -->
+        </div>
         <!-- Single Page Header End -->
 
 
         <!-- Fruits Shop Start-->
-        <div class="container-fluid fruite py-5">
+        <div class="container-fluid fruite py-1">
             <div class="container py-5">
                 <h1 class="mb-4">Fresh fruits shop</h1>
                 <div class="row g-4">
                     <div class="col-lg-12">
                         <div class="row g-4">
                             <div class="col-xl-3">
-                                <div class="input-group w-100 mx-auto d-flex">
-                                    <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
-                                    <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
-                                </div>
+                                <form action="/shop" method="GET" class="w-100 mx-auto d-flex">
+                                    <input type="search" name="query" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1" required>
+                                    <span id="search-icon-1" class="input-group-text p-3">
+                                        <button type="submit" class="btn btn-link p-0"><i class="fa fa-search"></i></button>
+                                    </span>
+                                </form>
                             </div>
                             <div class="col-6"></div>
                             <div class="col-xl-3">
-                                <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
-                                    <label for="fruits">Default Sorting:</label>
-                                    <select id="fruits" name="fruitlist" class="border-0 form-select-sm bg-light me-3" form="fruitform">
-                                        <option value="volvo">Nothing</option>
-                                        <option value="saab">Popularity</option>
-                                        <option value="opel">Organic</option>
-                                        <option value="audi">Fantastic</option>
-                                    </select>
+                                <div class="bg-light ps-3 py-3 rounded d-flex justify-content-between align-items-center mb-4 custom-dropdown">
+                                    <label for="fruits" class="mb-0">Sort By:</label>
+                                    <div class="dropdown me-3">
+                                        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <% if (sortOption === 'priceLowHigh') { %>
+                                                Price: Low to High
+                                            <% } else if (sortOption === 'priceHighLow') { %>
+                                                Price: High to Low
+                                            <% } else { %>
+                                                Default
+                                            <% } %>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <li><a class="dropdown-item <%= sortOption === 'default' ? 'active' : '' %>" href="?sort=default">Default</a></li>
+                                            <li><a class="dropdown-item <%= sortOption === 'priceLowHigh' ? 'active' : '' %>" href="?sort=priceLowHigh">Price: Low to High</a></li>
+                                            <li><a class="dropdown-item <%= sortOption === 'priceHighLow' ? 'active' : '' %>" href="?sort=priceHighLow">Price: High to Low</a></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
+                            
+                          
                         </div>
                         <div class="row g-4">
                             <div class="col-lg-3">
                                 <div class="row g-4">
+                                    
                                     <div class="col-lg-12">
-                                        <div class="mb-3">
-                                            <h4>Categories</h4>
-                                            <ul class="list-unstyled fruite-categorie">
-                                                <% categories.forEach(category => { %>
-                                                <li>
-                                                    <div class="d-flex justify-content-between fruite-name">
-                                                        <a href="#"><i class="fas fa-apple-alt me-2"></i><%= category.name %></a>
-                                                        <span>(<%= category.productCount %>)</span> <!-- Assuming productCount is available -->
-                                                    </div>
-                                                </li>
-                                                <% }) %>
-                                            </ul>
-                                            
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
+    <div class="mb-3">
+        <h4>Categories</h4>
+        <ul class="list-unstyled fruite-categorie">
+            <!-- "All Products" Button -->
+            <li>
+                <div class="d-flex justify-content-between fruite-name">
+                    <a href="?sort=<%= sortOption %>" class="<%= !selectedCategoryId ? 'fw-bold text-primary' : '' %>">
+                        <i class="fas fa-th-large me-2"></i> All Products
+                    </a>
+                </div>
+            </li>
+
+            <!-- Loop through categories -->
+            <% categories.forEach(category => { %>
+                <li>
+                    <div class="d-flex justify-content-between fruite-name">
+                        <!-- Category link, keeping the current sort option -->
+                        <a href="?category=<%= category._id %>&sort=<%= sortOption %>" 
+                           class="<%= selectedCategoryId === category._id.toString() ? 'fw-bold text-primary' : '' %>">
+                            <i class="fas fa-apple-alt me-2"></i> <%= category.name %>
+                        </a>
+                        <span>(<%= category.productCount %>)</span>
+                    </div>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+</div>
+
+                                    
+                                    <!-- <div class="col-lg-12">
                                         <div class="mb-3">
                                             <h4 class="mb-2">Price</h4>
                                             <input type="range" class="form-range w-100" id="rangeInput" name="rangeInput" min="0" max="500" value="0" oninput="amount.value=rangeInput.value">
                                             <output id="amount" name="amount" min-velue="0" max-value="500" for="rangeInput">0</output>
                                         </div>
                                     </div>
-                                    <div class="col-lg-12">
-                                        <div class="mb-3">
-                                            <h4>Additional</h4>
-                                            <div class="mb-2">
-                                                <input type="radio" class="me-2" id="Categories-1" name="Categories-1" value="Beverages">
-                                                <label for="Categories-1"> Organic</label>
-                                            </div>
-                                            <div class="mb-2">
-                                                <input type="radio" class="me-2" id="Categories-2" name="Categories-1" value="Beverages">
-                                                <label for="Categories-2"> Fresh</label>
-                                            </div>
-                                            <div class="mb-2">
-                                                <input type="radio" class="me-2" id="Categories-3" name="Categories-1" value="Beverages">
-                                                <label for="Categories-3"> Sales</label>
-                                            </div>
-                                            <div class="mb-2">
-                                                <input type="radio" class="me-2" id="Categories-4" name="Categories-1" value="Beverages">
-                                                <label for="Categories-4"> Discount</label>
-                                            </div>
-                                            <div class="mb-2">
-                                                <input type="radio" class="me-2" id="Categories-5" name="Categories-1" value="Beverages">
-                                                <label for="Categories-5"> Expired</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
+                                    -->
+                                    <!-- <div class="col-lg-12">
                                         <h4 class="mb-3">Featured products</h4>
                                         <div class="d-flex align-items-center justify-content-start">
                                             <div class="rounded me-4" style="width: 100px; height: 100px;">
@@ -214,7 +355,7 @@
                                         <div class="d-flex justify-content-center my-4">
                                             <a href="#" class="btn border border-secondary px-4 py-3 rounded-pill text-primary w-100">Vew More</a>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     <div class="col-lg-12">
                                         <div class="position-relative">
                                             <img src="/User/img/banner-fruits.jpg" class="img-fluid w-100 rounded" alt="">
@@ -243,10 +384,15 @@
                                                     <div class="d-flex justify-content-between flex-lg-wrap">
                                                         <p class="text-dark fs-5 fw-bold mb-0">₹<%= product.price %> / <%= product.unit %></p>
                                                         <div class="d-flex">
-                                                            <!-- Add to Cart Button -->
-                                                            <a  onclick="addToCart('<%= product._id %>',1)" class="btn border border-secondary rounded-pill px-2 text-primary me-2">
-                                                                <i class="fa fa-shopping-bag me-1 text-primary"></i> Add to cart
-                                                            </a>
+                                                            <% if (product.stock > 0) { %>
+                                                                <!-- Add to Cart Button -->
+                                                                <a  onclick="addToCart('<%= product._id %>', 1)" class="btn border border-secondary rounded-pill px-2 text-primary me-2">
+                                                                    <i class="fa fa-shopping-bag me-1 text-primary"></i> Add to cart
+                                                                </a>
+                                                            <% } else { %>
+                                                                <!-- Out of Stock Message -->
+                                                                <span style="color: red; margin-right: 20px; margin-top: 8px; font-weight: 600;">Out of Stock</span>
+                                                            <% } %>
                                                             <!-- Wishlist Button -->
                                                             <a onclick="addToWishlist('<%= product._id %>')" class="btn border border-secondary rounded-pill px-2 text-danger">
                                                                 <i class="fa fa-heart me-1 text-danger"></i> Wishlist
@@ -264,14 +410,11 @@
                                     <!-- Content area end -->
                                     <div class="col-12">
                                         <div class="pagination d-flex justify-content-center mt-5">
-                                            <a href="#" class="rounded">&laquo;</a>
-                                            <a href="#" class="active rounded">1</a>
-                                            <a href="#" class="rounded">2</a>
-                                            <a href="#" class="rounded">3</a>
-                                            <a href="#" class="rounded">4</a>
-                                            <a href="#" class="rounded">5</a>
-                                            <a href="#" class="rounded">6</a>
-                                            <a href="#" class="rounded">&raquo;</a>
+                                            <a href="?page=<%= currentPage - 1 %>&sort=<%= sortOption %>&category=<%= selectedCategoryId %>" class="rounded <%= currentPage === 1 ? 'disabled' : '' %>">&laquo;</a>
+                                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                                <a href="?page=<%= i %>&sort=<%= sortOption %>&category=<%= selectedCategoryId %>" class="rounded <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+                                            <% } %>
+                                            <a href="?page=<%= currentPage + 1 %>&sort=<%= sortOption %>&category=<%= selectedCategoryId %>" class="rounded <%= currentPage === totalPages ? 'disabled' : '' %>">&raquo;</a>
                                         </div>
                                     </div>
                                 </div>

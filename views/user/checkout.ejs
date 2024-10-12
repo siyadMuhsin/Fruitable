@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <title>Fruitables - Vegetable Website Template</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta content="" name="keywords">
+        <meta content="" name="description">
+
+        <!-- Google Web Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+
+        <!-- Icon Font Stylesheet -->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+        <!-- Libraries Stylesheet -->
+        <link href="/Userlib/lightbox/css/lightbox.min.css" rel="stylesheet">
+        <link href="/User/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="/User/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Template Stylesheet -->
+        <link href="User/css/style.css" rel="stylesheet">
+      <style>
+        /* Overall Page Styling */
+.checkout-container {
+    max-width: 100%; /* Full width */
+    margin: auto; /* Center the container */
+    background-color: #f4f6f9; /* Light background color */
+    padding: 30px; /* Padding around the container */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .checkout-container {
+        padding: 20px;
+    }
+
+    .address-box {
+        max-width: 100%;
+        margin-bottom: 20px; /* Add space between sections */
+    }
+
+    .cart-summary-section {
+        margin-top: 20px; /* Space from address section */
+    }
+}
+
+/* Address Box Styling */
+.address-box {
+    max-width: 90%;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow for elegance */
+    transition: all 0.3s ease; /* Smooth transitions */
+}
+
+.address-box:hover {
+    border-color: #81C408; /* Highlight border on hover */
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); /* Enhanced shadow on hover */
+}
+
+.address-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    position: relative;
+    transition: all 0.3s ease; /* Smooth hover transition */
+    cursor: pointer;
+}
+
+.address-item:hover {
+    background-color: #f0f8e2; /* Light green on hover */
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.05); /* Add shadow effect */
+}
+
+.address-item input[type="radio"] {
+    margin-right: 10px;
+}
+
+.address-item label {
+    color: #333; /* Darker font color for better readability */
+    font-weight: 500; /* Slightly bold text */
+    font-size: 16px; /* Make font size larger */
+}
+
+.save_button {
+    margin-top: 10px;
+}
+
+/* Address Button */
+.btn-outline-primary {
+    border-color: #81C408; /* Outline button border color */
+    color: #81C408; /* Outline button text color */
+    transition: background-color 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: #81C408; /* Button hover background */
+    color: white; /* Button hover text */
+}
+
+/* Cart Summary Section */
+.cart-summary-section {
+    border: 1px solid #ddd;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.05); /* Add shadow */
+    transition: all 0.3s ease;
+}
+
+.cart-summary-section:hover {
+    border-color: #81C408; /* Highlight border on hover */
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.1); /* More depth on hover */
+}
+
+/* Cart Table Styling */
+.table-stylish th, .table-stylish td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table-stylish th {
+    background-color: #81C408; /* Header color */
+    color: white; /* Header text color */
+    text-align: center; /* Center text */
+}
+
+.table-stylish td {
+    text-align: center; /* Center product details */
+}
+
+.cart-product-img {
+    width: 60px; /* Fixed image size */
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Cart Summary Totals */
+.cart-summary-section .d-flex {
+    font-size: 18px; /* Increase font size */
+    font-weight: 500; /* Semi-bold */
+}
+
+.cart-summary-section .d-flex p {
+    font-size: 18px; /* Increase font size */
+    color: #81C408; /* Price color */
+    font-weight: 600; /* Bold prices */
+}
+
+.cart-summary-section h5 {
+    font-weight: 600;
+    color: #333;
+}
+
+.cart-summary-section button {
+    font-size: 18px;
+    padding: 15px;
+}
+
+/* Payment Method Styling */
+.form-check-input {
+    margin-right: 10px; /* Space between checkbox and label */
+}
+
+.form-check-label {
+    margin-left: 5px; /* Space before label text */
+}
+
+.btn-primary {
+    background-color: #81C408; /* Button color */
+    border-color: #81C408; /* Button border color */
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #6ca306; /* Button hover color */
+}
+
+/* Hover Effects for Buttons */
+.btn:hover {
+    transform: scale(1.05); /* Slightly enlarge buttons on hover */
+}
+
+/* Make text more professional */
+strong {
+    font-size: 18px; /* Larger font size */
+    color: #333; /* Darker text color */
+}
+      </style>
+        
+    </head>
+
+    <body>
+
+       
+
+
+        <!-- Navbar start -->
+        <%- include('partials/header') %>
+
+        <!-- Navbar End -->
+
+
+        <!-- Modal Search Start -->
+        <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content rounded-0">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Search by keyword</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex align-items-center">
+                        <div class="input-group w-75 mx-auto d-flex">
+                            <input type="search" class="form-control p-3" placeholder="keywords" aria-describedby="search-icon-1">
+                            <span id="search-icon-1" class="input-group-text p-3"><i class="fa fa-search"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Search End -->
+
+
+        <!-- Single Page Header start -->
+        <div class="container-fluid page-header py-5">
+            <h1 class="text-center text-white display-6">Checkout</h1>
+            <ol class="breadcrumb justify-content-center mb-0">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                <li class="breadcrumb-item active text-white">Checkout</li>
+            </ol>
+        </div>
+        <!-- Single Page Header End -->
+
+
+        <!-- Checkout Page Start -->
+        <div class="container-fluid py-5">
+            <div class="container checkout-container">
+                <div class="row">
+                    <!-- Left Side: Address Selection Section (Reduced Size) -->
+                    <div class="col-md-12 col-lg-4 col-xl-5">
+                        <h4 class="mb-4 address-heading">Select Address</h4>
+                        <div class="address-box">
+                            <!-- Iterate through the addresses passed from the backend -->
+                            <% addresses.forEach((address, index) => { %>
+                            <div class="address-item d-flex justify-content-between mb-3">
+                                <div>
+                                    <input type="radio" name="address" id="address<%= index %>" value="<%= address._id %>" <%= index === 0 ? 'checked' : '' %> >
+                                    <label for="address<%= index %>">
+                                        <strong class="address-name"><%= address.name %> (<%= address.addressType %>)</strong><br>
+                                        <span class="address-details"><%= address.address %>, <%= address.district %>, <%= address.pincode %></span><br>
+                                    </label>
+                                </div>
+                                <div class="save_button mt-3">
+                                    <a style="color: rgb(11, 86, 214);" class="btn btn-md btn-black-default-hover editAddressBtn" 
+                                       data-bs-toggle="modal" data-bs-target="#editAddressModal"
+                                       data-id="<%= address._id %>" 
+                                       data-name="<%= address.name %>"
+                                       data-phone="<%= address.phone %>"
+                                       data-address="<%= address.address %>"
+                                       data-locality="<%= address.locality %>"
+                                       data-district="<%= address.district %>"
+                                       data-pincode="<%= address.pincode %>"
+                                       data-email="<%= address.email %>"
+                                       data-state="<%= address.state %>"
+                                       data-country="<%= address.country %>">Edit</a>
+                                </div>
+                            </div>
+                            <% }) %>
+                            <button class="btn btn-outline-primary mt-4 w-100" data-bs-toggle="modal" data-bs-target="#addAddressModal">Add New Address</button>
+                        </div>
+                    </div>
+        
+                    <!-- Right Side: Cart Summary Section (Larger Section) -->
+                    <div class="col-md-12 col-lg-8 col-xl-7">
+                        <div class="bg-light rounded p-4 cart-summary-section">
+                            <h4 class="mb-4">Cart Summary</h4>
+                            <div class="table-responsive">
+                                <table class="table table-stylish">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Image</th>
+                                            <th scope="col">Price</th>
+                                            <th scope="col">Quantity</th>
+                                            <th scope="col">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% cartItems.forEach(item => { %>
+                                        <tr>
+                                            <td><%= item.product.name %></td>
+                                            <td><img src="/images/<%= item.product.images[0] %>" alt="<%= item.product.name %>" class="cart-product-img"></td>
+                                            <td>₹<%= item.product.price ? item.product.price.toFixed(2) : '0.00' %></td>
+                                            <td><%= item.quantity %></td>
+                                            <td>₹<%= (item.product.price * item.quantity).toFixed(2) %></td>
+                                        </tr>
+                                        <% }) %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <h5>Subtotal:</h5>
+                                <p>₹<%= cartTotal.toFixed(2) %></p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <h5>Shipping:</h5>
+                                <p>₹40.00</p>
+                            </div>
+                            <div class="d-flex justify-content-between border-top py-3">
+                                <h5>Total:</h5>
+                                <p>₹<%= (cartTotal + 40).toFixed(2) %></p>
+                            </div>
+                            <!-- Payment Methods -->
+                            <h5 class="my-4">Payment Method</h5>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="Cash on Delivery" checked>
+                                <label class="form-check-label" for="cod">Cash on Delivery</label>
+                            </div>
+                            <div class="form-check my-2">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="Credit Card">
+                                <label class="form-check-label" for="creditCard">Credit Card</label>
+                            </div>
+                            <button class="btn btn-primary btn-lg w-100 mt-4" type="submit" onclick="placeOrder()">Place Order</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <!-- Checkout Page End -->
+
+
+        <!-- add addresses modal start-->
+        <div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addAddressForm" onsubmit="submitAddressForm(event)">
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label for="name">Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Full Name" pattern="[A-Za-z]+" title="Name should contain only characters with no spaces." required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Number" pattern="\d{10}" title="Phone number must be 10 digits." required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label for="pincode">Pin Code</label>
+                                    <input type="text" class="form-control" id="pincode" name="pincode" pattern="\d{6}" placeholder="6-digit PIN code" title="PIN code must be 6 digits." required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label for="locality">Locality</label>
+                                    <input type="text" class="form-control" id="locality" name="locality" placeholder="Locality" required>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="landmark">Landmark (Optional)</label>
+                                    <input type="text" class="form-control" id="landmark" name="landmark" placeholder="Landmark">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-4">
+                                    <label for="district">District</label>
+                                    <input type="text" class="form-control" id="district" name="district" placeholder="District" required>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="state">State</label>
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="country">Country</label>
+                                    <input type="text" class="form-control" id="country" name="country" placeholder="Country" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="address">Address</label>
+                                <textarea class="form-control" id="address" name="address" rows="2" placeholder="Address Line" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Address Type</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="addressType" id="home" value="Home" required>
+                                    <label class="form-check-label" for="home">Home</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="addressType" id="office" value="Office">
+                                    <label class="form-check-label" for="office">Office</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="addressType" id="other" value="Other">
+                                    <label class="form-check-label" for="other">Other</label>
+                                </div>
+                            </div>
+                            <div class="form-group text-center">
+                                <button type="submit" class="btn btn-primary py-3 px-5">Add Address</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- add addresses modal end-->
+
+<!-- Edit Address Modal -->
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAddressForm" onsubmit="submitEditAddressForm(event)">
+                    <input type="hidden" id="editAddressId" name="addressId">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editName">Name</label>
+                            <input type="text" class="form-control" id="editName" name="editName" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="editPhone">Phone Number</label>
+                            <input type="text" class="form-control" id="editPhone" name="editPhone" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editLocality">Locality</label>
+                            <input type="text" class="form-control" id="editLocality" name="editLocality" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="editPincode">Pin Code</label>
+                            <input type="text" class="form-control" id="editPincode" name="editPincode" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editDistrict">District</label>
+                            <input type="text" class="form-control" id="editDistrict" name="editDistrict" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="editState">State</label>
+                            <input type="text" class="form-control" id="editState" name="editState" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="editCountry">Country</label>
+                            <input type="text" class="form-control" id="editCountry" name="editCountry" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAddress">Address</label>
+                        <textarea class="form-control" id="editAddress" name="editAddress" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-primary py-3 px-5">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Footer Start -->
+        <%- include('partials/foooter')%>
+        <!-- Footer End -->
+
+        <!-- Copyright Start -->
+        <div class="container-fluid copyright bg-dark py-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>Your Site Name</a>, All right reserved.</span>
+                    </div>
+                    <div class="col-md-6 my-auto text-center text-md-end text-white">
+                        <!--/*** This template is free as long as you keep the below author’s credit link/attribution link/backlink. ***/-->
+                        <!--/*** If you'd like to use the template without the below author’s credit link/attribution link/backlink, ***/-->
+                        <!--/*** you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". ***/-->
+                        Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a> Distributed By <a class="border-bottom" href="https://themewagon.com">ThemeWagon</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Copyright End -->
+
+
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+<script>
+      // Function to populate modal with the clicked address data
+      document.querySelectorAll('.editAddressBtn').forEach(button => {
+        button.addEventListener('click', function () {
+            // Retrieve data-* attributes from the clicked button
+            const addressId = this.dataset.id;
+            const name = this.dataset.name;
+            const phone = this.dataset.phone;
+            const address = this.dataset.address;
+            const locality = this.dataset.locality;
+            const district = this.dataset.district;
+            const pincode = this.dataset.pincode;
+            const email = this.dataset.email;
+            const state = this.dataset.state;
+            const country = this.dataset.country;
+
+            // Populate modal form fields with the data
+            document.getElementById('editAddressId').value = addressId; // Add this line
+            document.getElementById('editName').value = name;
+            document.getElementById('editPhone').value = phone;
+            document.getElementById('editAddress').value = address;
+            document.getElementById('editLocality').value = locality;
+            document.getElementById('editDistrict').value = district;
+            document.getElementById('editPincode').value = pincode;
+           
+            document.getElementById('editState').value = state;
+            document.getElementById('editCountry').value = country;
+        })
+    })
+</script>
+<script>
+function placeOrder() {
+    // Get selected address and payment method
+    const selectedAddress = document.querySelector('input[name="address"]:checked').value;
+    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+    const orderData = {
+        addressId: selectedAddress,
+        paymentMethod: selectedPaymentMethod,
+    };
+
+    // Confirmation alert before placing the order
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to place this order?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, place order!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, proceed with placing the order
+            axios.post('/placed_order', { orderData })
+                .then((response) => {
+                    // Success alert when order is placed successfully
+                    if(response.data.success){
+                        Swal.fire({
+                        title: 'Success!',
+                        text: 'Your order has been placed successfully.',
+                        icon: 'success',
+                        showConfirmButton: false, 
+                        timer: 1000 
+                    }).then(() => {
+                        // Optionally redirect to another page or refresh the page
+                        window.location.href = '/order/placed'; // Redirect to the orders page
+                    });
+
+                    }else{
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.data.message,
+                            icon: 'error',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+                    }
+                    
+                })
+                .catch((error) => {
+                    // Error alert if something goes wrong
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Something went wrong while placing your order. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                    console.error('Error placing order:', error);
+                });
+        }
+    });
+}
+
+</script>
+        
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/User/lib/easing/easing.min.js"></script>
+    <script src="/User/lib/waypoints/waypoints.min.js"></script>
+    <script src="/User/lib/lightbox/js/lightbox.min.js"></script>
+    <script src="/User/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- Template Javascript -->
+    <script src="/User/main.js"></script>
+    <script src="/User/profile.js"></script>
+    </body>
+
+</html>

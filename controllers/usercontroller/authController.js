@@ -20,6 +20,7 @@ exports.basic=async (req,res)=>{
 }
 ,
 exports.getHome=async (req,res)=>{
+   
     const user=req.session.user
     console.log('session user id ',user)
 
@@ -219,12 +220,13 @@ exports.logout = async (req, res) => {
     }
 };
 
-exports.forgetPassword=(req,res)=>{
+exports.getForgetPassword=(req,res)=>{
     console.log("forget password get")
     res.render('../views/User/forgetPassword')
 }
 
-exports.resetPassword=async (req,res)=>{
+exports.forgetPassword=async (req,res)=>{
+    console.log("forget password function running")
     const {email}=req.body
 
     try {
@@ -233,7 +235,89 @@ exports.resetPassword=async (req,res)=>{
             return res.json({success:false,message:'User with this email does not exist.'})
         }
         
+        const token = crypto.randomBytes(32).toString('hex')
+       
+        const tokenExpiry=Date.now()+3600000;
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = tokenExpiry;
+        await user.save()
+
+
+        const resetUrl = `http://${req.headers.host}/reset-password/${token}`;
+        const mailOptions = {
+            to: user.email,
+            from: 'no-reply@fruitable.com',
+            subject: 'Password Reset',
+            text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+                   Please click on the following link, or paste this into your browser to complete the process:\n\n
+                   ${resetUrl}\n\n
+                   If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+        };
+        await transporter.sendMail(mailOptions,(err,response)=>{
+            if(err){
+                console.error('Error sending email:', err);
+                return res.status(500).json({ success: false, message: 'Error sending the reset email' });
+            }
+            res.json({ success: true, message: 'Password reset link sent' });
+
+        })
+
+
+
     } catch (error) {
+        console.error('Error in forgotPassword:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
         
     }
+}
+exports. resetPasswordGet=async(req,res)=>{
+    try {
+        const { token }=req.params
+        console.log("reset password getting ",token)
+    console.log(Date.now())
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() } // Ensure token has not expired
+        });
+      
+        if (!user) {
+            return res.status(400).json({ message: 'Password reset token is invalid or has expired.' });
+        }
+        res.render('../views/user/resetPassword',{token})
+        
+    } catch (error) {
+        console.error('Error fetching reset password page:', error);
+        return res.status(500).json({ message: 'Server error. Please try again later.' });
+        
+    }
+}
+exports .resetPassword= async(req,res)=>{
+    console.log("reset password running")
+    try {
+        const {token}= req.params
+        const {password}=req.body
+         
+        const user= await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+
+        })
+        if(!user){
+            return res.status(400).json({ success: false, message: 'Password reset token is invalid or has expired' });
+        }
+        const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+        user.password = hashPassword;
+        user.resetPasswordToken=undefined;
+        user.resetPasswordExpires=undefined;
+        await user.save()
+        res.json({ success: true, message: 'Password has been reset' });
+       
+    } catch (error) {
+        console.error('Error in resetPassword:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+   
+
+    
 }

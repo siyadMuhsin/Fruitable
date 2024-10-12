@@ -99,34 +99,56 @@ try {
 }
 
 // update cart quantity
-const updateQuantity= async(req,res)=>{
-     const {productId,quantity}=req.body;
-     try {
-         // Find the cart by user ID or session (adjust according to your logic)
-         const cart =await Cart.findOne({user:req.session.user})
-         
+const updateQuantity = async (req, res) => {
+    console.log("Cart update running");
+    const { productId, quantity } = req.body;
 
-         // Find the product in the cart and update its quantity
-        const cartItem = cart.items.find(item => item.product.toString() === productId);
-      
-        if(cartItem){
-            cartItem.quantity=quantity
+    try {
+        // Find the cart by user ID or session
+        const cart = await Cart.findOne({ user: req.session.user });
+
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found' });
         }
 
-        await cart.save()
-        const cartTotal =cart.items.reduce((total,item)=>{
-            return total+(item.quantity * item.product.price)
-        },0)
+        // Find the cart item
+        const cartItem = cart.items.find(item => item.product.toString() === productId);
+
+        if (!cartItem) {
+            return res.status(404).json({ success: false, message: 'Product not found in cart' });
+        }
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+        const maxQuantity = product.stock;
+        if (quantity > maxQuantity) {
+            return res.json({
+                success: false,
+                message: `You cannot add more than ${maxQuantity} items. Available stock: ${product.stock}`
+            });
+        }
+
+        cartItem.quantity = quantity;
+
+        await cart.save();
+
+        // Recalculate cart total
+        const cartTotal = cart.items.reduce((total, item) => {
+            return total + (item.quantity * product.price); // Use the product price you retrieved
+        }, 0);
 
         res.json({
-            success:true,
-            message:'Cart Updated Successfully',
-            cartTotal:cartTotal,
-            productPrice: cartItem.product.price
-        })
-     } catch (error) {
+            success: true,
+            message: 'Cart Updated Successfully',
+            cartTotal: cartTotal,
+            productPrice: product.price // Send product price in the response
+        });
+    } catch (error) {
         console.error('Error updating cart quantity:', error);
         res.status(500).json({ success: false, message: 'Failed to update cart' });
-     }
-}
+    }
+};
+
 module.exports={getCart,addToCart,removeFromCart,updateQuantity}

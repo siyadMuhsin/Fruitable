@@ -146,7 +146,7 @@
         
 
         <!-- Single Page Header start -->
-        <div style="padding-top: 1000px;" class="container-fluid page-header py-5 ">
+        <div style="margin-top: 10px;" class="container-fluid page-header py-5">
            
             <h1 class="text-center text-white display-6">Cart</h1>
             <ol class="breadcrumb justify-content-center mb-0">
@@ -185,25 +185,31 @@
                             <p class="mb-0 mt-4 item-name"><%= item.product.name %></p>
                           </td>
                           <td>
-                            <p class="mb-0 mt-4 item-price"><%= item.product.price %> $</p>
+                            <p class="mb-0 mt-4 item-price"><%= item.product.price %> ₹</p>
                           </td>
                           <td>
                             <div class="input-group quantity mt-4" style="width: 100px;">
                                 <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-minus rounded-circle bg-light border update-quantity" onclick="updateQuantity('<%= item.product._id %>', 'decrease', '<%= item.product.price %>')">
+                                    <button class="btn btn-sm btn-minus rounded-circle bg-light border update-quantity" 
+                                        onclick="updateQuantity('<%= item.product._id %>', 'decrease', '<%= item.product.price %>')">
                                         <i class="fa fa-minus"></i>
                                     </button>
                                 </div>
-                                <input type="text" class="form-control form-control-sm text-center border-0" value="<%= item.quantity %>" id="quantity-input-<%= item.product._id %>" readonly>
+                                <input type="text" 
+                                       class="form-control form-control-sm text-center border-0" 
+                                       value="<%= item.quantity %>" 
+                                       id="quantity-input-<%= item.product._id %>">
+                                      
                                 <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-plus rounded-circle bg-light border update-quantity" onclick="updateQuantity('<%= item.product._id %>', 'increase',' <%= item.product.price %>')">
+                                    <button class="btn btn-sm btn-plus rounded-circle bg-light border update-quantity" 
+                                        onclick="updateQuantity('<%= item.product._id %>', 'increase', '<%= item.product.price %>')">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </div>
                             </div>
-                          </td>
+                        </td>
                           <td>
-                            <p class="mb-0 mt-4 item-total" id="total-price-<%= item.product._id %>"><%= (item.product.price * item.quantity).toFixed(2) %> $</p>
+                            <p class="mb-0 mt-4 item-total" id="total-price-<%= item.product._id %>"><%= (item.product.price * item.quantity).toFixed(2) %> ₹</p>
                           </td>
                           <td>
                             <button class="btn btn-md rounded-circle bg-light border mt-4 remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
@@ -223,7 +229,7 @@
                                 <h1 class="display-6 mb-4">Cart <span class="fw-normal">Total</span></h1>
                                 <div class="d-flex justify-content-between mb-4">
                                     <h5 class="mb-0 me-4">Subtotal:</h5>
-                                    <p class="mb-0">$<%= cartTotal %></p>
+                                    <p class="mb-0">₹<%= cartTotal %></p>
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <h5 class="mb-0 me-4">Shipping</h5>
@@ -233,9 +239,10 @@
                                 </div>
                                 <div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
                                     <h5 class="mb-0 ps-4 me-4">Total</h5>
-                                    <p class="mb-0 pe-4" id="cart-total">$<%= (cartTotal + 40).toFixed(2) %></p>
+                                    <p class="mb-0 pe-4" id="cart-total">₹<%= (cartTotal + 40).toFixed(2) %></p>
                                 </div>
-                                <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed to Checkout</button>
+                                     <a href="/checkout">   <button  class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed to Checkout</button>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -275,72 +282,81 @@
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
 <script>
-    function updateQuantity(productId,action,price){
-        console.log('uidgbsduifbdyfgbv')
-        const quantityInput = document.getElementById(`quantity-input-${productId}`)
+  function updateQuantity(productId, action, price) {
+    const quantityInput = document.getElementById(`quantity-input-${productId}`);
+    let quantity = parseInt(quantityInput.value);
 
-        let quantity = parseInt(quantityInput.value)
-        // Define the max quantity limit (you can adjust this as needed)
+    // Define the static maximum quantity
     const maxQuantity = 5;
-   
 
-if (action === 'increase' && quantity < maxQuantity) {
-    quantity++;
-} else if (action === 'increase' && quantity >= maxQuantity) {
-    // Show SweetAlert when trying to exceed the limit
-    Swal.fire({
-        icon: 'warning',
-        title: 'Limit Reached',
-        text: 'You cannot add more than 5 items of this product.',
-        confirmButtonText: 'OK'
-    });
-    return;
-}
-
-if (action === 'decrease' && quantity > 1) {
-    quantity--;
-} else if (action === 'decrease' && quantity <= 1) {
-    // Optional: Show a message when trying to decrease below 1, if needed
-    Swal.fire({
-        icon: 'warning',
-        title: 'Minimum Quantity',
-        text: 'You cannot have less than 1 item in your cart.',
-        confirmButtonText: 'OK'
-    });
-    return;
-}
-
-        quantityInput.value=quantity
-        updateCartTotal();
-        // Send the updated quantity to the server using Axios
-        axios.patch('/cart/update-quantity',{
-            productId:productId,
-            quantity:quantity
-        })
-        .then((response)=>{
-            if(response.data.success){
-                // Recalculate the cart total after the update
-                // document.getElementById('cart-total').textContent = `$${response.data.cartTotal.toFixed(2)}`;
-               
-                
-               
-            }
-        }).catch((error)=>{
-            console.log(error)
-            console.error("There was an error updating the quantity:", error);
-
-        })
-        console.log(quantity)
-
-        // Calculate the new total for this item
-    const itemTotal = (price * quantity).toFixed(2);
-    document.getElementById(`total-price-${productId}`).textContent = `${itemTotal} $`;
-
-     // Update the subtotal and total cart value
-    
+    // Increase the quantity, but limit it to the maxQuantity
+    if (action === 'increase' && quantity < maxQuantity) {
+        quantity++;
+    } else if (action === 'increase' && quantity >= maxQuantity) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Maximum Limit Reached',
+            text: `You cannot add more than ${maxQuantity} items of this product.`,
+            confirmButtonText: 'OK'
+        });
+        return;
     }
 
-    function updateCartTotal() {
+    // Decrease the quantity, ensuring it doesn't go below 1
+    if (action === 'decrease' && quantity > 1) {
+        quantity--;
+    } else if (action === 'decrease' && quantity <= 1) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Minimum Quantity',
+            text: 'You cannot have less than 1 item in your cart.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
+
+    // Update the input value
+    quantityInput.value = quantity;
+
+    // Send the updated quantity to the server using Axios
+    axios.patch('/cart/update-quantity', {
+        productId: productId,
+        quantity: quantity
+    })
+    .then((response) => {
+        if (response.data.success) {
+            // Calculate the new total for this item
+            const itemTotal = (price * quantity).toFixed(2);
+            document.getElementById(`total-price-${productId}`).textContent = `${itemTotal} $`;
+
+            // Update the subtotal and total cart value
+            updateCartTotal();  // Call updateCartTotal to recalculate the totals
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: response.data.message || 'Failed to update the cart',
+                confirmButtonText: 'OK'
+            }).then(()=>{
+                location.reload()
+
+            })
+            
+        }
+    })
+    .catch((error) => {
+        console.error('Error updating the quantity:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update the cart. Please try again.',
+            confirmButtonText: 'OK'
+        });
+    });
+}
+
+
+function updateCartTotal() {
     const cartItems = document.querySelectorAll('.cart-item');  // Select all cart items
     let subtotal = 0;
 
@@ -360,21 +376,22 @@ if (action === 'decrease' && quantity > 1) {
     });
 
     // Update the subtotal in the DOM
-    const subtotalElement = document.querySelector('.d-flex .mb-0.me-4 + p'); // Assuming it's in the same structure
+    const subtotalElement = document.getElementById('cart-subtotal');
     if (subtotalElement) {
-        subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+        subtotalElement.textContent = `$${subtotal.toFixed(2)}`;  // Update subtotal
     }
 
     // Calculate total (subtotal + shipping)
-    const shipping = 40.00;
+    const shipping = 40.00;  // You can adjust this value if shipping is dynamic
     const total = subtotal + shipping;
 
     // Update the total in the DOM
     const totalElement = document.getElementById('cart-total');
     if (totalElement) {
-        totalElement.textContent = `$${total.toFixed(2)}`;
+        totalElement.textContent = `$${total.toFixed(2)}`;  // Update total cart value
     }
 }
+
 </script>
 
 
@@ -399,7 +416,8 @@ if (action === 'decrease' && quantity > 1) {
                             title: 'Removed!',
                             text: 'The item has been removed from your cart.',
                             icon: 'success',
-                            confirmButtonText: 'OK'
+                            showConfirmButton: false,
+                        timer: 1500
                         }).then(() => {
                             // Reload the page after success
                             window.location.reload();
@@ -428,6 +446,10 @@ if (action === 'decrease' && quantity > 1) {
     }
 </script>
         
+
+<script>
+  
+</script>
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>

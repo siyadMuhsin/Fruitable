@@ -43,7 +43,7 @@ const adminLogout=async (req,res)=>{
 
 // Admin dashboard handler
 const getDashboard=async (req,res)=>{
-     // Check if admin is logged in
+    
     if(req.session.adminId){
         return res.render('../views/admin/dashboard')
     }else{

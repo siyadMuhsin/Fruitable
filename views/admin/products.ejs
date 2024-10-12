@@ -119,7 +119,7 @@
                                                 </td>
                                                 <td>
                                                     <button class="btn btn-warning edit-button" data-toggle="modal" data-target="#editProductModal" data-id="<%= product._id %>" data-name="<%= product.name %>" data-category="<%= product.category ? product.category._id : '' %>" data-price="<%= product.price %>" data-stock="<%= product.stock %>" data-description="<%= product.description %>" data-images="<%= product.images.join(',') %>" ondblclick="setEditProductValues(this)">Edit</button>
-                                                    <!-- List/Unlist Button with unique ID -->
+                                                   
                                                     <button id="list-unlist-btn-<%= product._id %>" class="btn <%= product.isListed ? 'btn-danger' : 'btn-info' %>"
                                                             onclick="<%= product.isListed ? 'unlistProduct' : 'listProduct' %>('<%= product._id %>')">
                                                         <%= product.isListed ? 'Unlist' : 'List' %>
@@ -132,10 +132,36 @@
                             </div>
                         </div>
                     </div>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                            <% if(currentPage > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                                </li>
+                            <% } %>
+                    
+                            <% for(let i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                    
+                            <% if(currentPage < totalPages) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
                 </div>
+                
             </div>
+            
 
-            <!-- Create Product Modal -->
+<!--  pagination strat -->
+
+<!--  pagination end -->
+            
             <!-- Create Product Modal -->
 <div class="modal fade" id="createProductModal" tabindex="-1" role="dialog" aria-labelledby="createProductModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -190,8 +216,11 @@
                     <button type="submit" class="btn btn-primary">Create Product</button>
                 </form>
             </div>
+            
         </div>
+        
     </div>
+    
 </div>
             <!-- Edit Product Modal -->
        

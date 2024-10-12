@@ -142,7 +142,7 @@
                             <div class="col-lg-5">
                                 <h4 class="fw-bold mb-2"><%= product.name %></h4>
                                 <p class="mb-1">Category: <%= product.category.name %></p>
-                                <h5 class="fw-bold mb-3">$<%= product.price %></h5>
+                                <h5 class="fw-bold mb-3">₹<%= product.price %></h5>
                                 <div class="d-flex mb-3">
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star text-secondary"></i>
@@ -150,11 +150,25 @@
                                     <i class="fa fa-star text-secondary"></i>
                                     <i class="fa fa-star"></i>
                                 </div>
+                               
                                 <p class="mb-4"><%= product.description %></p>
-                         
-                                <a  class="btn border border-secondary rounded-pill px-4 py-2 text-primary" onclick="addToCart('<%= product._id %>',1)">
-                                    <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
-                                </a>
+                                
+                                
+                                <% if (product.stock > 0) { %>
+                                    <% if (product.stock <= 5) { %>
+                                        <span style="font-weight: 600; color: red;" >Few Stocks Left</span><br>
+                                    <% } %>
+                                   
+                                    <!-- Add to Cart Button -->
+                                    <a class="btn border border-secondary rounded-pill px-4 py-2 text-primary" onclick="addToCart('<%= product._id %>', 1)">
+                                        <i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+                                    </a>
+                                <% } else { %>
+                                    <!-- Out of Stock Message -->
+                                    <span style="color: red; margin-right: 20px; font-weight: 600;">Out of Stock</span>
+                                <% } %>
+                                
+                                <!-- Wishlist Button -->
                                 <a onclick="addToWishlist('<%= product._id %>')" class="btn border border-secondary rounded-pill px-2 text-danger">
                                     <i class="fa fa-heart me-1 text-danger"></i> Wishlist
                                 </a>

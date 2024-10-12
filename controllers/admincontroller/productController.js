@@ -1,9 +1,10 @@
 const ProductDB=require("../../models/Products")
+const CategoryDB=require('../../models/category')
 
-const createProductTalavedhna = async(req, res) => {
 
+// create product
+const createProduct = async(req, res) => {
     try{
-
     const id=req.params.id
               const { name, category, price, stock, description } = req.body;
             console.log(req.body)
@@ -17,12 +18,7 @@ const createProductTalavedhna = async(req, res) => {
                     message:'Products  Name already used !',
                     red:'/admin/products'
                    })
-   
- 
-            }else{
-
-                // Store all uploaded images in an array
-              
+            }else{     
                 const newProduct =new ProductDB({
                     name,
                     category,
@@ -30,41 +26,61 @@ const createProductTalavedhna = async(req, res) => {
                     stock,
                     description,
                     images:imageFiles // Save the array of image filenames
-                });
-                    
+                });              
             console.log("saved")
                 await newProduct.save()
                 res.json({ success: true, message: 'Product created successfully!' ,red: "/admin/products"});
-
             }
-
         } catch (error) {
             console.error('Error creating product:', error);
             res.status(500).json({ success: false, message: 'Error creating product' });
         }
-
-         
-    
     }
+//getProducts
+const getProducts=async (req,res)=>{
+
+    const page= parseInt(req.query.page)||1
+    const limit=8
+    const skip= (page -1)* limit
+   try {
+    
+    const trotalProducts= await ProductDB.countDocuments()
+    const totalPages=Math.ceil(trotalProducts/limit)
+    const categories = await CategoryDB.find();
+    const products= await ProductDB.find()
+    .populate('category')
+    .skip(skip)
+    .limit(limit)
+
+    res.render('../views/admin/products',{
+        products,
+        categories,
+        currentPage:page,
+        totalPages
+    })
+    
+   } catch (error) {
+    console.log(error)
+    res.status(500).send(error);
+    
+   }
+     
+}
+
+
 //edit products
 
-const editProduct=async (req,res)=>{
-       
-      
-        try {
-           
-               console.log(req.files)
-               
+const editProduct=async (req,res)=>{  
+        try { 
+               console.log(req.files)     
                 const {id, name, category, price, stock, description, status } = req.body;
-                console.log(req.body)
-                
+                console.log(req.body)    
                 const product= await ProductDB.findById(id)
                 if(!product){
                     return res.status(404).json({
                         success:false,
                         message:'Products Not found Find not id!',
-                        red:'/admin/products'
-    
+                   red:'/admin/products'
                     });
                 }
                product.name=name,
@@ -72,10 +88,7 @@ const editProduct=async (req,res)=>{
                product.price=price,
                product.stock=stock,
                product.description=description,
-               product.status=status
-
-
-               
+               product.status=status        
                console.log('req.files:',req.files)
                if (req.files && req.files.length > 0) {
                 const uploadedImages = req.files.map(file => file.filename);
@@ -87,11 +100,10 @@ const editProduct=async (req,res)=>{
                 success:true,
                 message:'Product updated Successfully',
                 red:'/admin/products'
-               })
-               
-            
-            
+               })       
         }catch(err){
+            console.log(err)
+            return res.status(400).send(err)
 
         }
     
@@ -139,10 +151,8 @@ const unListProduct=async(req,res)=>{
        if(!product){
         return res.status(404).json({ message: 'Product not found' });
        }
-       // Respond with JSON indicating success
        res.json({ message: 'Product has been unlisted successfully!' });
-    } catch (error) {
-        // Handle any errors
+    } catch (error) {    
         console.error(error);       
         res.status(500).json({ success: false, message: 'Failed to unlist the product.' });
     }
@@ -151,4 +161,10 @@ const unListProduct=async(req,res)=>{
     
 
 // Export the function in CommonJS style
-module.exports = { createProductTalavedhna ,editProduct,removeImage,listProduct,unListProduct};
+module.exports = { createProduct,
+    editProduct,
+    removeImage,
+    listProduct,
+    unListProduct,
+    getProducts
+};

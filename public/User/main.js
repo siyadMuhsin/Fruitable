@@ -177,6 +177,8 @@ async function addToCart(productId, quantity) {
                             icon: 'success',
                             title: 'Added to Cart!',
                             text: response.data.message,
+                            showConfirmButton: false,
+                            timer: 1500
                         });
                     } else {
                         // Show error message if the backend responds with failure

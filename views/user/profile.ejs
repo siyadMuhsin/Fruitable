@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!-- <!-- <!DOCTYPE html> -->
 <html lang="en">
 
     <head>
@@ -270,6 +270,24 @@ h4 {
 
 
        </style> 
+
+<!-- oders styles -->
+<style>
+/* Ensure the icons are aligned and styled properly */
+.table_page a.view, .table_page a.cancel {
+    display: inline-block;
+    font-size: 1.2rem; /* Adjust the size of the icons */
+    color: #fff;
+    padding: 6px;
+    border-radius: 4px; /* Optional: Add rounded corners */
+}
+
+/* Optional hover effect */
+.table_page a.view:hover, .table_page a.cancel:hover {
+    opacity: 0.8; /* Slight transparency on hover */
+}
+
+</style>
     </head>
 
     <body>
@@ -438,33 +456,52 @@ h4 {
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>Order</th>
+                                        <th>Order ID</th>
                                         <th>Date</th>
                                         <th>Status</th>
                                         <th>Total</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="ordersTableBody">
+                                    <% orders.slice(0, 5).forEach(function(order) { %> <!-- Display only 5 orders initially -->
                                     <tr>
-                                        <td>1</td>
-                                        <td>May 10, 2018</td>
-                                        <td><span class="success">Completed</span></td>
-                                        <td>$25.00 for 1 item</td>
-                                        <td><a href="cart.html" class="view">view</a></td>
+                                        <td><%= order.orderId %></td>
+                                        <td><%= new Date(order.orderDate).toLocaleDateString() %></td>
+                                        <td>
+                                            <span 
+                                                style="<%= order.status === 'Order placed' ? 'color: #007bff;' : '' %>
+                                                       <%= order.status === 'Pending' ? 'color: #ffc107;' : '' %>
+                                                       <%= order.status === 'Confirmed' ? 'color: #17a2b8;' : '' %>
+                                                       <%= order.status === 'Shipped' ? 'color: #6c757d;' : '' %>
+                                                       <%= order.status === 'Out for Delivery' ? 'color: #343a40;' : '' %>
+                                                       <%= order.status === 'Delivered' ? 'color: #28a745;' : '' %>
+                                                       <%= order.status === 'Cancelled' ? 'color: #dc3545;' : '' %>"
+                                            >
+                                                <%= order.status %>
+                                            </span>
+                                        </td>
+                                        <td>₹<%= order.totalPrice %> for <%= order.items.length %> items</td>
+                                        <td>
+                                            <a href="/orders/<%= order._id %>" class="view btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                          
+                                        </td>
                                     </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>May 10, 2018</td>
-                                        <td>Processing</td>
-                                        <td>$17.00 for 1 item</td>
-                                        <td><a href="cart.html" class="view">view</a></td>
-                                    </tr>
+                                    <% }); %>
                                 </tbody>
                             </table>
                         </div>
+                        <!-- Show More Button -->
+                        <% if (orders.length > 5) { %>
+                            <div class="text-center">
+                                <a href="/orders" id="showMoreBtn" class="btn border border-secondary rounded-pill px-4 py-2 text-primary" style="display: block; margin: 20px auto;">
+                                    <i class="fa fa-plus me-2 text-primary"></i> Show More
+                                </a>
+                            </div>
+                        <% } %>
                     </div>
-
                     <!-- Addresses Tab -->
                     <div class="tab-pane fade" id="address">
                         <h4>Addresses</h4>
@@ -759,7 +796,7 @@ h4 {
             const state = this.dataset.state;
             const country = this.dataset.country;
 
-            // Populate modal form fields with the data
+          
             document.getElementById('editAddressId').value = addressId; // Add this line
             document.getElementById('editName').value = name;
             document.getElementById('editPhone').value = phone;
@@ -771,8 +808,7 @@ h4 {
             document.getElementById('editState').value = state;
             document.getElementById('editCountry').value = country;
 
-            // Optionally, set the form action URL or hidden input if needed
-            // document.getElementById('editAddressForm').action = `/address/update-address/${addressId}`;
+           
         });
     });
  </script>
@@ -828,11 +864,11 @@ h4 {
                            showConfirmButton: false,
                            timer: 2000,
                            customClass: {
-                               confirmButton: 'btn btn-success' // Add your custom class here
+                               confirmButton: 'btn btn-success' 
                            }
                        }).then(() => {
-                           // Optionally reload the page or redirect
-                           window.location.reload(); // Reload to show updated details
+                         
+                           window.location.reload(); 
                        });
                    } else {
                        Swal.fire({
@@ -854,7 +890,7 @@ h4 {
                         title: 'Error!',
                         text: error.response.data.message || 'There was an error changing your password.',
                         customClass: {
-                            confirmButton: 'btn btn-danger' // Add your custom class here
+                            confirmButton: 'btn btn-danger' 
                         }
                     });
                 });

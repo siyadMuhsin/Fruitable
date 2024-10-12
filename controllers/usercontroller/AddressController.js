@@ -1,12 +1,16 @@
 const Address=require('../../models/AddressModel')
 const User=require('../../models/usermodel')
+const Product=require('../../models/Products')
+const Order=require('../../models/OrdersModel')
 const bcrypt = require('bcrypt'); 
 const getProfile= async (req,res)=>{
     const user=req.session.user
     const userDetails=await User.findById(user)
+    const orders=await Order.find({user:user}).sort({ orderDate: -1 }).lean(); 
+
 
     const addresses = await Address.find({userId:user})
-    res.render('../views/user/profile',{user,addresses,userDetails})
+    res.render('../views/user/profile',{user,addresses,userDetails,orders})
 
 }
 const addAddress=async(req,res)=>{
@@ -141,6 +145,10 @@ const changePassword = async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
+        if(!user.password){
+            console.log("google user")
+            return res.status(404).json({ success: false, message: "Its Google user  you cant change password" });
+        }
 
        
         const isMatch = await bcrypt.compare(currentPassword, user.password);
@@ -170,11 +178,73 @@ const changePassword = async (req, res) => {
     }
 };
     
+// get orders
+const getOrders= async (req,res)=>{
+    const user=req.session.user
+    const orders=await Order.find({user:user}).sort({ orderDate: -1 }).lean(); 
+    res.render('../views/user/orders',{user,orders})
+}
+
+const getOrderDetails=async(req,res)=>{
+    
+    console.log(req.params.id)
+    try {
+        const user =req.session.user
+        const order_Id=req.params.id
+        const order = await Order.findById(order_Id).populate('items.productId')
+        console.log(order)
+
+        if(!order){
+            return res.status(404).send('Order not Found')
+        }
+        res.render('../views/user/orderDetails',{order,user})
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Servvdagvr gh dtshbeter Error');
+        
+    }
+}
+
+//cancel orderss
+const cancelOrder=async (req,res)=>{
+    console.log('cancel running')
+    try {
+        const {orderId}=req.body
+        const order= await Order.findById(orderId)
+
+        if(!order){
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        for (const item of order.items) {
+            const product = await Product.findById(item.productId);
+            if (!product) {
+                return res.status(404).json({ success: false, message: `Product not found for item ${item.productName}` });
+            }
+
+            // Add the quantity back to the product's stock
+            product.stock += item.quantity;
+            await product.save(); // Save updated product stock
+        }
+        
+        order.status="Cancelled"
+        await order.save()
+        return res.json({ success: true, message: 'Order cancelled successfully!' });
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+    }
+
+}
 module.exports={
     getProfile,
     addAddress,
     editAddress,
     deleteAddress,
     editDetails,
-    changePassword
+    changePassword,
+    getOrders,
+    getOrderDetails,
+    cancelOrder
 }

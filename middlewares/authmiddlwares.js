@@ -22,10 +22,11 @@ const isGuest =(req,res,next)=>{
 }
 
 const isBlocked=async  (req,res,next)=>{
+    
     const userId=req.session.user
     const check= await User.findById(userId)
     console.log(check)
-    if(check.isBlocked){
+    if(userId && check.isBlocked){
         req.session.destroy((err) => {
             if (err) {
                 console.error("Error during logout:", err);
