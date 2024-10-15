@@ -259,3 +259,5 @@ function addToWishlist(productId) {
         }
     });
 }
+
+

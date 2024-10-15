@@ -41,9 +41,6 @@ const userSchema =new moongose.Schema({
     resetPasswordExpires: {
         type: Date
     },
-
-    otp: String,
-    otpExpires: Date,
     
 },{timestamps:true})
 const User=moongose.model('User',userSchema)

@@ -8,7 +8,7 @@ const {getCart,addToCart,removeFromCart,updateQuantity}=require('../../controlle
 const {addToWishlist,getWishlist,removeFromwishlist}=require('../../controllers/usercontroller/wishlistController')
 const {getCheckout,placeOrder,getSuccessPage}=require('../../controllers/usercontroller/checkoutController')
 const {getProfile,addAddress,getOrders,
-    getOrderDetails,cancelOrder,
+    getOrderDetails,cancelOrder,cancelItem,
     editAddress,deleteAddress,editDetails,
     changePassword}=require('../../controllers/usercontroller/AddressController')
 
@@ -54,7 +54,7 @@ router.delete('/wishlist/remove/:id',removeFromwishlist)
 router.get('/profile',isAuthenticated,isBlocked,getProfile)
 router.post('/address/add_addresses',addAddress)
 router.put('/address/edit_address',editAddress)
-router.post('/address/add',deleteAddress)
+router.delete('/address/delete/:id',deleteAddress)
 
 //personal details edit
 router.patch('/profile/edit',editDetails)
@@ -68,6 +68,7 @@ router.post('/profile/changePassword',changePassword)
 router.get('/orders',isAuthenticated,getOrders)
 router.get('/orders/:id',isAuthenticated,getOrderDetails)
 router.patch('/order/cancel/',cancelOrder)
+router.patch('/order/cancel-item',cancelItem)
 
 //proceed checkout
 router.get('/checkout',isAuthenticated,noCache,getCheckout)

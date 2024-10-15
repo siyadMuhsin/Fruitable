@@ -9,7 +9,7 @@ const { createProduct ,editProduct,removeImage,listProduct,unListProduct,getProd
 const {createProductTala}=require('../../controllers/admincontroller/ProductsCtlr')
 const {getOrders,OrderView ,statusUpdate,cancelOrder}=require('../../controllers/admincontroller/orderController')
 const uploadMultipleImages=require('../../controllers/admincontroller/multer')
-
+const {getCoupons,createCoupon,updateCoupon,couponStatus}=require('../../controllers/admincontroller/CouponsCTRL')
 
 
 //Login Authentication
@@ -48,6 +48,12 @@ router.patch('/product/list/:id',listProduct)
 router.patch('/product/unList/:id',unListProduct)
 router.post('/product/edit/:id',uploadMultipleImages,editProduct)
 router.post('/product/remove-image',removeImage)
+
+// coupons Routes
+router.get('/coupons',adminAuthenticate,getCoupons)
+router.post('/coupons/create',createCoupon)
+router.put('/coupons/update/:id',updateCoupon)
+router.patch('/coupons/status/:id',couponStatus)
 
 
 module.exports=router 

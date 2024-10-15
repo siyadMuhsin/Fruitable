@@ -129,11 +129,17 @@
                             Order Delivered Successfully.
                         </div>
                     <% } else { %>
-                        <button type="button" class="btn btn-secondary" id="changeStatus">Change Status</button>
+                        <button type="submit" class="btn btn-primary">Change Status</button>
                     <% } %>
                 </form>
+                <% if (order.couponCode !== "") { %> <!-- Check if coupon was applied -->
+                    <div class="coupon-info mb-3">
+                        <p><strong>Coupon Applied:</strong> <%= order.couponCode %></p>
+                        <p><strong>Coupon Discount:</strong> ₹<%= order.couponDiscount %></p>
+                    </div>
+                <% } %>
     
-                <p class="total"><strong>Total:</strong> ₹<%= order.totalPrice %> for <%= order.items.length %> items</p>
+                <p class="total"><strong>Total:</strong> ₹<%= order.totalPrice %> for <%= nonCancelledItemCount %> items</p>
             </div>
         </div>
     
@@ -147,17 +153,25 @@
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Subtotal</th>
+                    <th>Status</th> <!-- New column for item status -->
                 </tr>
             </thead>
             <tbody>
                 <% order.items.forEach(item => { %>
-                <tr>
-                    <td><img style="width: 60px; height: 60px;" src="/images/<%= item.productImage %>" alt="<%= item.name %>"></td>
-                    <td><%= item.productName %></td>
-                    <td>₹<%= item.price %></td>
-                    <td><%= item.quantity %></td>
-                    <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
-                </tr>
+                    <tr>
+                        <td><img style="width: 60px; height: 60px;" src="/images/<%= item.productImage %>" alt="<%= item.productName %>"></td>
+                        <td><%= item.productName %></td>
+                        <td>₹<%= item.price %></td>
+                        <td><%= item.quantity %></td>
+                        <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+                        <td>
+                            <% if (item.status === 'Cancelled') { %>
+                                <span class="text-danger">Cancelled</span>
+                            <% } else { %>
+                                <span class="text-success">Active</span>
+                            <% } %>
+                        </td>
+                    </tr>
                 <% }); %>
             </tbody>
         </table>
@@ -167,6 +181,12 @@
             <h5>Order Summary</h5>
             <p><strong>Subtotal: </strong>₹<%= order.subtotal %></p>
             <p><strong>Shipping: </strong>₹<%= order.deleveryCharge %></p>
+            <% if (order.couponCode !== "") { %> <!-- Check if coupon was applied -->
+                <div class="coupon-info mb-3">
+                   
+                    <p style="color: green;"><strong style="color: black;">Discount:</strong> ₹<%= order.couponDiscount %></p>
+                </div>
+            <% } %>
             <p><strong>Total Amount: </strong>₹<%= order.totalPrice %></p>
         </div>
     
@@ -177,7 +197,6 @@
                 <p style="color: green; font-weight: bold;">Order Delivered Successfully</p>
             <% } %>
         </div>
-        <!-- Save and Change Buttons Section -->
         <div class="button-section text-center">
             <% if (order.status !== "Cancelled" && order.status !== "Delivered") { %>
                
@@ -186,6 +205,8 @@
             <% } %>
         </div>
     </div>
+    
+    
 
     <script>
         function cancelOrder(orderId) {

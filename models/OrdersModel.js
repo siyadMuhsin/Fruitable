@@ -23,7 +23,11 @@ const ordersSchema=new mongoose.Schema({
 
       
     },
-    paymentMethod: { type: String, required: true },
+    paymentMethod: { 
+        type: String, 
+        enum: ['Cash on Delivery', 'Wallet', 'Razorpay'], 
+        required: true 
+    },
     items:[
         {
             productId:String,
@@ -31,9 +35,16 @@ const ordersSchema=new mongoose.Schema({
             productImage:{type:String},
             quantity: { type: Number, required: true },
             price: { type: Number, required: true },
+            status: {
+                type: String,
+                enum: ['Ordered', 'Cancelled'],
+                default: 'Ordered'
+            }
 
         }
     ],
+    couponCode:{type:String},
+    couponDiscount:{type:Number},
     subtotal:{type:Number,required:true},
     deleveryCharge:{type:Number,require:true},
     totalPrice:{type:Number,require:true},

@@ -131,66 +131,7 @@ font-weight: 600;
 
 
         <!-- Navbar start -->
-        <div class="container-fluid fixed-top"></div>
-        <div class="container topbar bg-primary d-none d-lg-block">
-            <div class="d-flex justify-content-between">
-                <div class="top-info ps-2">
-                    <small class="me-3"><i class="fas fa-map-marker-alt me-2 text-secondary"></i> <a href="#" class="text-white">123 Street, New York</a></small>
-                    <small class="me-3"><i class="fas fa-envelope me-2 text-secondary"></i><a href="#" class="text-white">helo</a></small>
-                </div>
-                <div class="top-link pe-2">
-                    <a href="#" class="text-white"><small class="text-white mx-2">Privacy Policy</small>/</a>
-                    <a href="#" class="text-white"><small class="text-white mx-2">Terms of Use</small>/</a>
-                    <a href="#" class="text-white"><small class="text-white ms-2">Sales and Refunds</small></a>
-                </div>
-            </div>
-        </div>
-        <div class="container px-0">
-            <nav class="navbar navbar-light bg-white navbar-expand-xl">
-                <a href="/" class="navbar-brand"><h1 class="text-primary display-6">Fruitables</h1></a>
-                <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                    <span class="fa fa-bars text-primary"></span>
-                </button>
-                <div style="z-index: 99;" class="collapse navbar-collapse bg-white" id="navbarCollapse">
-                    <div class="navbar-nav mx-auto">
-                        <a href="/" class="nav-item nav-link ">Home</a>
-                        <a href="/shop" class="nav-item nav-link ">Shop</a>
-                        <a href="/contact" class="nav-item nav-link ">Contact</a>
-                    </div>
-                    <div class="d-flex m-3 me-0">
-                        <!-- Conditionally show login button if on home page -->
-                        <% if (user) { %>
-                            <!-- If user is logged in, show Log Out button -->
-                            <form action="/logout" method="post">
-                                <button class="btn btn-danger me-3" type="submit">Log Out</button>
-                            </form>
-    
-                            <!-- Wishlist Icon -->
-                            <a href="/wishlist" class="position-relative me-4 my-auto">
-                                <i class="fas fa-heart fa-2x text-danger"></i>
-                            </a>
-    
-                            <!-- Cart Icon -->
-                            <a href="/cart" class="position-relative me-4 my-auto">
-                                <i class="fa fa-shopping-bag fa-2x"></i>
-                                <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
-                            </a>
-    
-                            <!-- User Profile Icon -->
-                            <a href="/profile" class="my-auto">
-                                <i class="fas fa-user fa-2x"></i>
-                            </a>
-                        <% } else { %>
-                            <!-- If user is not logged in, show Log In button -->
-                            <a href="/login" class="btn btn-secondary me-3">Log In</a>
-                        <% } %>
-                        <!-- Search Button -->
-                        
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </div>
+        <%- include('partials/header') %>
     
         <!-- Navbar End -->
 
@@ -235,6 +176,10 @@ font-weight: 600;
                                                 Price: Low to High
                                             <% } else if (sortOption === 'priceHighLow') { %>
                                                 Price: High to Low
+                                            <% } else if (sortOption === 'aToZ') { %>
+                                                A to Z
+                                            <% } else if (sortOption === 'zToA') { %>
+                                                Z to A
                                             <% } else { %>
                                                 Default
                                             <% } %>
@@ -243,11 +188,12 @@ font-weight: 600;
                                             <li><a class="dropdown-item <%= sortOption === 'default' ? 'active' : '' %>" href="?sort=default">Default</a></li>
                                             <li><a class="dropdown-item <%= sortOption === 'priceLowHigh' ? 'active' : '' %>" href="?sort=priceLowHigh">Price: Low to High</a></li>
                                             <li><a class="dropdown-item <%= sortOption === 'priceHighLow' ? 'active' : '' %>" href="?sort=priceHighLow">Price: High to Low</a></li>
+                                            <li><a class="dropdown-item <%= sortOption === 'aToZ' ? 'active' : '' %>" href="?sort=aToZ">A to Z</a></li>
+                                            <li><a class="dropdown-item <%= sortOption === 'zToA' ? 'active' : '' %>" href="?sort=zToA">Z to A</a></li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
-                            
                           
                         </div>
                         <div class="row g-4">
@@ -255,34 +201,34 @@ font-weight: 600;
                                 <div class="row g-4">
                                     
                                     <div class="col-lg-12">
-    <div class="mb-3">
-        <h4>Categories</h4>
-        <ul class="list-unstyled fruite-categorie">
-            <!-- "All Products" Button -->
-            <li>
-                <div class="d-flex justify-content-between fruite-name">
-                    <a href="?sort=<%= sortOption %>" class="<%= !selectedCategoryId ? 'fw-bold text-primary' : '' %>">
-                        <i class="fas fa-th-large me-2"></i> All Products
-                    </a>
-                </div>
-            </li>
-
-            <!-- Loop through categories -->
-            <% categories.forEach(category => { %>
-                <li>
-                    <div class="d-flex justify-content-between fruite-name">
-                        <!-- Category link, keeping the current sort option -->
-                        <a href="?category=<%= category._id %>&sort=<%= sortOption %>" 
-                           class="<%= selectedCategoryId === category._id.toString() ? 'fw-bold text-primary' : '' %>">
-                            <i class="fas fa-apple-alt me-2"></i> <%= category.name %>
-                        </a>
-                        <span>(<%= category.productCount %>)</span>
-                    </div>
-                </li>
-            <% }) %>
-        </ul>
-    </div>
-</div>
+                                        <div class="mb-3">
+                                            <h4>Categories</h4>
+                                            <ul class="list-unstyled fruite-categorie">
+                                                <!-- "All Products" Button -->
+                                                <li>
+                                                    <div class="d-flex justify-content-between fruite-name">
+                                                        <a href="?sort=<%= sortOption %>" class="<%= !selectedCategoryId ? 'fw-bold text-primary' : '' %>">
+                                                            <i class="fas fa-th-large me-2"></i> All Products
+                                                        </a>
+                                                    </div>
+                                                </li>
+                                            
+                                                <!-- Loop through categories -->
+                                                <% categories.forEach(category => { %>
+                                                    <li>
+                                                        <div class="d-flex justify-content-between fruite-name">
+                                                            <!-- Category link, keeping the current sort option -->
+                                                            <a href="?category=<%= category._id %>&sort=<%= sortOption %>" 
+                                                               class="<%= selectedCategoryId === category._id.toString() ? 'fw-bold text-primary' : '' %>">
+                                                                <i class="fas fa-apple-alt me-2"></i> <%= category.name %>
+                                                            </a>
+                                                            <span>(<%= category.productCount %>)</span>
+                                                        </div>
+                                                    </li>
+                                                <% }) %>
+                                            </ul>
+                                        </div>
+                                    </div>
 
                                     
                                     <!-- <div class="col-lg-12">

@@ -1,19 +1,53 @@
 const Order=require('../../models/OrdersModel')
 const Product=require('../../models/Products')
 const getOrders= async(req,res)=>{
-    console.log('order Page rundering')
-    const orders=await Order.find().populate('user').sort({ orderDate: -1 }).exec()
-   
-    res.render('../views/admin/orders',{orders})
+    try {
+        const page = parseInt(req.query.page)||1
+        const limit=parseInt(req.query.limit)||6
+        const skip=(page-1)*limit;
+        const orders= await Order.find()
+            .populate('user')
+            .sort({orderDate:-1})
+            .skip(skip)
+            .limit(limit)
+            .exec();
+        const totalOrders=await Order.countDocuments()
+        const totalPages= Math.ceil(totalOrders/limit)
+
+        res.render('../views/admin/orders',{
+            orders,
+            currentPage:page,
+            totalPages,
+            limit
+        })
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Server error');
+        
+    }
+
 }
 
 
 const OrderView= async(req,res)=>{
     const orderId= req.params.id 
-    const order= await Order.findById(orderId).populate('user').exec()
-    console.log(order)
-    console.log('oreder view page rendering')
-    res.render('../views/admin/OrderDetails',{order})
+    try {
+        const order = await Order.findById(orderId).populate('user').exec();
+
+        if(!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        const nonCancelledItemCount = order.items.filter(item => item.status !== 'Cancelled').length;
+
+        console.log(order);
+        console.log('Order view page rendering');
+        res.render('../views/admin/OrderDetails', { order, nonCancelledItemCount });
+    } catch (error) {
+        console.error('Error fetching order:', error);
+        res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+    }
 }
 
 const statusUpdate= async (req,res)=>{

@@ -52,9 +52,15 @@ const showProducts = async (req, res) => {
             sort.price = 1; // Sort by price ascending
         } else if (sortOption === 'priceHighLow') {
             sort.price = -1; // Sort by price descending
+        }else if(sortOption === 'aToZ'){
+            console.log("a to z")
+            sort.name=1
+        }else if(sortOption === 'zToA'){
+            sort.name=-1
         }
 
-        // Fetch total number of products matching the query
+
+       
         const totalProducts = await ProducDB.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / limit);
 
@@ -65,7 +71,6 @@ const showProducts = async (req, res) => {
             .skip((page - 1) * limit)
             .limit(limit);
 
-        // Render the shop page with products and other relevant data
         res.render('../views/user/shop', {
             products,
             user,

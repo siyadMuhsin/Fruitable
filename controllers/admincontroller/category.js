@@ -5,12 +5,25 @@ const CategoryDB=require('../../models/category')
 
 // Get all categories
 const getCategories=async(req,res)=>{
-    try {
-        const categories= await CategoryDB.find()
-        res.render('../views/admin/Category',{categories})// Render category list page    
-    } catch (error) {
-        console.log(error)
-        res.status(500).send('Server error');    
+    try{
+        const page=parseInt(req.query.page) || 1
+        const limit =parseInt(req.query.limit)|| 5
+
+        const skip=(page-1)*limit;
+        const categories=await CategoryDB.find().skip(skip).limit(limit)
+
+        const totalCategories= await CategoryDB.countDocuments()
+        const totalPages =Math.ceil(totalCategories/limit)
+        res.render('../views/admin/Category',{
+            categories,
+            currentPage:page,
+            totalPages,
+            limit
+        })
+        }catch(error){
+            console.log(error);
+        res.status(500).send('Server error');
+
     }
 }
 

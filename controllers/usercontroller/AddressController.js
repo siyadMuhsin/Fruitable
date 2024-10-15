@@ -237,6 +237,56 @@ const cancelOrder=async (req,res)=>{
     }
 
 }
+
+const cancelItem=async(req,res)=>{
+    console.log('cancel item id:',req.body)
+    try {
+        const {itemId}=req.body
+
+        const order= await Order.findOne({'items._id':itemId})
+        if(!order){
+            return res.status(404).json({success:false,message:'Item not found in any order'})
+        }
+        const item= order.items.id(itemId)
+        if (!item) {
+            return res.status(404).json({ success: false, message: 'Item not found' });
+        }
+
+        if (item.status === 'Cancelled') {
+            return res.status(400).json({ success: false, message: 'Item already cancelled' });
+        }
+
+        const product=await Product.findById(item.productId)
+        if(!product){
+            return res.status(404).json({ success: false, message: 'Product not found for item' });
+        }
+
+        product.stock +=item.quantity;
+        await product.save()
+
+        item.status='Cancelled';
+
+        const cancelledItemSubtotal = item.price * item.quantity
+
+        order.totalPrice -= cancelledItemSubtotal 
+        order.subtotal -= cancelledItemSubtotal
+
+        const allCancelled= order.items.every(i => i.status=== 'Cancelled')
+        if(allCancelled){
+            order.status = 'Cancelled'
+
+        }
+        await order.save()
+        return res.json({ success: true, message: 'Item cancelled successfully!' });
+
+
+    } catch (error) {
+        console.error('Error cancelling item:', error);
+        return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+        
+    }
+}
+
 module.exports={
     getProfile,
     addAddress,
@@ -246,5 +296,6 @@ module.exports={
     changePassword,
     getOrders,
     getOrderDetails,
-    cancelOrder
+    cancelOrder,
+    cancelItem
 }

@@ -163,64 +163,73 @@
             <div class="container py-5">
                 <div class="table-responsive">
                     <table class="table table-stylish">
-                      <thead>
-                        <tr>
-                          <th scope="col">Products</th>
-                          <th scope="col">Name</th>
-                          <th scope="col">Price</th>
-                          <th scope="col">Quantity</th>
-                          <th scope="col">Total</th>
-                          <th scope="col">Remove</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <% cartItems.forEach(item => { %>
-                        <tr class="cart-item">
-                          <th scope="row">
-                            <div class="d-flex align-items-center">
-                              <img src="/images/<%= item.product.images[0] %>" class="img-fluid me-5 rounded-circle product-img" alt="Product Image">
-                            </div>
-                          </th>
-                          <td>
-                            <p class="mb-0 mt-4 item-name"><%= item.product.name %></p>
-                          </td>
-                          <td>
-                            <p class="mb-0 mt-4 item-price"><%= item.product.price %> ₹</p>
-                          </td>
-                          <td>
-                            <div class="input-group quantity mt-4" style="width: 100px;">
-                                <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-minus rounded-circle bg-light border update-quantity" 
-                                        onclick="updateQuantity('<%= item.product._id %>', 'decrease', '<%= item.product.price %>')">
-                                        <i class="fa fa-minus"></i>
-                                    </button>
-                                </div>
-                                <input type="text" 
-                                       class="form-control form-control-sm text-center border-0" 
-                                       value="<%= item.quantity %>" 
-                                       id="quantity-input-<%= item.product._id %>">
-                                      
-                                <div class="input-group-btn">
-                                    <button class="btn btn-sm btn-plus rounded-circle bg-light border update-quantity" 
-                                        onclick="updateQuantity('<%= item.product._id %>', 'increase', '<%= item.product.price %>')">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
-                          <td>
-                            <p class="mb-0 mt-4 item-total" id="total-price-<%= item.product._id %>"><%= (item.product.price * item.quantity).toFixed(2) %> ₹</p>
-                          </td>
-                          <td>
-                            <button class="btn btn-md rounded-circle bg-light border mt-4 remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
-                              <i class="fa fa-times text-danger"></i>
-                            </button>
-                          </td>
-                        </tr>
-                        <% }); %>
-                      </tbody>
+                        <thead>
+                            <tr>
+                                <th scope="col">Products</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (cartItems.length > 0) { %>
+                                <% cartItems.forEach(item => { %>
+                                    <tr class="cart-item">
+                                        <th scope="row">
+                                            <div class="d-flex align-items-center">
+                                                <img src="/images/<%= item.product.images[0] %>" class="img-fluid me-5 rounded-circle product-img" alt="Product Image">
+                                            </div>
+                                        </th>
+                                        <td>
+                                            <p class="mb-0 mt-4 item-name"><%= item.product.name %></p>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 mt-4 item-price"><%= item.product.price %> ₹</p>
+                                        </td>
+                                        <td>
+                                            <div class="input-group quantity mt-4" style="width: 100px;">
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-sm btn-minus rounded-circle bg-light border update-quantity" 
+                                                        onclick="updateQuantity('<%= item.product._id %>', 'decrease', '<%= item.product.price %>')">
+                                                        <i class="fa fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                                <input type="text" 
+                                                       class="form-control form-control-sm text-center border-0" 
+                                                       value="<%= item.quantity %>" 
+                                                       id="quantity-input-<%= item.product._id %>">
+                                                <div class="input-group-btn">
+                                                    <button class="btn btn-sm btn-plus rounded-circle bg-light border update-quantity" 
+                                                        onclick="updateQuantity('<%= item.product._id %>', 'increase', '<%= item.product.price %>')">
+                                                        <i class="fa fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="mb-0 mt-4 item-total" id="total-price-<%= item.product._id %>"><%= (item.product.price * item.quantity).toFixed(2) %> ₹</p>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-md rounded-circle bg-light border mt-4 remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
+                                                <i class="fa fa-times text-danger"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <p>Your cart is currently empty.</p>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
                     </table>
-                  </div>
+                </div>
+                
+                <% if (cartItems.length > 0) { %> <!-- Show only if cartItems exist -->
                 <div class="row g-4 justify-content-end">
                     <div class="col-8"></div>
                     <div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
@@ -241,15 +250,16 @@
                                     <h5 class="mb-0 ps-4 me-4">Total</h5>
                                     <p class="mb-0 pe-4" id="cart-total">₹<%= (cartTotal + 40).toFixed(2) %></p>
                                 </div>
-                                     <a href="/checkout">   <button  class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed to Checkout</button>
+                                <a href="/checkout">
+                                    <button class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed to Checkout</button>
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
+                <% } %>
             </div>
         </div>
-
       
 
         <!-- Cart Page End -->
@@ -382,7 +392,7 @@ function updateCartTotal() {
     }
 
     // Calculate total (subtotal + shipping)
-    const shipping = 40.00;  // You can adjust this value if shipping is dynamic
+    const shipping = subtotal > 500 ? 0 : 40  
     const total = subtotal + shipping;
 
     // Update the total in the DOM

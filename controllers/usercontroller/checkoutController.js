@@ -2,33 +2,41 @@ const Address=require('../../models/AddressModel')
 const Product=require('../../models/Products')
 const Cart=require("../../models/cartModal")
 const Order=require('../../models/OrdersModel')
+const Coupon= require('../../models/CouponsModel')
 const { randomBytes } = require('crypto');
 
 
 const getCheckout=async(req,res)=>{
-    
-        
-    
     try{
         console.log("checkout running..")
 
         const userId=req.session.user
         const addresses=await Address.find({userId:userId})
         const cart=await Cart.findOne({user:userId}).populate('items.product')
-        console.log(cart)
+       
+       
+ 
+        
+        const cartTotal=cart.items.reduce((total,item)=>total +(item.product.price*item.quantity),0)
+        const deleveryCharge = cartTotal> 500 ? 0 : 40.00 || 0
+        const coupons= await Coupon.find({active:true})
+        const applicableCoupons = coupons.filter(coupon => cartTotal >= coupon.minPrice);
+
         if(!cart || cart.items.length===0){
-            return res.render('../views/user/checkout', { cartItems: [], cartTotal: 0 ,user:userId,addresses});
+            return res.render('../views/user/checkout', { cartItems: [], cartTotal: 0 ,user:userId,addresses,deleveryCharge,coupons:applicableCoupons});
 
         }
-        const cartTotal=cart.items.reduce((total,item)=>total +(item.product.price*item.quantity),0)
-
+       
+ 
         
     res.render("../views/user/checkout",{   
         user:userId,
         cartItems:cart.items,
         cartId:cart._id,
         cartTotal,
-        addresses
+        addresses,
+        coupons:applicableCoupons,
+        deleveryCharge
 
     })
 
@@ -47,28 +55,18 @@ const placeOrder = async (req, res) => {
         console.log("Order placing function running");
         const userId = req.session.user;
         const cart = await Cart.findOne({ user: userId }).populate('items.product');
-        console.log('Cart:', cart);
-        
+        console.log('Cart:', cart);   
         if (!cart || cart.items.length === 0) {
             console.log("Cart is empty");
             return res.json({ success: false, message: "Your cart is empty." });
         }
-       
-        const { addressId, paymentMethod } = req.body.orderData;
+        const { addressId, paymentMethod , totalPrice , couponCode,couponDiscount,deleveryCharge} = req.body.orderData;
         const address = await Address.findById(addressId);
         console.log(address);
-
         if (!address) {
             return res.json({ success: false, message: "Address not found!" });
         }
-
-        const subtotal = cart.items.reduce((total, item) => {
-            return total + item.product.price * item.quantity;
-        }, 0);
-
-        const deleveryCharge = subtotal > 500 ? 0 : 40.00;
-        const totalPrice = subtotal + deleveryCharge;
-
+        const subtotal=cart.items.reduce((total,item)=>total +(item.product.price*item.quantity),0)
         // Check and update product stock
         for (const item of cart.items) {
             const product = await Product.findById(item.product._id); // Fetch product from the database
@@ -85,7 +83,6 @@ const placeOrder = async (req, res) => {
             product.stock -= item.quantity;
             await product.save(); // Save the updated product
         }
-
         // Create the order
         const order = new Order({
             orderId: generateOrderId(10),
@@ -109,8 +106,11 @@ const placeOrder = async (req, res) => {
                 price: item.product.price
             })),
             status: 'Order placed',
+            couponCode:couponCode,
+            couponDiscount:couponDiscount.toFixed(2),
             subtotal: subtotal.toFixed(2),
-            deleveryCharge: deleveryCharge.toFixed(2),
+            deleveryCharge: deleveryCharge,
+
             totalPrice: totalPrice.toFixed(2)
         });
 
@@ -119,6 +119,7 @@ const placeOrder = async (req, res) => {
         req.session.orderId = order.orderId;
         console.log('Order Id:', req.session.orderId);
         return res.status(201).json({ success: true, message: "Order placed successfully", order });
+       
 
     } catch (error) {
         console.log(error);

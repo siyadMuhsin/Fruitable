@@ -202,7 +202,100 @@ strong {
     color: #333; /* Darker text color */
 }
       </style>
-        
+       
+       <style>
+        /* Container for input group */
+/* Container for the input and buttons */
+.input-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px; /* Space between elements */
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+/* Input field styles */
+#couponInput {
+    width: 300px; /* Fixed width for input */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 12px 15px;
+    outline: none; /* Remove the default focus outline */
+    font-size: 16px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Shadow effect */
+    transition: box-shadow 0.3s ease; /* Smooth shadow on focus */
+}
+
+#couponInput:focus {
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow on focus */
+}
+
+/* Dropdown (Select) styles */
+#couponSelect {
+    width: 200px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 30px; /* Rounded corners */
+    background-color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none; /* Remove default focus outline */
+    appearance: none; /* Hide default dropdown arrow */
+    background-image: url('data:image/svg+xml;base64,...'); /* Custom dropdown arrow */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+}
+
+/* Apply Button styles */
+#applyCouponBtn {
+    width: 150px;
+    height: 50px;
+    background-color: #f0f0f0;
+    color: #007bff;
+    border: 2px solid #007bff;
+    font-size: 16px;
+    border-radius: 30px; /* Increased border radius */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#applyCouponBtn:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Cancel Button styles */
+#cancelCouponBtn {
+    width: 150px;
+    height: 50px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 30px; /* Increased border radius */
+    transition: background-color 0.3s ease;
+}
+
+#cancelCouponBtn:hover {
+    background-color: #b02a37;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .input-group {
+        flex-direction: column; /* Stack elements on small screens */
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    #applyCouponBtn, #cancelCouponBtn {
+        width: 100%; /* Full width buttons on smaller screens */
+    }
+}
+
+       </style>
+       
     </head>
 
     <body>
@@ -256,7 +349,6 @@ strong {
                     <div class="col-md-12 col-lg-4 col-xl-5">
                         <h4 class="mb-4 address-heading">Select Address</h4>
                         <div class="address-box">
-                            <!-- Iterate through the addresses passed from the backend -->
                             <% addresses.forEach((address, index) => { %>
                             <div class="address-item d-flex justify-content-between mb-3">
                                 <div>
@@ -314,27 +406,65 @@ strong {
                                     </tbody>
                                 </table>
                             </div>
+                            
                             <div class="d-flex justify-content-between">
                                 <h5>Subtotal:</h5>
-                                <p>₹<%= cartTotal.toFixed(2) %></p>
+                                <p id="subtotal">₹<%= cartTotal.toFixed(2) %></p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <h5>Shipping:</h5>
-                                <p>₹40.00</p>
+                                <p id="deleveryCharge">₹<%= deleveryCharge.toFixed(2) %></p>
+                            </div> 
+                            <div id="discountField" style="display: none;" class=" justify-content-between">
+                                <h5 >Discount:</h5>
+                                <p style="color: #29a316;" id="discountAmount">0</p>
                             </div>
                             <div class="d-flex justify-content-between border-top py-3">
+                               
                                 <h5>Total:</h5>
-                                <p>₹<%= (cartTotal + 40).toFixed(2) %></p>
+                                <p id="totalPrice">₹<%= (cartTotal + deleveryCharge).toFixed(2) %></p>
                             </div>
+                             <!-- Coupon Input Section -->
+                             <div class="input-group">
+                                 <input style=" max-width: 300px;" type="text" class="border-0 border-bottom rounded me-2 py-3 mb-4" placeholder="Coupon Code" id="couponInput">
+                                 
+                                 <div class="dropdown me-2">
+                                     <select style="width: 200px;" class="form-select rounded-pill" id="couponSelect" aria-label="Select Coupon">
+                                         <option value="" selected>Available Coupons</option>
+                                         <% coupons.forEach(coupon => { %>
+                                             <option value="<%= coupon.code %>" data-discount="<%= coupon.discount %>" data-min-price="<%= coupon.minPrice %>">
+                                                 <%= coupon.code %> - <%= coupon.discount %>% (Min amount: ₹<%= coupon.minPrice %>)
+                                             </option>
+                                         <% }) %>
+                                     </select>
+                                 </div>
+                                 
+                                 <button style="width: 150px; height: 50px; text-align: center;" class="btn border-secondary text-primary" type="button" id="applyCouponBtn">Apply</button>
+                                 <button style="width: 150px; height: 50px; text-align: center;" class="btn btn-danger" type="button" id="cancelCouponBtn">Cancel Coupon</button>
+                             </div>
+                             
+                             <!-- Error message for invalid coupon -->
+                             <div id="error-message" class="text-danger mb-2" style="display:none;"></div>
+                            
                             <!-- Payment Methods -->
                             <h5 class="my-4">Payment Method</h5>
+
+                            <!-- Cash on Delivery -->
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="paymentMethod" id="cod" value="Cash on Delivery" checked>
                                 <label class="form-check-label" for="cod">Cash on Delivery</label>
                             </div>
+                            
+                            <!-- Wallet -->
                             <div class="form-check my-2">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" value="Credit Card">
-                                <label class="form-check-label" for="creditCard">Credit Card</label>
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="wallet" value="Wallet">
+                                <label class="form-check-label" for="wallet">Wallet</label>
+                            </div>
+                            
+                            <!-- Razorpay -->
+                            <div class="form-check my-2">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="razorpay" value="Razorpay">
+                                <label class="form-check-label" for="razorpay">Razorpay</label>
                             </div>
                             <button class="btn btn-primary btn-lg w-100 mt-4" type="submit" onclick="placeOrder()">Place Order</button>
                         </div>
@@ -342,6 +472,7 @@ strong {
                 </div>
             </div>
         </div>
+        
         
         
         
@@ -361,51 +492,60 @@ strong {
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     <label for="name">Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" placeholder="Full Name" pattern="[A-Za-z]+" title="Name should contain only characters with no spaces." required>
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Full Name" pattern="[A-Za-z]+" title="Name should contain only characters with no spaces." >
+                                    <span class="error-message text-danger" id="nameError"></span>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="phone">Phone Number</label>
-                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Number" pattern="\d{10}" title="Phone number must be 10 digits." required>
+                                    <input type="text" class="form-control" id="phone" name="phone" placeholder="Phone Number" >
+                                    <span class="error-message text-danger" id="phoneError"></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     <label for="pincode">Pin Code</label>
-                                    <input type="text" class="form-control" id="pincode" name="pincode" pattern="\d{6}" placeholder="6-digit PIN code" title="PIN code must be 6 digits." required>
+                                    <input type="text" class="form-control" id="pincode" name="pincode" pattern="\d{6}" placeholder="6-digit PIN code" title="PIN code must be 6 digits." >
+                                    <span class="error-message text-danger" id="pincodeError"></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     <label for="locality">Locality</label>
-                                    <input type="text" class="form-control" id="locality" name="locality" placeholder="Locality" required>
+                                    <input type="text" class="form-control" id="locality" name="locality" placeholder="Locality" >
+                                    <span class="error-message text-danger" id="localityError"></span>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="landmark">Landmark (Optional)</label>
                                     <input type="text" class="form-control" id="landmark" name="landmark" placeholder="Landmark">
+                                    
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="form-group col-md-4">
                                     <label for="district">District</label>
-                                    <input type="text" class="form-control" id="district" name="district" placeholder="District" required>
+                                    <input type="text" class="form-control" id="district" name="district" placeholder="District" >
+                                    <span class="error-message text-danger" id="districtError"></span>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="state">State</label>
-                                    <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="State" >
+                                    <span class="error-message text-danger" id="stateError"></span>
                                 </div>
                                 <div class="form-group col-md-4">
                                     <label for="country">Country</label>
-                                    <input type="text" class="form-control" id="country" name="country" placeholder="Country" required>
+                                    <input type="text" class="form-control" id="country" name="country" placeholder="Country" >
+                                    <span class="error-message text-danger" id="countryError"></span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="address">Address</label>
-                                <textarea class="form-control" id="address" name="address" rows="2" placeholder="Address Line" required></textarea>
+                                <textarea class="form-control" id="addressInput" name="address" rows="2" placeholder="Address Line" ></textarea>
+                                <span class="error-message text-danger" id="addressError"></span>
                             </div>
                             <div class="form-group">
                                 <label>Address Type</label><br>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="addressType" id="home" value="Home" required>
+                                    <input class="form-check-input" type="radio" name="addressType" id="home" value="Home" >
                                     <label class="form-check-label" for="home">Home</label>
                                 </div>
                                 <div class="form-check form-check-inline">
@@ -416,6 +556,7 @@ strong {
                                     <input class="form-check-input" type="radio" name="addressType" id="other" value="Other">
                                     <label class="form-check-label" for="other">Other</label>
                                 </div>
+                                <span class="error-message text-danger" id="addressTypeError"></span>
                             </div>
                             <div class="form-group text-center">
                                 <button type="submit" class="btn btn-primary py-3 px-5">Add Address</button>
@@ -441,27 +582,32 @@ strong {
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label for="editName">Name</label>
-                            <input type="text" class="form-control" id="editName" name="editName" required>
+                            <input type="text" class="form-control" id="editName" name="editName" >
+                            <span style="font-weight: 600;" class="error-message text-danger" id="editNameError"></span>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="editPhone">Phone Number</label>
-                            <input type="text" class="form-control" id="editPhone" name="editPhone" required>
+                            <input type="text" class="form-control" id="editPhone" name="editPhone">
+                            <span style="font-weight: 600;" class="error-message text-danger" id="editPhoneError"></span>
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label for="editLocality">Locality</label>
-                            <input type="text" class="form-control" id="editLocality" name="editLocality" required>
+                            <input type="text" class="form-control" id="editLocality" name="editLocality" >
+                            <span style="font-weight: 600;" class="error-message text-danger" id="editLocalityError"></span>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="editPincode">Pin Code</label>
-                            <input type="text" class="form-control" id="editPincode" name="editPincode" required>
+                            <input type="text" class="form-control" id="editPincode" name="editPincode" >
+                            <span style="font-weight: 600;" class="error-message text-danger" id="editPincodeError"></span>
                         </div>
                     </div>
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label for="editDistrict">District</label>
-                            <input type="text" class="form-control" id="editDistrict" name="editDistrict" required>
+                            <input type="text" class="form-control" id="editDistrict" name="editDistrict" >
+                            <span style="font-weight: 600;" class="error-message text-danger" id="editDistrictError"></span>
                         </div>
                         <div class="form-group col-md-6">
                             
@@ -470,16 +616,19 @@ strong {
                     <div class="row">
                         <div class="form-group col-md-6">
                             <label for="editState">State</label>
-                            <input type="text" class="form-control" id="editState" name="editState" required>
+                            <input type="text" class="form-control" id="editState" name="editState" >
+                            <span style="font-weight: 600;" class="error-message text-danger" id="editStateError"></span>
                         </div>
                         <div class="form-group col-md-6">
                             <label for="editCountry">Country</label>
-                            <input type="text" class="form-control" id="editCountry" name="editCountry" required>
+                            <input type="text" class="form-control" id="editCountry" name="editCountry" >
+                            <span style="font-weight: 600;" class="error-message text-danger" id="editCountryError"></span>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="editAddress">Address</label>
-                        <textarea class="form-control" id="editAddress" name="editAddress" rows="2" required></textarea>
+                        <textarea class="form-control" id="editAddress" name="editAddress" rows="2" ></textarea>
+                        <span style="font-weight: 600;" class="error-message text-danger" id="editAddressError"></span>
                     </div>
                     <div class="form-group text-center">
                         <button type="submit" class="btn btn-primary py-3 px-5">Save Changes</button>
@@ -516,6 +665,87 @@ strong {
 
         <!-- Back to Top -->
         <a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>   
+
+
+<script>
+    const couponInput = document.getElementById('couponInput');
+const couponSelect = document.getElementById('couponSelect');
+
+
+couponSelect.addEventListener('change', function() {
+    const selectedCoupon = couponSelect.value;
+    if (selectedCoupon) {
+        couponInput.value = selectedCoupon; 
+    } else {
+        couponInput.value = ''; 
+    }
+});
+
+
+let discount = 0; // Variable to hold the discount amount
+let deleveryCharge= parseInt('<%=  deleveryCharge %>');
+document.getElementById('cancelCouponBtn').style.display = 'none'; // Hide the cancel button initially
+
+document.getElementById('applyCouponBtn').addEventListener('click', function() {
+    const couponInput = document.getElementById('couponInput').value.trim();
+    const selectedCoupon = document.getElementById('couponSelect').selectedOptions[0];
+    const cartTotal = parseFloat(document.getElementById('subtotal').innerText.replace('₹', ''));
+    const shippingCost = deleveryCharge;
+    console.log(shippingCost)
+    let errorMessage = '';
+    document.getElementById('error-message').style.display = 'none';
+    
+    if (couponInput) {
+        const coupon = Array.from(document.querySelectorAll('#couponSelect option')).find(opt => opt.value === couponInput);
+        if (!coupon) {
+            errorMessage = 'Invalid coupon code. Please try again.';
+        } else {
+            const couponMinPrice = parseFloat(coupon.dataset.minPrice);
+            const couponDiscount = parseFloat(coupon.dataset.discount);
+            if (cartTotal < couponMinPrice) {
+                errorMessage = `Coupon requires a minimum cart amount of ₹${couponMinPrice.toFixed(2)}.`;
+            } else {
+                discount = (couponDiscount / 100) * cartTotal; 
+                discount = Math.floor(discount);
+                document.getElementById('applyCouponBtn').style.display = 'none'; // Hide Apply button
+                document.getElementById('couponSelect').style.display = 'none'; // Hide dropdown
+                document.getElementById('cancelCouponBtn').style.display = 'block'; // Show Cancel button
+                document.getElementById('discountField').style.display= 'flex'
+            }
+        }
+    }
+    if (errorMessage) {
+        document.getElementById('error-message').innerText = errorMessage;
+        document.getElementById('error-message').style.display = 'block';
+    } else {
+        let totalPrice = cartTotal - discount + shippingCost;
+        console.log(totalPrice)
+        totalPrice = Math.ceil(totalPrice);
+        document.getElementById('totalPrice').innerText = `₹${totalPrice}`;
+        alert(`Coupon applied! New total: ₹${totalPrice}`);
+    }
+    discount = Math.ceil(discount)
+    document.getElementById('discountAmount').textContent = discount;
+});
+
+document.getElementById('cancelCouponBtn').addEventListener('click', function() {
+    document.getElementById('couponInput').value = '';
+    document.getElementById('error-message').style.display = 'none';
+     document.getElementById('discountField').style.display= 'none'
+    discount = 0; // Reset discount to 0
+    const cartTotal = parseFloat(document.getElementById('subtotal').innerText.replace('₹', ''));
+    const shippingCost = deleveryCharge;
+    let totalPrice = cartTotal + shippingCost;
+    totalPrice = Math.ceil(totalPrice);
+    document.getElementById('totalPrice').innerText = `₹${totalPrice}`;
+    document.getElementById('discountAmount').textContent =  discount;
+    document.getElementById('applyCouponBtn').style.display = 'block'; // Show Apply button
+    document.getElementById('couponSelect').style.display = 'block'; // Show dropdown
+    document.getElementById('cancelCouponBtn').style.display = 'none'; // Hide Cancel button
+    alert('Coupon has been canceled. Total price updated.');
+});
+
+</script>       
 <script>
       // Function to populate modal with the clicked address data
       document.querySelectorAll('.editAddressBtn').forEach(button => {
@@ -551,13 +781,24 @@ function placeOrder() {
     // Get selected address and payment method
     const selectedAddress = document.querySelector('input[name="address"]:checked').value;
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    console.log(selectedPaymentMethod)
+   
 
+    const totalPrice = parseFloat(document.getElementById('totalPrice').innerText.replace('₹', '')); // Get the total price from the page
+    const couponCode = document.getElementById('couponInput').value.trim(); // Get the coupon code from the input
+    const couponDiscount = parseFloat(document.getElementById('discountAmount').innerText) || 0; // Get the coupon discount (or 0 if no discount)
+
+    const deleveryCharge = '<%=  deleveryCharge %>'
+console.log(deleveryCharge)
     const orderData = {
         addressId: selectedAddress,
         paymentMethod: selectedPaymentMethod,
+        totalPrice: totalPrice, // Add total price to order data
+        couponCode: couponCode, // Add coupon code to order data
+        couponDiscount: couponDiscount ,// Add coupon discount to order data
+        deleveryCharge:deleveryCharge
     };
 
-    // Confirmation alert before placing the order
     Swal.fire({
         title: 'Are you sure?',
         text: "Do you want to place this order?",
@@ -568,7 +809,6 @@ function placeOrder() {
         confirmButtonText: 'Yes, place order!'
     }).then((result) => {
         if (result.isConfirmed) {
-            // If confirmed, proceed with placing the order
             axios.post('/placed_order', { orderData })
                 .then((response) => {
                     // Success alert when order is placed successfully

@@ -392,8 +392,14 @@ img:hover {
             <p class="order-status">Status: <span class="status <%= order.status.toLowerCase().replace(/\s+/g, '-') %>"><%= order.status %></span></p>
         <% } %>
     
-        <p class="total">Total: ₹<%= order.totalPrice %> for <%= order.items.length %> items</p>
+        <p class="total">Total: ₹<%= order.totalPrice %> for <%= order.items.filter(item => item.status !== 'Cancelled').length; %> items</p>
     
+        <% if (order.couponCode !=="") { %> <!-- Check if coupon was applied -->
+            <div class="coupon-info">
+                <p>Coupon Applied: <strong><%= order.couponCode %></strong></p>
+                <p>Coupon Discount: ₹<%= order.couponDiscount %></p>
+            </div>
+        <% } %>
         <!-- Items Section -->
         <h6>Items:</h6>
         <table class="table table-bordered">
@@ -404,6 +410,7 @@ img:hover {
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Subtotal</th>
+                    <th>Action</th> <!-- Add Action column -->
                 </tr>
             </thead>
             <tbody>
@@ -414,10 +421,19 @@ img:hover {
                         <td>₹<%= item.price %></td>
                         <td><%= item.quantity %></td>
                         <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+                        <td>
+                            <!-- Cancel button for individual items -->
+                            <% if (order.status !== 'Cancelled' && item.status !== 'Cancelled') { %>
+                                <button type="button" class="btn btn-danger" onclick="cancelItem('<%= item._id %>')">Cancel</button>
+                            <% } else { %>
+                                <span class="text-muted">Cancelled</span>
+                            <% } %>
+                        </td>
                     </tr>
                 <% }); %>
             </tbody>
         </table>
+       
     
  <!-- Delivery Tracking Section -->
 <h6 class="tracking-header">Delivery Tracking</h6>
@@ -475,8 +491,61 @@ img:hover {
     <% } %>
 </div>
 
-
-    <!-- <%- include('partials/foooter') %> -->
+<script>
+    function cancelItem(itemId) {
+    Swal.fire({
+        title: 'Confirm Cancellation',
+        text: 'Are you sure you want to cancel this item?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, cancel it!',
+        cancelButtonText: 'No, keep it!',
+        customClass: {
+            confirmButton: 'btn btn-danger',
+            cancelButton: 'btn btn-secondary'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Axios PATCH request to cancel the individual item
+            axios.patch('/order/cancel-item', { itemId })
+                .then(response => {
+                    if (response.data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Item cancelled successfully!',
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                confirmButton: 'btn btn-success'
+                            }
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Failed to cancel item. Please try again.',
+                            icon: 'error',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                }).catch(error => {
+                    console.error('Error cancelling item:', error);
+                    Swal.fire({
+                        title: 'Server Error!',
+                        text: 'Please try again later.',
+                        icon: 'error',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'btn btn-danger'
+                        }
+                    });
+                });
+        }
+    });
+}
+</script>
 
     <script>
           function cancelOrder(orderId) {

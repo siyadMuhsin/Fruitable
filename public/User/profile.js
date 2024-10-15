@@ -15,24 +15,35 @@ function toggleEditForm() {
 
 function editDetails(event) {
 event.preventDefault();
-const username = document.getElementById('username').value;
+document.querySelectorAll('.error-message').forEach(function(el) {
+    el.textContent = '';
+});
+const username = document.getElementById('username').value.trim();
 const phoneInput = document.getElementById('phone');
-const phone = phoneInput.value;
+const phone = phoneInput.value.trim();
 
-// Validate phone number
-const phoneRegex = /^\d{10}$/; // Regex for 10 digits only
 
+const phoneRegex = /^\d{10}$/; 
+
+let isValid=true
+
+if(!username){
+   
+    document.getElementById('detailsName').textContent='name required'
+    isValid=false
+}
 if (!phoneRegex.test(phone)) {
-    // Invalid phone number
+    
     phoneInput.style.borderColor = 'red'; // Change border color to red
-    alert('Please enter a valid 10-digit phone number.'); // Alert the user
-    return; // Stop form submission
+    document.getElementById('detailsPhone').textContent='Please enter a valid 10-digit phone number.'   
+   isValid=false
 } else {
-    // Valid phone number
-    phoneInput.style.borderColor = 'green'; // Change border color to green
+    phoneInput.style.borderColor = 'green';
 }
 
-
+if(!isValid){
+    return false
+}
 const data = {
     username: username,
     phone: phone
@@ -84,8 +95,13 @@ Swal.fire({
 //address submission
 
 function submitAddressForm(event) {
+    console.log("thodaghi")
     event.preventDefault();
 
+
+    document.querySelectorAll('.error-message').forEach(function(el) {
+        el.textContent = '';
+    });
     // Get form field values
     const name = document.getElementById('name').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -94,7 +110,7 @@ function submitAddressForm(event) {
     const district = document.getElementById('district').value.trim();
     const state = document.getElementById('state').value.trim();
     const country = document.getElementById('country').value.trim();
-    const address = document.getElementById('address').value.trim();
+    const address = document.getElementById('addressInput').value.trim();
     const addressType = document.querySelector('input[name="addressType"]:checked');
 
     // Regex patterns for validation
@@ -102,53 +118,52 @@ function submitAddressForm(event) {
     const phonePattern = /^\d{10}$/;
     const pincodePattern = /^\d{6}$/;
 
-    // Validate name
-    if (!namePattern.test(name)) {
-        alert("Name should contain only characters with no spaces.");
-        return false;
-    }
+ 
+   let isValid=true
 
-    // Validate phone number
+     
+       if (!namePattern.test(name)) {
+        document.getElementById('nameError').textContent = "Name should contain only characters with no spaces.";
+        isValid = false;
+    }
     if (!phonePattern.test(phone)) {
-        alert("Phone number must be exactly 10 digits.");
-        return false;
+        document.getElementById('phoneError').textContent = "Phone number must be exactly 10 digits.";
+        isValid = false;
     }
-
-    // Validate pincode
     if (!pincodePattern.test(pincode)) {
-        alert("PIN code must be exactly 6 digits.");
-        return false;
+        document.getElementById('pincodeError').textContent = "PIN code must be exactly 6 digits.";
+        isValid = false;
     }
-
-    // Validate required fields
     if (!locality) {
-        alert("Locality is required.");
-        return false;
+        document.getElementById('localityError').textContent = "Locality is required.";
+        isValid = false;
     }
     if (!district) {
-        alert("District is required.");
-        return false;
+        document.getElementById('districtError').textContent = "District is required.";
+        isValid = false;
     }
     if (!state) {
-        alert("State is required.");
-        return false;
+        document.getElementById('stateError').textContent = "State is required.";
+        isValid = false;
     }
     if (!country) {
-        alert("Country is required.");
-        return false;
+        document.getElementById('countryError').textContent = "Country is required.";
+        isValid = false;
     }
     if (!address) {
-        alert("Address is required.");
-        return false;
+        document.getElementById('addressError').textContent = "Address is required.";
+        isValid = false;
     }
-
-    // Validate address type selection
     if (!addressType) {
-        alert("Please select an address type.");
+        document.getElementById('addressTypeError').innerText = "Please select an address type.";
         return false;
+    } else {
+        document.getElementById('addressTypeError').innerText = ""; // Clear the error message if valid
     }
 
-    // Proceed to form submission if validation is successful
+    if (!isValid) {
+        return false;
+    }
     const addAddressForm = document.getElementById('addAddressForm');
     const formData = new FormData(addAddressForm);
 
@@ -157,7 +172,7 @@ function submitAddressForm(event) {
         addressData[key] = value;
     });
 
-    // SweetAlert confirmation before submission
+    
     Swal.fire({
         title: 'Confirm Submission',
         text: 'Are you sure you want to add this address?',
@@ -171,11 +186,9 @@ function submitAddressForm(event) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // If confirmed, make the Axios POST request
             axios.post('/address/add_addresses', addressData)
                 .then(response => {
                     if (response.data.success) {
-                        // SweetAlert success notification
                         Swal.fire({
                             title: 'Success!',
                             text: 'Address added successfully!',
@@ -227,12 +240,61 @@ function submitAddressForm(event) {
         event.preventDefault();
 
         const editAddressForm = document.getElementById('editAddressForm');
+        document.querySelectorAll('.error-message').forEach(function(el) {
+            el.textContent = '';
+        });
 
-// Create a FormData object from the form
+        const name = document.getElementById('editName').value.trim();
+        const phone = document.getElementById('editPhone').value.trim();
+        const pincode = document.getElementById('editPincode').value.trim();
+        const locality = document.getElementById('editLocality').value.trim();
+        const district = document.getElementById('editDistrict').value.trim();
+        const state = document.getElementById('editState').value.trim();
+        const country = document.getElementById('editCountry').value.trim();
+        const address = document.getElementById('editAddress').value.trim();
+        const addressType = document.querySelector('input[name="addressType"]:checked');
+
+     
+    const phonePattern = /^\d{10}$/;
+    const pincodePattern = /^\d{6}$/;
+    let isValid = true; // Flag to track form validity
+    if (!name) {
+        document.getElementById('editNameError').textContent = "Name should be required.";
+        isValid = false;
+    }
+    if (!phonePattern.test(phone)) {
+        document.getElementById('editPhoneError').textContent = "Phone number must be exactly 10 digits.";
+        isValid = false;
+    }
+    if (!pincodePattern.test(pincode)) {
+        document.getElementById('editPincodeError').textContent = "PIN code must be exactly 6 digits.";
+        isValid = false;
+    }
+    if (!locality) {
+        document.getElementById('editLocalityError').textContent = "Locality is required.";
+        isValid = false;
+    }
+    if (!district) {
+        document.getElementById('editDistrictError').textContent = "District is required.";
+        isValid = false;
+    }
+    if (!state) {
+        document.getElementById('editStateError').textContent = "State is required.";
+        isValid = false;
+    }
+    if (!country) {
+        document.getElementById('editCountryError').textContent = "Country is required.";
+        isValid = false;
+    }
+    if (!address) {
+        document.getElementById('editAddressError').textContent = "Address is required.";
+        isValid = false;
+    }
+    if (!isValid) {
+        return false;
+    }
 const formData = new FormData(editAddressForm);
 console.log(formData)
-
-// Create an object to hold the form data
 const addressData = {};
 formData.forEach((value, key) => {
     addressData[key] = value;
@@ -300,10 +362,7 @@ formData.forEach((value, key) => {
                 });
         }
     });
-        // Additional validation logic if needed
         
-        
-        // $('#editAddressModal').modal('hide');
     }
 
 
@@ -371,3 +430,7 @@ formData.forEach((value, key) => {
         
             }
     }
+
+
+
+    

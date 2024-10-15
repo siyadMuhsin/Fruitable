@@ -1,4 +1,5 @@
 const User = require('../../models/usermodel');
+const Otp =require('../../models/otpModel')
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const session=require('express-session')
@@ -46,14 +47,15 @@ exports.requestOtp = async (req, res) => {
     const otp = crypto.randomInt(1000, 9999).toString();
     console.log(otp)
     const otpExpires = Date.now() + 1 * 60 * 1000; // 1 minutes validity
-    let user = await User.findOne({ email });
-    if (user) {
-        user.otp = otp;
-        user.otpExpires = otpExpires;
-    } else {
-        user = new User({ email, otp, otpExpires });
-    }
-    await user.save();
+
+    const otpEntry= new Otp({
+        email,
+        otp,
+        expires:otpExpires
+    })
+    await otpEntry.save()
+
+    
     const mailOptions = {
         from: 'muhsin4065@gmail.com',
         to: email,
@@ -79,16 +81,16 @@ exports.resendOTP=async (req,res)=>{
     }
     
     const currentTime= Date.now()
-    if(user.otpExpires>currentTime){
-        return res.status(400).send('Please wait before requesting a new OTP')
+    const otpEntry= await Otp.findOne({email})
+
+    if (otpEntry && otpEntry.expires>currentTime){
+        return res.status(400).sendd('please wait before requesting a new OTP')
     }
 
     // Generate and send new OTP
     const otp =crypto.randomInt(1000,9999).toString()
     console.log(otp)
-    user.otp=otp
-    user.otpExpires=currentTime + 1 * 60 * 1000; // Reset expiration time
-    await user.save()
+   await Otp.updateOne({eamil},{otp,expires:currentTime + 1 * 60 * 1000},{upsert:true})
     const mailOptions={
         from: 'muhsin4065@gmail.com',
         to: email,
@@ -111,26 +113,30 @@ exports.verifyOtp = async (req, res) => {
     if (!username || !email || !password || !otpInput) {
         return res.status(400).send('All fields are required');
     }
-    const user = await User.findOne({ email });
-    if (!user || user.otp !== otpInput ) {
-        if(user.otpExpires < Date.now()){
-            await User.deleteOne({ email });
-        }    
-        return res.render('../views/user/otp', {
+   const otpEntry= await Otp.findOne({email})
+    if (!otpEntry || otpEntry.otp !==otpInput){
+        if(otpEntry && otpEntry.expires<Date.now()){
+            await Otp.deleteOne({email})
+        }
+        return res.render('../views/user/otp',{
             email,
             username,
             password,
-            errorMessage: 'Invalis OTP' // Pass an error flag to the view
-        });
-}
+            errorMessage:'Invalid OTP'
+        })
+    }
+ 
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
-    user.username = username;
-    user.password = hash;
-    user.otp = undefined;
-    user.otpExpires = undefined;
+    const user = new User({
+        username,
+        email,
+        password:hash
+    })
     await user.save();
+
+    await Otp.deleteOne({email})
     res.redirect('/login')
 };
 
