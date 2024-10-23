@@ -483,7 +483,7 @@ h4 {
                                                 <%= order.status %>
                                             </span>
                                         </td>
-                                        <td>₹<%= order.totalPrice %> for <%= order.items.length %> items</td>
+                                        <td>₹<%= order.totalPrice %> for <%= order.items.filter(item => item.status !== 'Cancelled').length; %> items</td>
                                         <td>
                                             <a href="/orders/<%= order._id %>" class="view btn btn-primary btn-sm">
                                                 <i class="fas fa-eye"></i> View
@@ -552,10 +552,12 @@ h4 {
                     <!-- Wallet Tab -->
                     <div class="tab-pane fade" id="wallet">
                         <h4><i class="fas fa-wallet" style="font-size: 40px; color: #81C408;"></i> My Wallet</h4>
+                    
                         <!-- Wallet Balance -->
                         <div class="wallet-balance">
-                            <h5>Current Balance: <span style="color: #81C408;">$150.00</span></h5>
+                            <h5>Current Balance: <span style="color: #81C408;">₹<%= wallet.balance.toFixed(2) %></span></h5>
                         </div>
+                    
                         <!-- Transaction History -->
                         <h5>Transaction History</h5>
                         <div class="table_page table-responsive">
@@ -565,32 +567,40 @@ h4 {
                                         <th>Date</th>
                                         <th>Description</th>
                                         <th>Amount</th>
-                                        <th>Status</th>
+                                        <th>Type</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>October 1, 2024</td>
-                                        <td>Order #1001 Payment</td>
-                                        <td>-$25.00</td>
-                                        <td><span class="success">Completed</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>September 20, 2024</td>
-                                        <td>Refund for Order #1002</td>
-                                        <td>+$15.00</td>
-                                        <td><span class="success">Completed</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>September 15, 2024</td>
-                                        <td>Order #1003 Payment</td>
-                                        <td>-$30.00</td>
-                                        <td><span class="pending">Pending</span></td>
-                                    </tr>
+                                    <% if (transactions && transactions.length > 0) { %>
+                                        <% transactions.slice(0, 5).forEach(transaction => { %> <!-- Show only the first 5 transactions -->
+                                            <tr>
+                                                <td style="color: black; font-weight: 550;"><%= new Date(transaction.date).toLocaleDateString() %></td>
+                                                <td style="color: black; font-weight: 550;"><%= transaction.description %></td>
+                                                <td style=" font-weight: 600; color: <%= transaction.type === 'credit' ? 'green' : 'red' %>; ">
+                                                    <%= transaction.type === 'credit' ? '+' : '-' %>₹<%= Math.abs(transaction.amount).toFixed(2) %>
+                                                </td>
+                                                <td>
+                                                    <span style="font-weight: 700; color: <%= transaction.type === 'credit' ? 'green' : 'red' %>;">
+                                                        <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %> <!-- Capitalize the first letter -->
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="4">No transactions found.</td>
+                                        </tr>
+                                    <% } %>
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <!-- Show "See more" button if there are more than 5 transactions -->
+                        <% if (transactions && transactions.length > 5) { %>
+                            <a href="/wallet">See all transactions</a>
+                        <% } %>
                     </div>
+                    
 
                 </div>
             </div>

@@ -175,7 +175,7 @@
                         </thead>
                         <tbody>
                             <% if (cartItems.length > 0) { %>
-                                <% cartItems.forEach(item => { %>
+                                <% cartItems.forEach((item, index) => { %>
                                     <tr class="cart-item">
                                         <th scope="row">
                                             <div class="d-flex align-items-center">
@@ -186,7 +186,21 @@
                                             <p class="mb-0 mt-4 item-name"><%= item.product.name %></p>
                                         </td>
                                         <td>
-                                            <p class="mb-0 mt-4 item-price"><%= item.product.price %> ₹</p>
+                                            <p class="mb-0 mt-4 item-price">
+                                                <% if (greatestDiscounts[index] > 0) { %>
+                                                    <!-- Show discounted price if discount exists -->
+                                                    <span class="text-success fw-bold">
+                                                        ₹<%= (item.product.price - (item.product.price * (greatestDiscounts[index] / 100))).toFixed(2) %>
+                                                    </span>
+                                                    <!-- Strike-through original price -->
+                                                    <span class="text-muted text-decoration-line-through">
+                                                        ₹<%= item.product.price %>
+                                                    </span>
+                                                <% } else { %>
+                                                    <!-- Show original price if no discount -->
+                                                    ₹<%= item.product.price.toFixed(2) %>
+                                                <% } %>
+                                            </p>
                                         </td>
                                         <td>
                                             <div class="input-group quantity mt-4" style="width: 100px;">
@@ -209,7 +223,15 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <p class="mb-0 mt-4 item-total" id="total-price-<%= item.product._id %>"><%= (item.product.price * item.quantity).toFixed(2) %> ₹</p>
+                                            <p class="mb-0 mt-4 item-total" id="total-price-<%= item.product._id %>">
+                                                <% if (greatestDiscounts[index] > 0) { %>
+                                                    <!-- Calculate total using discounted price if discount exists -->
+                                                    ₹<%= (Math.floor((item.product.price - (item.product.price * (greatestDiscounts[index] / 100))) * item.quantity)).toFixed(2) %>
+                                                <% } else { %>
+                                                    <!-- Calculate total using original price -->
+                                                    ₹<%= (item.product.price * item.quantity).toFixed(2) %>
+                                                <% } %>
+                                            </p>
                                         </td>
                                         <td>
                                             <button class="btn btn-md rounded-circle bg-light border mt-4 remove-btn" onclick="removeFromCart('<%= item.product._id %>')">
@@ -372,36 +394,47 @@ function updateCartTotal() {
 
     // Loop through each cart item to calculate the subtotal
     cartItems.forEach(item => {
-        const itemPrice = parseFloat(item.querySelector('.item-price').textContent.replace('$', '')); // Get price
-        const quantity = parseInt(item.querySelector('input').value); // Get quantity
+        // Get original and discounted prices
+        const originalPriceElement = item.querySelector('.item-price .text-muted'); // Original price (if present)
+        const discountedPriceElement = item.querySelector('.item-price .text-success'); // Discounted price (if present)
+        
+        let itemPrice = 0;
+        
+        if (discountedPriceElement) {
+            // If there's a discounted price, use that
+            itemPrice = parseFloat(discountedPriceElement.textContent.replace('₹', ''));
+        } else {
+            // Otherwise, use the original price
+            itemPrice = parseFloat(item.querySelector('.item-price').textContent.replace('₹', ''));
+        }
 
-        const itemTotal = itemPrice * quantity; // Calculate item total
+        const quantity = parseInt(item.querySelector('input').value); // Get quantity
+        const itemTotal = Math.floor(itemPrice * quantity); // Calculate item total
         subtotal += itemTotal; // Add to subtotal
 
         // Update the item's total price in the DOM
         const totalPriceElement = item.querySelector('.item-total');
         if (totalPriceElement) {
-            totalPriceElement.textContent = `$${itemTotal.toFixed(2)}`; // Update the item total in the DOM
+            totalPriceElement.textContent = `₹${itemTotal.toFixed(2)}`; // Update the item total in the DOM
         }
     });
 
     // Update the subtotal in the DOM
     const subtotalElement = document.getElementById('cart-subtotal');
     if (subtotalElement) {
-        subtotalElement.textContent = `$${subtotal.toFixed(2)}`;  // Update subtotal
+        subtotalElement.textContent = `₹${subtotal.toFixed(2)}`;  // Update subtotal
     }
 
     // Calculate total (subtotal + shipping)
-    const shipping = subtotal > 500 ? 0 : 40  
+    const shipping = subtotal > 500 ? 0 : 40;  // Free shipping for orders above 500
     const total = subtotal + shipping;
 
     // Update the total in the DOM
     const totalElement = document.getElementById('cart-total');
     if (totalElement) {
-        totalElement.textContent = `$${total.toFixed(2)}`;  // Update total cart value
+        totalElement.textContent = `₹${total.toFixed(2)}`;  // Update total cart value
     }
 }
-
 </script>
 
 

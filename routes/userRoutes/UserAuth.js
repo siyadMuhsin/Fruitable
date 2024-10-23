@@ -6,12 +6,12 @@ const {isAuthenticated,isGuest,noCache, isBlocked}=require('../../middlewares/au
 const shopCtlr=require('../../controllers/usercontroller/shopCtlr')
 const {getCart,addToCart,removeFromCart,updateQuantity}=require('../../controllers/usercontroller/CartController')
 const {addToWishlist,getWishlist,removeFromwishlist}=require('../../controllers/usercontroller/wishlistController')
-const {getCheckout,placeOrder,getSuccessPage}=require('../../controllers/usercontroller/checkoutController')
-const {getProfile,addAddress,getOrders,
+const {getCheckout,placeOrder,getSuccessPage,verifyPayment,rePayment}=require('../../controllers/usercontroller/checkoutController')
+const {getProfile,addAddress,getOrders,requestReturnOrder,returnItem,
     getOrderDetails,cancelOrder,cancelItem,
-    editAddress,deleteAddress,editDetails,
+    editAddress,deleteAddress,editDetails,downloadinvoice,
     changePassword}=require('../../controllers/usercontroller/AddressController')
-
+const {getWallet}= require('../../controllers/usercontroller/WalletController')
 
 
 
@@ -62,18 +62,26 @@ router.patch('/profile/edit',editDetails)
 //Change Password
 router.post('/profile/changePassword',changePassword)
 
-
+const test=(req,res,next)=>{
+    console.log('testing...')
+    next()
+}
 
 // orders section
 router.get('/orders',isAuthenticated,getOrders)
 router.get('/orders/:id',isAuthenticated,getOrderDetails)
 router.patch('/order/cancel/',cancelOrder)
 router.patch('/order/cancel-item',cancelItem)
+router.post('/request-return-order',requestReturnOrder)
+router.post('/return/item/:itemId',returnItem)
+
+// Download Invoice
+router.get('/orders/:orderId/details',downloadinvoice)
 
 //proceed checkout
 router.get('/checkout',isAuthenticated,noCache,getCheckout)
 router.post('/placed_order',placeOrder)
-router.get('/order/placed',isAuthenticated,noCache,getSuccessPage)
+router.get('/order/placed/:orderId',test,noCache,getSuccessPage)
 
 
 //google
@@ -90,6 +98,11 @@ router.get('/auth/google/callback',passport.authenticate('google',{failureRedire
 })
 
 
+router.post('/order/verify_payment/:id',test,verifyPayment)
+router.post('/proceedToPayment',test,rePayment)
 
+
+
+router.get('/wallet',test,getWallet)
 
 module.exports = router;

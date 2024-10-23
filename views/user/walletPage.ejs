@@ -1,0 +1,278 @@
+<!-- views/user/wallet.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wallet</title>
+    <link rel="stylesheet" href="/path/to/bootstrap.css"> <!-- Add your CSS framework -->
+    <link rel="stylesheet" href="/path/to/styles.css"> <!-- Your custom styles -->
+</head>
+<body>
+    <style>
+        :root {
+  --primary-color: #81c408;
+  --secondary-color: #0039cb;
+  --success-color: #00c853;
+  --danger-color: #ff1744;
+  --background-color: #f5f7ff;
+  --card-background: #ffffff;
+  --text-primary: #2c3e50;
+  --text-secondary: #607d8b;
+  --border-color: #e0e6ed;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Global Styles */
+body {
+  background-color: var(--background-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Wallet Container Styles */
+.wallet-container {
+  background: var(--card-background);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px var(--shadow-color);
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 2rem auto;
+  transition: transform 0.3s ease;
+}
+
+.wallet-container:hover {
+  transform: translateY(-5px);
+}
+
+/* Header Styles */
+h2 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--primary-color);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+h2:hover::after {
+  width: 120px;
+}
+
+/* Balance Display */
+p strong {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+p {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(41, 98, 255, 0.1);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+/* Transaction History Section */
+h3 {
+  color: var(--text-primary);
+  margin: 2rem 0 1rem;
+  font-size: 1.8rem;
+}
+
+/* Table Styles */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1rem 0;
+}
+
+.table thead th {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem;
+  font-weight: 600;
+  text-align: left;
+  transition: background-color 0.3s ease;
+}
+
+.table thead th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.table thead th:last-child {
+  border-top-right-radius: 8px;
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: rgba(41, 98, 255, 0.05);
+}
+
+.table tbody tr:hover {
+  background-color: rgba(41, 98, 255, 0.1);
+  transform: scale(1.01);
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Transaction Types */
+td:last-child {
+  font-weight: 600;
+}
+
+td:last-child:contains("credit") {
+  color: var(--success-color);
+}
+
+td:last-child:contains("debit") {
+  color: var(--danger-color);
+}
+
+/* Empty State */
+tr td[colspan="4"] {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wallet-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table, .table tbody, .table tr, .table td {
+    display: block;
+    width: 100%;
+  }
+
+  .table tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
+
+  .table td {
+    text-align: right;
+    padding: 0.5rem;
+    position: relative;
+    border-bottom: none;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    width: 50%;
+    padding-left: 0.5rem;
+    font-weight: 600;
+    text-align: left;
+  }
+}
+
+/* Animation for new transactions */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table tbody tr {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Loading State Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading {
+  background: linear-gradient(90deg, 
+    var(--background-color) 25%, z
+    rgba(41, 98, 255, 0.1) 50%, 
+    var(--background-color) 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+    </style>
+    <div class="wallet-container">
+        <h2>My Wallet</h2>
+        <p style="font-weight: 600; color: #1c4bcc;"><strong>Balance:</strong> ₹<%= wallet.balance %></p>
+    
+        <h3>Transaction History</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (transactions.length > 0) { %>
+                    <% transactions.forEach(transaction => { %>
+                        <tr>
+                            <td><%= new Date(transaction.date).toLocaleDateString() %></td>
+                            <td><%= transaction.description %></td>
+                            <td style="color: <%= transaction.type === 'credit' ? 'green' : 'red' %>;">
+                                ₹<%= transaction.amount %>
+                            </td>
+                            <td style="color: <%= transaction.type === 'credit' ? 'green' : 'red' %>;">
+                                <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %> <!-- Capitalize the first letter -->
+                            </td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="4">No transactions found</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="/path/to/your/javascript.js"></script> <!-- Include your JS file for handling wallet operations -->
+</body>
+</html>

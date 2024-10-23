@@ -7,10 +7,12 @@ const category=require('../../controllers/admincontroller/category')
 const {validateCategory,adminAuthenticate}=require("../../middlewares/adminMiddlwares/adminSide")
 const { createProduct ,editProduct,removeImage,listProduct,unListProduct,getProducts} = require("../../controllers/admincontroller/productController")
 const {createProductTala}=require('../../controllers/admincontroller/ProductsCtlr')
-const {getOrders,OrderView ,statusUpdate,cancelOrder}=require('../../controllers/admincontroller/orderController')
+const {getOrders,OrderView ,statusUpdate,
+    cancelOrder,approveReturn,rejectReturn,
+    markOrderReturn,returnitem,rejectReturnItem}=require('../../controllers/admincontroller/orderController')
 const uploadMultipleImages=require('../../controllers/admincontroller/multer')
 const {getCoupons,createCoupon,updateCoupon,couponStatus}=require('../../controllers/admincontroller/CouponsCTRL')
-
+const {getOfferPage,createOffer,updateOffer,activateOffer ,deactivateOffer}= require('../../controllers/admincontroller/offerCTLR')
 
 //Login Authentication
 router.get('/',noCache,adminAuth.adminGet)
@@ -34,11 +36,21 @@ router.patch('/category/unList/:id',category.unListCategory)
 router.put('/category/edit/:id',category.editCategory)
 
 
+const test=(req,res,next)=>{
+    console.log('testing...')
+    next()
+}
 // order controller
 router.get('/orders',adminAuthenticate,getOrders)
 router.get('/order/view/:id',adminAuthenticate,OrderView)
 router.post('/order/updateStatus/:id',statusUpdate)
 router.patch('/order/cancel',cancelOrder)
+router.post('/approve-return',approveReturn)
+router.post('/reject-return',rejectReturn)
+router.post('/mark_order_returned',test,markOrderReturn)
+// Each item return 
+router.post('/approve/returnItem/:itemId',returnitem)
+router.post('/reject/returnItem/:itemId',rejectReturnItem)
 
 
 //Products Routes
@@ -55,5 +67,12 @@ router.post('/coupons/create',createCoupon)
 router.put('/coupons/update/:id',updateCoupon)
 router.patch('/coupons/status/:id',couponStatus)
 
+
+// Offers Routes
+router.get('/offers',getOfferPage)
+router.post('/offers/create',test,createOffer)
+router.put('/offers/update/',test,updateOffer)
+router.patch('/offers/action/:id',test,activateOffer)
+router.put('/offers/ac/:id',deactivateOffer)
 
 module.exports=router 

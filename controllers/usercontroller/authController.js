@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const session=require('express-session')
 const crypto = require('crypto');
+const Wallet= require('../../models/WalletModel')
 
 
 
@@ -135,6 +136,9 @@ exports.verifyOtp = async (req, res) => {
         password:hash
     })
     await user.save();
+    const wallet = new Wallet({ user: user._id });
+    await wallet.save();
+
 
     await Otp.deleteOne({email})
     res.redirect('/login')
@@ -156,6 +160,7 @@ exports.userLogin=async (req,res)=>{
 exports.checkDetails=async (req,res)=>{
     console.log('check details')
     const{email,password}=req.body
+    console.log(req.body)
     try{
         const check= await User.findOne({email});
         if(!check){
@@ -168,7 +173,13 @@ exports.checkDetails=async (req,res)=>{
             if(!check.isBlocked){
 
                 req.session.user=check._id
-                console.log(req.session.user)
+                let wallet = await Wallet.findOne({ user: check._id });
+
+                // If the wallet does not exist, create it
+                if (!wallet) {
+                    wallet = new Wallet({ user: check._id });
+                    await wallet.save();
+                }
 
                 
                 res.redirect('/home')

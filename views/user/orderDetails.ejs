@@ -11,7 +11,7 @@
     <!-- Icon Font Stylesheet -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Customized Bootstrap Stylesheet -->
     <link href="/User/css/bootstrap.min.css" rel="stylesheet">
 
@@ -94,7 +94,7 @@ table {
 
 thead th {
     background-color: #3498DB;
-    color: white;
+    color: rgb(32, 31, 31);
     font-size: 18px;
     padding: 10px;
 }
@@ -380,16 +380,29 @@ img:hover {
             <p><strong>Phone: </strong><%= order.address.phone %></p>
             <p><strong>Address: </strong><%= order.address.address %>, <%= order.address.locality %>, <%= order.address.landmark %> - <%= order.address.pincode %></p>
             <p><strong>District: </strong><%= order.address.district %></p>
+           
         </div>
     
         <!-- Order Details Section -->
         <h3>Order ID: <%= order.orderId %></h3>
         <p class="order-date">Date: <%= new Date(order.orderDate).toLocaleDateString() %></p>
     
+        <p style="color: #28a745; font-weight: 600;" ><strong style="color: #1243d6;">Payment Method: </strong><%= order.paymentMethod %></p>
+
         <% if (order.isCancelled) { %>
             <p class="cancel-status">This order has been canceled</p>
         <% } else { %>
-            <p class="order-status">Status: <span class="status <%= order.status.toLowerCase().replace(/\s+/g, '-') %>"><%= order.status %></span></p>
+            <% if (order.status === 'Pending') { %>
+                <p style="font-weight: bold; color: red;">Payment Pending</p>
+                <p style="font-weight: normal; color: rgb(18, 102, 221);">Please complete your payment</p>
+                <button style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;" onclick="paymentNow()">Pay Now ₹<%= order.totalPrice %></button>
+                
+
+            <% } else { %>
+                <p class="order-status">Status: <span class="status <%= order.status.toLowerCase().replace(/\s+/g, '-') %>"><%= order.status %></span></p>
+            <% } %>
+            
+           
         <% } %>
     
         <p class="total">Total: ₹<%= order.totalPrice %> for <%= order.items.filter(item => item.status !== 'Cancelled').length; %> items</p>
@@ -423,12 +436,34 @@ img:hover {
                         <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
                         <td>
                             <!-- Cancel button for individual items -->
-                            <% if (order.status !== 'Cancelled' && item.status !== 'Cancelled') { %>
-                                <button type="button" class="btn btn-danger" onclick="cancelItem('<%= item._id %>')">Cancel</button>
+                            <% if (order.status !== 'Cancelled' && item.status !== 'Cancelled' && order.status !== 'Out for Delivery' && order.status !== 'Delivered' && order.status !== 'Return Requested' && order.status !== "Return Approved" && order.status !== "Return Rejected" && order.status !== 'Returned') { %>
+                                <button type="button" class="btn btn-danger" style="background-color: #ff4d4d; border-color: #ff4d4d;" onclick="cancelItem('<%= item._id %>')">Cancel</button>
+                            <% } else if (order.status === 'Delivered') { %>
+                                <% if (item.status === 'Ordered') { %>
+                                    <button type="button" class="btn btn-warning" style="background-color: #f0ad4e; border-color: #f0ad4e;" onclick="returnItem('<%= item._id %>')">Return Item</button>
+                                <% } else if (item.status === 'Return Requested') { %>
+                                    <p style="color: #ff9900; font-weight: bold;">Waiting for Return Approval</p>
+                                <% } else if (item.status === 'Cancelled') { %>
+                                    <p style="color: #ff6666; font-weight: bold;">Item Was Cancelled</p>
+                                <% } else if (item.status === 'Return Rejected') { %>
+                                    <p style="color: #da1d17; font-weight: bold;">Return Has Been Rejected</p>
+                                    <% } else if (item.status === 'Returned') { %>
+                                        <span style="color: #24b524; font-weight: bold;">Returned</span><br>
+                                        <span style="color: black;"> <span style="color: #1b4feb; font-weight: 600;">₹<%= (item.price * item.quantity).toFixed(2) %></span> Refunded</span>
+                                    <% } %>
                             <% } else { %>
-                                <span class="text-muted">Cancelled</span>
+                                <span class="text-muted">
+                                    <% if (item.status === 'Cancelled') { %>
+                                        <span style="color: #ff4d4d; font-weight: bold;">Cancelled</span>
+                                    <% } else if (order.status === 'Out for Delivery') { %>
+                                        <span style="color: #f0ad4e;">Out for Delivery</span>
+                                    <% } else if (order.status === 'Delivered') { %>
+                                        <span style="color: #5bc0de;">Delivered</span>
+                                    <% } %>
+                                </span>
                             <% } %>
                         </td>
+                        
                     </tr>
                 <% }); %>
             </tbody>
@@ -440,6 +475,14 @@ img:hover {
 
 <% if (order.status === 'Cancelled') { %>
     <p class="cancel-message">This order has been cancelled.</p>
+<% } else if (order.status === 'Return Requested') { %>
+    <p style="color: rgb(230, 68, 4); font-weight: 600; font-size: 22px;" class="return-message">Return requested for this order. Awaiting approval.</p>
+<% } else if (order.status === 'Return Approved') { %>
+    <p style="color: #28a745; font-size: 22px; font-weight: 600;" class="return-approved-message">Return has been approved. The amount will be refunded to your wallet.</p>
+<% } else if (order.status === 'Return Rejected') { %>
+    <p style="color: #e10a0a; font-size: 22px; font-weight: 600;" class="return-approved-message">The Return requesting has been Rejected</p>
+<% }else if (order.status === 'Returned') { %>
+    <p style= "padding: 10px 20px; display: flex; flex-direction: row; justify-content: center; background-color: #28a745; color: #ffffff; font-size: 22px;" class="order-returned-message">The order has been returned and the refund has been processed to your wallet.</p>
 <% } else { %>
     <div class="tracking">
         <div class="progress-bar">
@@ -447,25 +490,25 @@ img:hover {
         </div>
 
         <!-- Order Placed -->
-        <div class="tracking-step <%= order.status === 'Order placed' || order.status === 'Confirmed' || order.status === 'Shipped' || order.status === 'Out for Delivery' || order.status === 'Delivered' ? 'active' : '' %>">
+        <div class="tracking-step <%= ['Order placed', 'Confirmed', 'Shipped', 'Out for Delivery', 'Delivered'].includes(order.status) ? 'active' : '' %>">
             <div class="tracking-icon"><i class="fas fa-box"></i></div>
             <div class="tracking-text">Order Placed</div>
         </div>
 
         <!-- Confirmed -->
-        <div class="tracking-step <%= order.status === 'Confirmed' || order.status === 'Shipped' || order.status === 'Out for Delivery' || order.status === 'Delivered' ? 'active' : '' %>">
+        <div class="tracking-step <%= ['Confirmed', 'Shipped', 'Out for Delivery', 'Delivered'].includes(order.status) ? 'active' : '' %>">
             <div class="tracking-icon"><i class="fas fa-clipboard-check"></i></div>
             <div class="tracking-text">Confirmed</div>
         </div>
 
         <!-- Shipped -->
-        <div class="tracking-step <%= order.status === 'Shipped' || order.status === 'Out for Delivery' || order.status === 'Delivered' ? 'active' : '' %>">
+        <div class="tracking-step <%= ['Shipped', 'Out for Delivery', 'Delivered'].includes(order.status) ? 'active' : '' %>">
             <div class="tracking-icon"><i class="fas fa-truck"></i></div>
             <div class="tracking-text">Shipped</div>
         </div>
 
         <!-- Out for Delivery -->
-        <div class="tracking-step <%= order.status === 'Out for Delivery' || order.status === 'Delivered' ? 'active' : '' %>">
+        <div class="tracking-step <%= ['Out for Delivery', 'Delivered'].includes(order.status) ? 'active' : '' %>">
             <div class="tracking-icon"><i class="fas fa-shipping-fast"></i></div>
             <div class="tracking-text">Out for Delivery</div>
         </div>
@@ -477,17 +520,17 @@ img:hover {
         </div>
     </div>
 <% } %>
-
 <!-- Buttons Section -->
 <div style="margin-top: 30px;" class="button-section">
     <a style="color: #eceeec; background-color: #28a745;" href="/profile" class="btn back-button">Back to Orders</a>
 
-    <% if (order.status !== "Cancelled" && order.status !== "Delivered" && order.status !== "Out for Delivery") { %>
+    <% if (order.status !== "Cancelled" && order.status !== "Delivered" && order.status !== "Out for Delivery" && order.status !== 'Return Requested' && order.status !== 'Return Approved' && order.status !== 'Return Rejected' && order.status !== 'Returned') { %>
         <button type="submit" class="btn btn-danger" onclick="cancelOrder('<%= order._id %>')">Cancel Order</button>
     <% } %>
 
     <% if (order.status === "Delivered") { %>
-        <button type="button" class="btn btn-warning" onclick="returnOrder('<%= order._id %>')">Return Order</button>
+        <button type="button" class="btn btn-warning" onclick="requestReturnOrder('<%= order._id %>')">Return Order</button>
+        <button class="btn btn-primary" onclick="downloadInvoice('<%= order._id %>')">Download Invoice</button>
     <% } %>
 </div>
 
@@ -547,7 +590,7 @@ img:hover {
 }
 </script>
 
-    <script>
+<script>
           function cancelOrder(orderId) {
       // SweetAlert confirmation
       Swal.fire({
@@ -605,7 +648,354 @@ img:hover {
           }
       });
   }
-    </script>
+</script>
+<script>
+       const orderId= '<%= order._id %>';
+       const totalPrice= '<%= order.totalPrice %>'
+
+      async function paymentNow(){
+
+            console.log(orderId)
+            console.log(totalPrice)
+            const checkdata={
+                orderId:orderId,
+                totalPrice:totalPrice
+            }
+            axios.post('/proceedToPayment',checkdata)
+            .then(async(response)=>{
+                if(response.data.success){
+                    let razorpayOrderId= response.data.razorpayOrderId;
+                           let amount=response.data.amount;
+                           let currency= response.data.currency;
+                           let orderId= response.data.orderId;
+                           console.log(orderId)
+                           console.log(razorpayOrderId,amount,currency)
+
+                        await  initiateRazorpayPayment(razorpayOrderId,amount,currency,orderId);
+                }
+            })
+        }
+
+</script>
+
+<script>
+        function initiateRazorpayPayment(razorpayOrderId, amount, currency,orderId) {
+    console.log('hashim')
+    const options = {
+        key: 'rzp_test_y9pYpW6GyA8Eir', // Razorpay Key ID
+        amount: amount * 100, // Amount in paise
+        currency: currency,
+        name: 'Siyad', // Business name
+        description: 'Order Payment',
+        order_id: razorpayOrderId,
+        orderId:orderId,
+        handler: async function (response) {
+            console.log('10:   ',orderId)
+            console.log('Razorpay Response:', response); // Debugging
+            verifyRazorpayPayment(response,orderId); // Call verification
+        },
+        prefill: {
+            name: 'Customer Name',
+            email: 'customer@example.com',
+            contact: '9999999999'
+        },
+        theme: {
+            color: '#3399cc'
+        }
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.open(); // Open the Razorpay checkout
+}
+function verifyRazorpayPayment(paymentData,orderId) {
+    console.log('11:   ',orderId)
+    console.log(paymentData);
+    console.log("checkingg");
+
+    axios.post(`/order/verify_payment/${orderId}`, paymentData,{
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        const data = response.data;
+        if (data.success) {
+            let orderId=data.orderId
+            window.location.href = `/order/placed/${orderId}`; // Redirect
+        } else {
+            alert('Payment verification failed.');
+        }
+    })
+    .catch(error => {
+        console.error('Error verifying payment:', error);
+    });
+}
+
+function getsuccessPage(orderId){
+    console.log("check data",  orderId)
+    axios.get(`/order/placed/${orderId}`)
+}
+  </script>
+
+
+<!-- return order function.. -->
+<script>
+ function requestReturnOrder(orderId) {
+    Swal.fire({
+        title: 'Request Return?',
+        text: "Are you sure you want to request a return for this order? Please enter the reason for the return:",
+        icon: 'warning',
+        input: 'text', // Adding an input field
+        inputPlaceholder: 'Enter reason for return',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, request it!',
+        cancelButtonText: 'Cancel',
+        preConfirm: (reason) => {
+            if (!reason) {
+                Swal.showValidationMessage('You need to enter a reason for the return.');
+            }
+            return reason; // Return the reason entered
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const reason = result.value; // Get the entered reason
+
+            // Send return request to the server
+            axios.post('/request-return-order', { orderId: orderId, reason: reason })
+                .then(response => {
+                    if (response.data.success) {
+                        Swal.fire({
+                            title: 'Request Sent!',
+                            text: 'Your return request has been submitted successfully. The admin will review it.',
+                            icon: 'success',
+                            confirmButtonColor: '#3085d6'
+                        }).then(() => {
+                            window.location.reload(); // Reload to reflect changes
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: response.data.message || 'Something went wrong.',
+                            icon: 'error',
+                            confirmButtonColor: '#3085d6'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error requesting return:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'An error occurred while submitting your return request.',
+                        icon: 'error',
+                        confirmButtonColor: '#3085d6'
+                    });
+                });
+        }
+    });
+}
+
+</script>
+
+<script>
+    function returnItem(itemId) {
+    // SweetAlert confirmation dialog
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to return this item?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, return it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, make the Axios POST request to return the item
+            axios.post(`/return/item/${itemId}`, { reason: 'User requested return' })
+                .then(response => {
+                    if (response.data.success) {
+                        // Handle success
+                        Swal.fire({
+                            title: 'Returned!',
+                            text: 'Return request is Send waiting for approve',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            location.reload(); // Optionally refresh the page to update the order list
+                        });
+                    } else {
+                        // Handle error
+                        Swal.fire({
+                            title: 'Error!',
+                            text: response.data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error returning item:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'An error occurred while returning the item.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+    });
+}
+</script>
+
+<!-- downlaod invoice  -->
+ <script>
+ async function downloadInvoice(orderId) {
+    try {
+        // Fetch the order data from your API
+        const response = await axios.get(`/orders/${orderId}/details`);
+        const order = response.data.order;
+
+        // Using jsPDF to create a PDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Add company logo (assuming you have a base64 encoded logo)
+        // doc.addImage(companyLogo, 'PNG', 20, 10, 40, 40);
+
+        // Set colors
+        const primaryColor = '#2563eb';  // Blue
+        const secondaryColor = '#64748b'; // Gray
+        const accentColor = '#0f172a';    // Dark blue
+
+        // Header section
+        doc.setFillColor(primaryColor);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor('#ffffff');
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text("INVOICE", 105, 25, null, null, "center");
+
+        // Reset text color
+        doc.setTextColor(accentColor);
+
+        // Company Information (Left Side)
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text("FROM:", 20, 50);
+        doc.setFont('helvetica', 'normal');
+        doc.text("Fruitable", 20, 55);
+        doc.text("Kinfra ", 20, 60);
+        doc.text("Calicut, Kerala, 676123", 20, 65);
+        doc.text("Phone: 9947774065", 20, 70);
+        doc.text("Email: fruitable@gmail.com", 20, 75);
+
+        // Invoice Details (Right Side)
+        doc.setFont('helvetica', 'bold');
+        doc.text("Invoice Number:", 120, 50);
+        doc.text("Order Date:", 120, 55);
+       
+        
+        doc.setFont('helvetica', 'normal');
+        doc.text(`INV-${order.orderId}`, 165, 50);
+        doc.text(new Date(order.orderDate).toLocaleDateString(), 165, 55);
+        
+
+        // Billing Information
+        doc.setFillColor('#f8fafc');
+        doc.rect(20, 85, 170, 35, 'F');
+        
+        doc.setFont('helvetica', 'bold');
+        doc.text("BILL TO:", 20, 95);
+        doc.setFont('helvetica', 'normal');
+        doc.text(order.user.username, 20, 100);
+        doc.text(order.user.email, 20, 105);
+        
+        // Shipping Information
+        doc.setFont('helvetica', 'bold');
+        doc.text("SHIP TO:", 120, 95);
+        doc.setFont('helvetica', 'normal');
+        doc.text(order.address?.address || '', 120, 100);
+        doc.text(order.address?.locality|| '', 120, 105);
+        doc.text(order.address?.landmark || '', 120, 110);
+
+        // Table Header
+        let yPos = 130;
+        doc.setFillColor(primaryColor);
+        doc.rect(20, yPos - 5, 170, 8, 'F');
+        doc.setTextColor('#ffffff');
+        doc.setFont('helvetica', 'bold');
+        doc.text("Item", 25, yPos);
+        doc.text("Qty", 95, yPos);
+        doc.text("Price", 115, yPos);
+        doc.text("Status", 145, yPos);
+        doc.text("Total", 175, yPos);
+
+        // Table Contents
+        yPos += 10;
+        doc.setTextColor(accentColor);
+        doc.setFont('helvetica', 'normal');
+        
+        // Alternate row colors
+        let isAlternate = false;
+        order.items.forEach(item => {
+            if (isAlternate) {
+                doc.setFillColor('#f8fafc');
+                doc.rect(20, yPos - 5, 170, 8, 'F');
+            }
+            
+            doc.text(item.productName.substring(0, 35), 25, yPos);
+            doc.text(item.quantity.toString(), 95, yPos);
+            doc.text(`$${item.price.toFixed(2)}`, 115, yPos);
+            doc.text(item.status, 145, yPos);
+            doc.text(`$${(item.price * item.quantity).toFixed(2)}`, 175, yPos);
+            
+            yPos += 10;
+            isAlternate = !isAlternate;
+        });
+
+        // Summary Section
+        yPos += 10;
+        doc.setDrawColor(secondaryColor);
+        doc.line(120, yPos - 5, 190, yPos - 5);
+        
+        doc.setFont('helvetica', 'normal');
+        doc.text("Subtotal:", 145, yPos);
+        const subtotal = order.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+        doc.text(`$${subtotal.toFixed(2)}`, 175, yPos);
+
+        yPos += 8;
+        doc.text("Delivery Charge:", 145, yPos);
+        const deliveryCharge = order.deleveryCharge || 0;
+        doc.text(`$${deliveryCharge.toFixed(2)}`, 175, yPos);
+
+        yPos += 8;
+        doc.setFont('helvetica', 'bold');
+        doc.text("Total:", 145, yPos);
+        const totalAmount = subtotal + deliveryCharge;
+        doc.text(`$${totalAmount.toFixed(2)}`, 175, yPos);
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(secondaryColor);
+        doc.text("Thank you for your business!", 105, 270, null, null, "center");
+        doc.text("For any questions about this invoice, please contact support@example.com", 105, 275, null, null, "center");
+
+        // Save the PDF
+        doc.save(`Invoice-${order._id}.pdf`);
+        
+    } catch (error) {
+        console.error("Error generating invoice:", error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'An error occurred while generating the invoice.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    }
+}
+ </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/User/lib/easing/easing.min.js"></script>
     <script src="/User/lib/waypoints/waypoints.min.js"></script>
@@ -613,6 +1003,7 @@ img:hover {
     <script src="/User/lib/owlcarousel/owl.carousel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Template Javascript -->
     <script src="/User/main.js"></script>

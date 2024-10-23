@@ -1,76 +1,396 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            background-color: #f4f6f9;
-            font-family: Arial, sans-serif;
-        }
-        .order-details {
-            max-width: 1200px; /* Maximum width for the container */
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin: 20px auto; /* Center the container */
-        }
-        .address-section,
-        .summary-section {
-            background-color: #e3f2fd; /* Light blue */
-            border: 1px solid #2196f3; /* Blue border */
-            border-radius: 8px;
-            padding: 15px;
-            transition: all 0.3s ease;
-        }
-        .address-section:hover,
-        .summary-section:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(33, 150, 243, 0.2);
-        }
-        .table {
-            background-color: #ffffff; /* White */
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .thead-light {
-            background-color: #2196f3; /* Blue */
-            color: white;
-        }
-        .tbody tr {
-            transition: background-color 0.3s;
-        }
-        .tbody tr:hover {
-            background-color: #e3f2fd; /* Light blue on hover */
-        }
-        .total {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ff5722; /* Deep orange */
-        }
-        .button-section {
-            margin-top: 20px;
-        }
-        .btn-secondary {
-            background-color: #007bff; /* Blue */
-            border: none;
-        }
-        .btn-secondary:hover {
-            background-color: #0056b3; /* Darker blue */
-        }
-        .btn-danger {
-            background-color: #dc3545; /* Red */
-            border: none;
-        }
-        .btn-danger:hover {
-            background-color: #c82333; /* Darker red */
-        }
-        .col-md-6 {
-            margin-bottom: 20px; /* Spacing between columns */
-        }
+body {
+    background: linear-gradient(135deg, #f6f8ff 0%, #f0f4ff 100%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #2d3748;
+    line-height: 1.6;
+}
+
+.order-details {
+    max-width: 1200px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+    padding: 3rem;
+    margin: 2rem auto;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+}
+
+.order-details::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #4158d0, #c850c0, #ffcc70);
+}
+
+/* Header Styles */
+.order-details h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #4158d0, #c850c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.order-details h1:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 5px;
+    background: linear-gradient(90deg, #4158d0, #c850c0);
+    border-radius: 10px;
+}
+
+/* Section Styles */
+.address-section,
+.summary-section {
+    background: linear-gradient(145deg, #ffffff, #f8faff);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.address-section::before,
+.summary-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #4158d0, #c850c0);
+}
+
+.address-section:hover,
+.summary-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Table Styles */
+.table-responsive {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+    margin: 2rem 0;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.thead-light {
+    background: linear-gradient(45deg, #4158d0, #c850c0);
+}
+
+.thead-light th {
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    padding: 1.25rem 1rem;
+    border: none;
+    text-align: center;
+}
+
+.table td {
+    padding: 1.25rem 1rem;
+    vertical-align: middle;
+    border: none;
+    text-align: center;
+    font-weight: 500;
+    color: #4a5568;
+    background: white;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(to right, #f8faff, #ffffff);
+    transform: scale(1.01);
+}
+
+/* Product Image Styles */
+.table img {
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+    width: 70px;
+    height: 70px;
+}
+
+.table img:hover {
+    transform: scale(1.1);
+    border-color: #4158d0;
+}
+
+/* Status and Form Styles */
+.form-control {
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    padding: 0.875rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8faff;
+}
+
+.form-control:focus {
+    border-color: #4158d0;
+    box-shadow: 0 0 0 4px rgba(65, 88, 208, 0.1);
+    background: white;
+}
+
+/* Enhanced Button Styles */
+.btn {
+    padding: 0.875rem 2rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-secondary {
+    background: linear-gradient(45deg, #4158d0, #c850c0);
+    border: none;
+    box-shadow: 0 4px 15px rgba(65, 88, 208, 0.2);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(65, 88, 208, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+}
+
+/* Enhanced Alert Styles */
+.alert {
+    border-radius: 12px;
+    padding: 1.25rem 1.75rem;
+    margin-bottom: 2rem;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.alert-danger {
+    background: linear-gradient(to right, #fff5f5, white);
+    color: #e53e3e;
+}
+
+.alert-danger::before {
+    background: linear-gradient(to bottom, #ff6b6b, #ff8e8e);
+}
+
+.alert-success {
+    background: linear-gradient(to right, #f0fff4, white);
+    color: #38a169;
+}
+
+.alert-success::before {
+    background: linear-gradient(to bottom, #48bb78, #68d391);
+}
+
+/* Enhanced Summary Section */
+.summary-section {
+    background: linear-gradient(145deg, #ffffff, #f8faff);
+}
+
+.summary-section h5 {
+    color: #2d3748;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #4158d0, #c850c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.summary-section p {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed #e2e8f0;
+    font-size: 1.1rem;
+}
+
+.summary-section p:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4158d0;
+}
+
+/* Price and Total Styles */
+.total {
+    font-size: 1.75rem;
+    background: linear-gradient(to right, #4158d0, #c850c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin: 2rem 0;
+    text-align: center;
+    border: 2px solid #e2e8f0;
+}
+
+/* Enhanced Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: linear-gradient(45deg, #4158d0, #c850c0);
+    color: white;
+    box-shadow: 0 2px 10px rgba(65, 88, 208, 0.2);
+}
+
+/* Payment Method Badge */
+.payment-method {
+    display: inline-block;
+    background: linear-gradient(45deg, #4158d0, #c850c0);
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    box-shadow: 0 2px 10px rgba(65, 88, 208, 0.2);
+}
+
+/* Coupon Badge */
+.coupon-applied {
+    display: inline-block;
+    background: linear-gradient(45deg, #38a169, #48bb78);
+    color: white;
+    padding: 0.5rem 1.25rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.75rem;
+    box-shadow: 0 2px 10px rgba(56, 161, 105, 0.2);
+}
+
+/* Responsive Design Improvements */
+@media (max-width: 768px) {
+    .order-details {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+    
+    .order-details h1 {
+        font-size: 2rem;
+    }
+    
+    .table-responsive {
+        margin: 1rem -1.5rem;
+        border-radius: 0;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .summary-section p {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+}
+
+/* Animation for Loading States */
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+/* Scroll to Top Button */
+.scroll-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: linear-gradient(45deg, #4158d0, #c850c0);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(65, 88, 208, 0.2);
+}
+
+.scroll-top:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(65, 88, 208, 0.3);
+}
     </style>
     <title>Order Details</title>
 </head>
@@ -99,26 +419,55 @@
                 <!-- Order Details Section -->
                 <h3>Order ID: <%= order.orderId %></h3>
                 <p class="order-date">Date: <%= order.orderDate.toLocaleDateString() %></p>
+
+                <% if (order.couponCode !== "") { %>
+                    <p><strong>Coupon Applied : </strong><span style="color: green; font-weight: 600;"><%= order.couponCode %></span></p>
+                <% } %>
     
                 <!-- Order Status Section -->
+
+                <% if (order.status === "Return Requested" || order.status === "Return Approved" || order.status === "Returned") { %>
+                    <p>Status: <strong style="color: #007bff;"><%= order.status %></strong></p>
+                
+                    <% if (order.status === "Return Requested") { %>
+                        <p>Reason: <strong><%= order.returnReason %></strong></p>
+                        <button class="btn btn-success" onclick="approveReturn('<%= order._id %>')">Approve Return</button>
+                        <button class="btn btn-danger" onclick="rejectReturn('<%= order._id %>')">Reject Return</button>
+                    
+                    <% } else if (order.status === "Return Approved") { %>
+                       
+                        <button class="btn btn-info" onclick="markAsReturned('<%= order._id %>')">Mark as Returned</button>
+                    
+                    <% } else if (order.status === "Returned") { %>
+                        <p>Your return has been completed. Thank you!</p>
+                    
+                    <% } %>
+                <% } else { %>
                 <form action="/order/update/<%= order.orderId %>" method="POST" id="statusUpdateForm">
                     <div class="form-group mb-4">
-                        <label for="orderStatus"><strong>Status: <span style="color: #007bff;"><%= order.status %></span></strong></label>
-                        <select id="orderStatus" name="status" class="form-control" required>
-                            <option value="" disabled>Select Status</option>
-                            <% if (order.status === 'Order placed' || order.status === 'Pending') { %>
-                                <option value="Confirmed">Order Confirmed</option>
-                            <% } %>
-                            <% if (order.status === "Confirmed") { %>
-                                <option value="Shipped">Shipped</option>
-                            <% } %>
-                            <% if (order.status === "Shipped") { %>
-                                <option value="Out for Delivery">Out for Delivery</option>
-                            <% } %>
-                            <% if (order.status === "Out for Delivery") { %>
-                                <option value="Delivered">Delivered</option>
-                            <% } %>
-                        </select>
+                        <% if (order.paymentMethod === 'Razorpay' && order.status === "Pending") { %>
+                            <label for="orderStatus"><strong>Payment: <span style="color: #007bff;"><%= order.status %></span></strong></label>
+
+                        <% } else { %>
+                            
+                            <label for="orderStatus"><strong>Status: <span style="color: #007bff;"><%= order.status %></span></strong></label>
+                            <select style="height: 60px;" id="orderStatus" name="status" class="form-control" required>
+                                <option  value="" disabled>Select Status</option>
+                                <% if (order.status === 'Order placed' || order.status === 'Pending') { %>
+                                    <option value="Confirmed">Order Confirmed</option>
+                                <% } %>
+                                <% if (order.status === "Confirmed") { %>
+                                    <option value="Shipped">Shipped</option>
+                                <% } %>
+                                <% if (order.status === "Shipped") { %>
+                                    <option value="Out for Delivery">Out for Delivery</option>
+                                <% } %>
+                                <% if (order.status === "Out for Delivery") { %>
+                                    <option value="Delivered">Delivered</option>
+                                <% } %>
+                            </select>
+                        <% } %>
+                       
                     </div>
                     <% if (order.status === "Cancelled") { %>
                         <div class="alert alert-danger" role="alert">
@@ -129,22 +478,30 @@
                             Order Delivered Successfully.
                         </div>
                     <% } else { %>
-                        <button type="submit" class="btn btn-primary">Change Status</button>
+                        <% if (order.status !=="Pending") { %>
+                            <button type="button" class="btn btn-secondary" id="changeStatus">Change Status</button>
+                        <% } %>
+                        
                     <% } %>
                 </form>
-                <% if (order.couponCode !== "") { %> <!-- Check if coupon was applied -->
-                    <div class="coupon-info mb-3">
-                        <p><strong>Coupon Applied:</strong> <%= order.couponCode %></p>
-                        <p><strong>Coupon Discount:</strong> ₹<%= order.couponDiscount %></p>
-                    </div>
-                <% } %>
     
-                <p class="total"><strong>Total:</strong> ₹<%= order.totalPrice %> for <%= nonCancelledItemCount %> items</p>
+                <% } %>
+                <p class="total"><strong>Total:</strong> ₹<%= order.totalPrice %> for 
+                    <%= order.items.filter(item => item.status !== 'Cancelled').length; %> items</p>
+                    
             </div>
+           
         </div>
     
+
+        <% if (order.paymentMethod === 'Razorpay' && order.status !== 'Pending') { %>
+            <div class="payment-completed" style=" margin-bottom: 10px; border: 2px solid green; padding: 10px; border-radius: 5px; background-color: #e0ffe0; color: green; font-weight: bold; text-align: center; max-width: 300px;">
+                <span  style="  padding: 10px;  background-color: #e0ffe0; color: green; font-weight: bold; text-align: center;">Payment Completed</span>
+                
+            </div>
+        <% } %>
         <!-- Items Section -->
-        <h6>Items:</h6>
+      
         <table class="table table-bordered">
             <thead class="thead-light">
                 <tr>
@@ -153,39 +510,51 @@
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Subtotal</th>
-                    <th>Status</th> <!-- New column for item status -->
+                    <th>Status</th> <!-- New Status Header -->
                 </tr>
             </thead>
-            <tbody>
+             <tbody>
                 <% order.items.forEach(item => { %>
-                    <tr>
-                        <td><img style="width: 60px; height: 60px;" src="/images/<%= item.productImage %>" alt="<%= item.productName %>"></td>
-                        <td><%= item.productName %></td>
-                        <td>₹<%= item.price %></td>
-                        <td><%= item.quantity %></td>
-                        <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
-                        <td>
-                            <% if (item.status === 'Cancelled') { %>
-                                <span class="text-danger">Cancelled</span>
-                            <% } else { %>
-                                <span class="text-success">Active</span>
-                            <% } %>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>
+                        <img style="width: 60px; height: 60px;" src="/images/<%= item.productImage %>" alt="<%= item.name %>">
+                    </td>
+                    <td><%= item.productName %></td>
+                    <td>₹<%= item.price %></td>
+                    <td><%= item.quantity %></td>
+                    <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+                    <td>
+                        <% if (item.status === 'Cancelled') { %>
+                            <strong style="color: red;">Cancelled</strong>
+                        <% } else if (item.status === 'Return Requested') { %>
+                            <span style="color: rgb(255, 0, 0);">Return Requested</span>
+                            <span style="display: inline-block; margin-left: 10px;">
+                                <i class="fas fa-check-circle" style="color: green; font-size: 20px; cursor: pointer;"
+                                   onclick="approveReturnItem('<%= item._id %>')"
+                                   title="Approve" onmouseover="this.style.color='darkgreen'" onmouseout="this.style.color='green'"></i>
+                                <i class="fas fa-times-circle" style="color: red; font-size: 20px; cursor: pointer; margin-left: 10px;"
+                                   onclick="rejectReturnItem('<%= item._id %>')"
+                                   title="Reject" onmouseover="this.style.color='darkred'" onmouseout="this.style.color='red'"></i>
+                            </span>
+                        <% } else if (item.status === 'Return Rejected') { %>
+                            <strong style="color: red;">Return Rejected</strong>
+                        <% } else if (item.status === 'Returned') { %>
+                            <strong style="color: green;">Returned</strong>
+                        <% } else { %>
+                            <span style="color: green;">Active</span> <!-- Display other statuses normally -->
+                        <% } %>
+                    </td>
+                </tr>
                 <% }); %>
             </tbody>
         </table>
-    
         <!-- Summary Section -->
         <div class="summary-section mb-4">
             <h5>Order Summary</h5>
             <p><strong>Subtotal: </strong>₹<%= order.subtotal %></p>
             <p><strong>Shipping: </strong>₹<%= order.deleveryCharge %></p>
-            <% if (order.couponCode !== "") { %> <!-- Check if coupon was applied -->
-                <div class="coupon-info mb-3">
-                   
-                    <p style="color: green;"><strong style="color: black;">Discount:</strong> ₹<%= order.couponDiscount %></p>
-                </div>
+            <% if (order.couponCode !== "") { %>
+                <p><strong>couponDiscount: </strong><span style="color: rgb(41, 137, 41); font-weight: 600;">₹<%= order.couponDiscount %></span></p>
             <% } %>
             <p><strong>Total Amount: </strong>₹<%= order.totalPrice %></p>
         </div>
@@ -195,22 +564,26 @@
                 <p style="color: red; font-weight: bold;">Order Cancelled</p>
             <% } else if (order.status === "Delivered") { %>
                 <p style="color: green; font-weight: bold;">Order Delivered Successfully</p>
+            <% } else if (order.status === "Returned") { %>
+                <p style="color: #24b524; font-weight: bold;">Order has been returned</p>
             <% } %>
         </div>
+        <!-- Save and Change Buttons Section -->
         <div class="button-section text-center">
-            <% if (order.status !== "Cancelled" && order.status !== "Delivered") { %>
-               
-                    <button type="submit" class="btn btn-danger" onclick="cancelOrder('<%= order._id%>')">Cancel Order</button>
-                
+            <% if (order.status !== "Cancelled" && 
+                   order.status !== "Delivered" && 
+                   order.status !== "Return Requested" && 
+                   order.status !== "Return Approved" && 
+                   order.status !== "Return Rejected" && 
+                   order.status !== "Returned") { %>
+                <button type="submit" class="btn btn-danger" onclick="cancelOrder('<%= order._id%>')">Cancel Order</button>
             <% } %>
         </div>
     </div>
-    
-    
 
     <script>
         function cancelOrder(orderId) {
-      // SweetAlert confirmation
+     
       Swal.fire({
           title: 'Confirm Submission',
           text: 'Are you sure you want to cancel this order?',
@@ -268,19 +641,7 @@
   }
       </script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- Include CSS for Alertify -->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
-<!-- Include Alertify default theme -->
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>
-
-<!-- Include AlertifyJS script -->
-<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
-
+    
     <script>
        document.getElementById('changeStatus').addEventListener('click', function() {
     const orderId = '<%= order._id %>'; // Use orderId directly from the variable
@@ -295,7 +656,6 @@
     // Show a confirmation dialog before proceeding
     alertify.confirm('Confirm Update', 'Are you sure you want to update the order status?', 
         function() {
-            // If user clicks "OK", proceed with the request
             fetch(`/admin/order/updateStatus/${orderId}`, { 
                 method: 'POST',
                 headers: {
@@ -306,13 +666,11 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Display success message with Alertify
                     alertify.success('Order status updated successfully!');
                     setTimeout(() => {
-                        location.reload(); // Reload the page after success message
-                    }, 1500); // Adding a small delay to show the success message
+                        location.reload();
+                    }, 1500); 
                 } else {
-                    // Display error message with Alertify
                     alertify.error('Failed to update order status.');
                 }
             })
@@ -329,5 +687,174 @@
 
     </script>
 
+<!--return approve and reject function..  -->
+<script>
+    function approveReturn(orderId) {
+    alertify.confirm("Approve Return?", 
+        "Are you sure you want to approve the return for this order?",
+        function() {
+            // Send approval request to the server
+            axios.post('/admin/approve-return', { orderId: orderId })
+                .then(response => {
+                    if (response.data.success) {
+                        alertify.success('Return Approved!');
+                        window.location.reload(); // Reload to reflect changes
+                    } else {
+                        alertify.error(response.data.message || 'Something went wrong.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error approving return:', error);
+                    alertify.error('An error occurred while approving the return.');
+                });
+        },
+        function() {
+            alertify.message('Cancel');
+        }
+    );
+}
+
+
+// reject return 
+function rejectReturn(orderId) {
+    alertify.confirm("Reject Return?", 
+        "Are you sure you want to reject the return for this order?",
+        function() {
+            // Send rejection request to the server
+            axios.post('/admin/reject-return', { orderId: orderId })
+                .then(response => {
+                    if (response.data.success) {
+                        alertify.success('Return Rejected!');
+                        window.location.reload(); // Reload to reflect changes
+                    } else {
+                        alertify.error(response.data.message || 'Something went wrong.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error rejecting return:', error);
+                    alertify.error('An error occurred while rejecting the return.');
+                });
+        },
+        function() {
+            alertify.message('Cancel');
+        }
+    );
+}
+</script>
+
+<!-- Mark as returned -->
+ <script>
+    function markAsReturned(orderId) {
+    alertify.confirm(
+        'Confirm Return',
+        'Are you sure you want to mark this order as returned?',
+        function() {
+            // If confirmed, send a request to mark the order as returned
+            axios.post('/admin/mark_order_returned', { orderId: orderId })
+                .then(response => {
+                    if (response.data.success) {
+                        alertify.success('Order marked as returned successfully.');
+                        window.location.reload(); // Reload to reflect changes
+                    } else {
+                        alertify.error('Error: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                    alertify.error('An error occurred while marking the order as returned.');
+                });
+        },
+        function() {
+            alertify.message('Return action canceled.'); // Optional: Message for cancel
+        }
+    );
+}
+ </script>
+
+
+<!-- each item return function -->
+ <script>
+   function approveReturnItem(itemId) {
+    // Logic for approving the return
+    axios.post(`/admin/approve/returnItem/${itemId}`)
+        .then(response => {
+            if (response.data.success) {
+                Swal.fire({
+                    title: 'Approved!',
+                    text: 'The return request has been approved.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload(); // Refresh the page
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: response.data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error approving return:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while approving the return.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+}
+
+
+function rejectReturnItem(itemId) {
+    // Logic for rejecting the return
+    axios.post(`/admin/reject/returnItem/${itemId}`)
+        .then(response => {
+            if (response.data.success) {
+                Swal.fire({
+                    title: 'Rejected!',
+                    text: 'The return request has been rejected.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    location.reload(); // Refresh the page
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: response.data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error rejecting return:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while rejecting the return.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+}
+
+ </script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Include CSS for Alertify -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
+<!-- Include Alertify default theme -->
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>
+
+<!-- Include AlertifyJS script -->
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+
    
-</body
+</body>
+</html>

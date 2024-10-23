@@ -35,9 +35,10 @@ const ordersSchema=new mongoose.Schema({
             productImage:{type:String},
             quantity: { type: Number, required: true },
             price: { type: Number, required: true },
+            discountApplied: { type: Number, default: 0 },
             status: {
                 type: String,
-                enum: ['Ordered', 'Cancelled'],
+                enum: ['Ordered', 'Cancelled','Return Requested','Return Rejected','Returned'],
                 default: 'Ordered'
             }
 
@@ -59,10 +60,19 @@ const ordersSchema=new mongoose.Schema({
             'Shipped',
             'Out for Delivery',
             'Delivered',
-            'Cancelled'
+            'Cancelled',
+            'Return Requested',
+            'Return Approved',
+            'Return Rejected',
+            'Returned'
+
         ],
         default: 'Pending', // Default status if not specified
-    }, // Status of the orde
+    },
+    returnReason:{
+        type:String,
+        required:false
+    }
   
 })
 const Order= mongoose.model('Order',ordersSchema)

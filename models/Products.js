@@ -31,7 +31,7 @@ const productSchema= new mongoose.Schema({
         
 
     },
-    // images:[String],
+    
     images:{
         type:[String],
        required:true
@@ -40,6 +40,12 @@ const productSchema= new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    offer:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Offer',
+        default:null
+    }]
+
 
 }, { timestamps: true });
 

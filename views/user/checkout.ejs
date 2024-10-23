@@ -398,9 +398,34 @@ strong {
                                         <tr>
                                             <td><%= item.product.name %></td>
                                             <td><img src="/images/<%= item.product.images[0] %>" alt="<%= item.product.name %>" class="cart-product-img"></td>
-                                            <td>₹<%= item.product.price ? item.product.price.toFixed(2) : '0.00' %></td>
+                                        
+                                            <td>
+                                                <% if (item.greatestDiscount > 0) { %>
+                                                    <!-- Display discounted price if offer exists -->
+                                                    <span class="text-success">
+                                                        ₹<%= (item.product.price - (item.product.price * (item.greatestDiscount / 100))).toFixed(2) %>
+                                                    </span>
+                                                    <!-- Show original price as strike-through -->
+                                                    <span class="text-muted" style="text-decoration: line-through;">
+                                                        ₹<%= item.product.price.toFixed(2) %>
+                                                    </span>
+                                                <% } else { %>
+                                                    <!-- Display original price if no offer exists -->
+                                                    ₹<%= item.product.price.toFixed(2) %>
+                                                <% } %>
+                                            </td>
+                                        
                                             <td><%= item.quantity %></td>
-                                            <td>₹<%= (item.product.price * item.quantity).toFixed(2) %></td>
+                                        
+                                            <td>
+                                                <% if (item.greatestDiscount > 0) { %>
+                                                    <!-- Calculate total using discounted price -->
+                                                    ₹<%= Math.floor(((item.product.price - (item.product.price * (item.greatestDiscount / 100))) * item.quantity)).toFixed(2) %>
+                                                <% } else { %>
+                                                    <!-- Calculate total using original price -->
+                                                    ₹<%= (item.product.price * item.quantity).toFixed(2) %>
+                                                <% } %>
+                                            </td>
                                         </tr>
                                         <% }) %>
                                     </tbody>
@@ -409,11 +434,11 @@ strong {
                             
                             <div class="d-flex justify-content-between">
                                 <h5>Subtotal:</h5>
-                                <p id="subtotal">₹<%= cartTotal.toFixed(2) %></p>
+                                <p id="subtotal">₹<%= cartTotal %></p>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <h5>Shipping:</h5>
-                                <p id="deleveryCharge">₹<%= deleveryCharge.toFixed(2) %></p>
+                                <p id="deleveryCharge">₹<%= deleveryCharge %></p>
                             </div> 
                             <div id="discountField" style="display: none;" class=" justify-content-between">
                                 <h5 >Discount:</h5>
@@ -422,7 +447,7 @@ strong {
                             <div class="d-flex justify-content-between border-top py-3">
                                
                                 <h5>Total:</h5>
-                                <p id="totalPrice">₹<%= (cartTotal + deleveryCharge).toFixed(2) %></p>
+                                <p id="totalPrice">₹<%= (cartTotal + deleveryCharge) %></p>
                             </div>
                              <!-- Coupon Input Section -->
                              <div class="input-group">
@@ -777,17 +802,25 @@ document.getElementById('cancelCouponBtn').addEventListener('click', function() 
     })
 </script>
 <script>
-function placeOrder() {
+  async function placeOrder() {
+   
     // Get selected address and payment method
     const selectedAddress = document.querySelector('input[name="address"]:checked').value;
+if (!selectedAddress) {
+    alert("Please add your address");
+    return; // Stop further execution if no address is selected
+}
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-    console.log(selectedPaymentMethod)
+    
+    console.log(selectedPaymentMethod,selectedAddress)
+    
    
 
     const totalPrice = parseFloat(document.getElementById('totalPrice').innerText.replace('₹', '')); // Get the total price from the page
     const couponCode = document.getElementById('couponInput').value.trim(); // Get the coupon code from the input
     const couponDiscount = parseFloat(document.getElementById('discountAmount').innerText) || 0; // Get the coupon discount (or 0 if no discount)
 
+    console.log(totalPrice)
     const deleveryCharge = '<%=  deleveryCharge %>'
 console.log(deleveryCharge)
     const orderData = {
@@ -810,9 +843,23 @@ console.log(deleveryCharge)
     }).then((result) => {
         if (result.isConfirmed) {
             axios.post('/placed_order', { orderData })
-                .then((response) => {
-                    // Success alert when order is placed successfully
+           
+                .then( async(response) => {
+                    if(response.data.razorpayOrderId){
+                           
+                           let razorpayOrderId= response.data.razorpayOrderId;
+                           let amount=response.data.amount;
+                           let currency= response.data.currency;
+                           let orderId= response.data.orderId;
+                           let user= response.data.user
+                           console.log(orderId)
+                           console.log(razorpayOrderId,amount,currency)
+
+                        await  initiateRazorpayPayment(razorpayOrderId,amount,currency,orderId,user);
+                       }
+                    
                     if(response.data.success){
+                       
                         Swal.fire({
                         title: 'Success!',
                         text: 'Your order has been placed successfully.',
@@ -820,11 +867,13 @@ console.log(deleveryCharge)
                         showConfirmButton: false, 
                         timer: 1000 
                     }).then(() => {
+                        
                         // Optionally redirect to another page or refresh the page
-                        window.location.href = '/order/placed'; // Redirect to the orders page
+                        window.location.href = `/order/placed/${response.data.order.orderId}`; // Redirect to the orders page
                     });
 
                     }else{
+                        console.log('paisa illaa')
                         Swal.fire({
                             title: 'Error!',
                             text: response.data.message,
@@ -851,6 +900,56 @@ console.log(deleveryCharge)
 }
 
 </script>
+
+<script>
+// Razorpay Payment Function
+function initiateRazorpayPayment(razorpayOrderId, amount, currency,orderId,user) {
+   
+    const options = {
+        key: 'rzp_test_y9pYpW6GyA8Eir', 
+        amount: amount * 100, 
+        currency: currency,
+        name: 'Fruitable', 
+        description: 'Order Payment',
+        order_id: razorpayOrderId,
+        orderId:orderId,
+        handler: async function (response) {
+            verifyRazorpayPayment(response,orderId); // Call verification
+        },
+        prefill: {
+            name: user.username,
+            email: user.username,
+            contact: user.phone
+        },
+        theme: {
+            color: '#3399cc'
+        }
+    };
+
+    const rzp1 = new Razorpay(options);
+    rzp1.open(); // Open the Razorpay checkout
+}
+
+// Verify Payment Function
+function verifyRazorpayPayment(paymentData,orderId) {
+  
+    axios.post(`/order/verify_payment/${orderId}`, paymentData,{
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        const data = response.data;
+        if (data.success) {
+            
+            window.location.href = `/order/placed/${orderId}`;// Redirect
+        } else {
+            alert('Payment verification failed.');
+        }
+    })
+    .catch(error => {
+        console.error('Error verifying payment:', error);
+    });
+}
+</script>
         
     <!-- JavaScript Libraries -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
@@ -861,6 +960,7 @@ console.log(deleveryCharge)
     <script src="/User/lib/owlcarousel/owl.carousel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Template Javascript -->
     <script src="/User/main.js"></script>

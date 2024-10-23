@@ -77,6 +77,17 @@
         max-width: 250px; /* Adjust search bar width for small devices */
     }
 }
+.discount-overlay {
+    position: absolute;
+    top: 10px; /* Adjust as needed */
+    right: 10px; /* Adjust as needed */
+    background-color: rgba(0, 128, 0, 0.8); /* Semi-transparent red background */
+    color: white;
+    padding: 5px 10px; /* Padding around the text */
+    border-radius: 5px; /* Rounded corners */
+    font-weight: bold;
+    font-size: 1rem; /* Adjust font size as needed */
+}
 
 </style>
 
@@ -315,35 +326,52 @@ font-weight: 600;
                             <!-- Content Area -->
                             <div class="col-lg-9">
                                 <div class="row g-4 justify-content-center">
-                                    <% products.forEach(product => { %>
+                                    <% products.forEach((product, index) => { %> <!-- Include index to refer to greatestDiscounts array -->
                                         <div class="col-md-6 col-lg-6 col-xl-4">
                                             <div class="rounded position-relative fruite-item">
                                                 <div class="fruite-img">
-                                                    <a href="/product/<%= product._id %>"><img src="/images/<%= product.images[0] %>" class="img-fluid w-100 rounded-top" alt="<%= product.name %>"></a>
+                                                    <a href="/product/<%= product._id %>">
+                                                        <img src="/images/<%= product.images[0] %>" class="img-fluid w-100 rounded-top" alt="<%= product.name %>">
+                                                    </a>
+                                                    <% if (greatestDiscounts[index] > 0) { %> <!-- Display the greatest discount -->
+                                                        <div class="discount-overlay">
+                                                            OFF <%= greatestDiscounts[index] %>% <!-- Use the greatestDiscounts array -->
+                                                        </div>
+                                                    <% } %>
                                                 </div>
                                                 <div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">
                                                     <%= product.category.name %>
                                                 </div>
                                                 <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                                                     <h4><%= product.name %></h4>
-                                                    
-                                                    <div class="d-flex justify-content-between flex-lg-wrap">
-                                                        <p class="text-dark fs-5 fw-bold mb-0">₹<%= product.price %> / <%= product.unit %></p>
-                                                        <div class="d-flex">
-                                                            <% if (product.stock > 0) { %>
-                                                                <!-- Add to Cart Button -->
-                                                                <a  onclick="addToCart('<%= product._id %>', 1)" class="btn border border-secondary rounded-pill px-2 text-primary me-2">
-                                                                    <i class="fa fa-shopping-bag me-1 text-primary"></i> Add to cart
-                                                                </a>
-                                                            <% } else { %>
-                                                                <!-- Out of Stock Message -->
-                                                                <span style="color: red; margin-right: 20px; margin-top: 8px; font-weight: 600;">Out of Stock</span>
-                                                            <% } %>
-                                                            <!-- Wishlist Button -->
-                                                            <a onclick="addToWishlist('<%= product._id %>')" class="btn border border-secondary rounded-pill px-2 text-danger">
-                                                                <i class="fa fa-heart me-1 text-danger"></i> Wishlist
+                                                    <div class=" p-1">
+                                                        <% if (greatestDiscounts[index] > 0) { %> <!-- Use the greatestDiscounts array -->
+                                                            <div class="d-flex" style="flex-direction: row; justify-content: space-between;">
+                                                                <p class="text-success fs-5 fw-bold mb-0" style="">
+                                                                    ₹<%= Math.floor(product.price - (product.price * (greatestDiscounts[index] / 100))) %> / <%= product.unit %>
+                                                                </p>
+                                                                <p class="text-dark fs-5 fw-bold mb-0">
+                                                                    <span style="text-decoration: line-through; color: red;">₹<%= product.price %> / <%= product.unit %></span>
+                                                                </p>
+                                                            </div>
+                                                        <% } else { %>
+                                                            <p class="text-dark fs-5 fw-bold mb-0"> ₹<%= product.price %> / <%= product.unit %></p>
+                                                        <% } %>
+                                                    </div>
+                                                    <div class="d-flex">
+                                                        <% if (product.stock > 0) { %>
+                                                            <!-- Add to Cart Button -->
+                                                            <a onclick="addToCart('<%= product._id %>', 1)" class="btn border border-secondary rounded-pill px-2 text-primary me-2">
+                                                                <i class="fa fa-shopping-bag me-1 text-primary"></i> Add to cart
                                                             </a>
-                                                        </div>
+                                                        <% } else { %>
+                                                            <!-- Out of Stock Message -->
+                                                            <span style="color: red; margin-right: 20px; margin-top: 8px; font-weight: 600;">Out of Stock</span>
+                                                        <% } %>
+                                                        <!-- Wishlist Button -->
+                                                        <a onclick="addToWishlist('<%= product._id %>')" class="btn border border-secondary rounded-pill px-2 text-danger">
+                                                            <i class="fa fa-heart me-1 text-danger"></i> Wishlist
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -351,8 +379,6 @@ font-weight: 600;
                                     <% }) %>
                                 </div>
                             </div>
-                            
-
                                     <!-- Content area end -->
                                     <div class="col-12">
                                         <div class="pagination d-flex justify-content-center mt-5">
