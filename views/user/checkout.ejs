@@ -716,7 +716,6 @@ document.getElementById('applyCouponBtn').addEventListener('click', function() {
     const selectedCoupon = document.getElementById('couponSelect').selectedOptions[0];
     const cartTotal = parseFloat(document.getElementById('subtotal').innerText.replace('₹', ''));
     const shippingCost = deleveryCharge;
-    console.log(shippingCost)
     let errorMessage = '';
     document.getElementById('error-message').style.display = 'none';
     
@@ -735,7 +734,7 @@ document.getElementById('applyCouponBtn').addEventListener('click', function() {
                 document.getElementById('applyCouponBtn').style.display = 'none'; // Hide Apply button
                 document.getElementById('couponSelect').style.display = 'none'; // Hide dropdown
                 document.getElementById('cancelCouponBtn').style.display = 'block'; // Show Cancel button
-                document.getElementById('discountField').style.display= 'flex'
+                document.getElementById('discountField').style.display= 'flex';
             }
         }
     }
@@ -744,10 +743,17 @@ document.getElementById('applyCouponBtn').addEventListener('click', function() {
         document.getElementById('error-message').style.display = 'block';
     } else {
         let totalPrice = cartTotal - discount + shippingCost;
-        console.log(totalPrice)
         totalPrice = Math.ceil(totalPrice);
         document.getElementById('totalPrice').innerText = `₹${totalPrice}`;
-        alert(`Coupon applied! New total: ₹${totalPrice}`);
+
+        // Show SweetAlert for successful coupon application
+        Swal.fire({
+            icon: 'success',
+            title: 'Coupon Applied!',
+            text: `New total: ₹${totalPrice}`,
+            showConfirmButton: false,
+            timer: 2000
+        });
     }
     discount = Math.ceil(discount)
     document.getElementById('discountAmount').textContent = discount;
@@ -756,7 +762,7 @@ document.getElementById('applyCouponBtn').addEventListener('click', function() {
 document.getElementById('cancelCouponBtn').addEventListener('click', function() {
     document.getElementById('couponInput').value = '';
     document.getElementById('error-message').style.display = 'none';
-     document.getElementById('discountField').style.display= 'none'
+    document.getElementById('discountField').style.display= 'none';
     discount = 0; // Reset discount to 0
     const cartTotal = parseFloat(document.getElementById('subtotal').innerText.replace('₹', ''));
     const shippingCost = deleveryCharge;
@@ -767,10 +773,34 @@ document.getElementById('cancelCouponBtn').addEventListener('click', function() 
     document.getElementById('applyCouponBtn').style.display = 'block'; // Show Apply button
     document.getElementById('couponSelect').style.display = 'block'; // Show dropdown
     document.getElementById('cancelCouponBtn').style.display = 'none'; // Hide Cancel button
-    alert('Coupon has been canceled. Total price updated.');
+
+    // Show SweetAlert for coupon cancellation
+    Swal.fire({
+        icon: 'info',
+        title: 'Coupon Canceled',
+        text: 'Total price updated.',
+        showConfirmButton: false,
+        timer: 2000
+    });
 });
 
-</script>       
+</script>  
+<style>
+    .swal-popup {
+    border-radius: 10px;  
+}
+
+.swal-title {
+    font-size: 18px;
+    font-weight: bold;  
+    color: #721c24;  
+}
+
+.swal-html {
+    font-size: 16px;  
+    color: #721c24; 
+}
+</style>     
 <script>
       // Function to populate modal with the clicked address data
       document.querySelectorAll('.editAddressBtn').forEach(button => {
@@ -803,11 +833,21 @@ document.getElementById('cancelCouponBtn').addEventListener('click', function() 
 </script>
 <script>
   async function placeOrder() {
-   
-    // Get selected address and payment method
     const selectedAddress = document.querySelector('input[name="address"]:checked').value;
-if (!selectedAddress) {
-    alert("Please add your address");
+    if (!selectedAddress) {
+    Swal.fire({
+        title: 'Address Required',
+        text: 'Please add your address to proceed with the order.',
+        icon: 'warning',  // Using a warning icon to indicate importance
+        confirmButtonText: 'Add Address',
+        confirmButtonColor: '#1c4bcc',  // A professional color for the button
+        background: '#fff3cd',  // Light yellow background for the warning
+        customClass: {
+            popup: 'swal-popup',  // Custom class for styling
+            title: 'swal-title',   // Custom class for title
+            htmlContainer: 'swal-html',  // Custom class for HTML content
+        }
+    });
     return; // Stop further execution if no address is selected
 }
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
@@ -819,8 +859,46 @@ if (!selectedAddress) {
     const totalPrice = parseFloat(document.getElementById('totalPrice').innerText.replace('₹', '')); // Get the total price from the page
     const couponCode = document.getElementById('couponInput').value.trim(); // Get the coupon code from the input
     const couponDiscount = parseFloat(document.getElementById('discountAmount').innerText) || 0; // Get the coupon discount (or 0 if no discount)
+    const subtotal= document.getElementById('subtotal').value
+ 
 
-    console.log(totalPrice)
+    if (totalPrice === 0 || subtotal === 0) {
+    Swal.fire({
+        title: 'Item Not Found',
+        text: 'There are no items in your cart. Please add items to proceed.',
+        icon: 'info', 
+        confirmButtonText: 'Go to Shop',
+        confirmButtonColor: '#1c4bcc',  
+        background: '#e2f0fd', 
+        customClass: {
+            popup: 'swal-popup',  
+            title: 'swal-title',   
+            htmlContainer: 'swal-html',  
+        }
+    }).then(() => {
+
+        window.location.href = '/shop';  // Adjust the URL as needed
+    });
+    return; 
+}
+    if (totalPrice > 1000 && selectedPaymentMethod === 'Cash on Delivery') {
+    Swal.fire({
+        title: 'COD Unavailable',
+        text: 'Cash on Delivery is only available for orders below ₹1000. Please choose another payment method.',
+        icon: 'error',
+        confirmButtonText: 'Choose Payment Method',
+        confirmButtonColor: '#d33',
+        
+        background: '#f8d7da', 
+        customClass: {
+            popup: 'swal-popup', 
+            title: 'swal-title', 
+            htmlContainer: 'swal-html',  
+        }
+    });
+    return;
+
+}
     const deleveryCharge = '<%=  deleveryCharge %>'
 console.log(deleveryCharge)
     const orderData = {
@@ -856,6 +934,7 @@ console.log(deleveryCharge)
                            console.log(razorpayOrderId,amount,currency)
 
                         await  initiateRazorpayPayment(razorpayOrderId,amount,currency,orderId,user);
+                        
                        }
                     
                     if(response.data.success){
@@ -868,7 +947,7 @@ console.log(deleveryCharge)
                         timer: 1000 
                     }).then(() => {
                         
-                        // Optionally redirect to another page or refresh the page
+                       
                         window.location.href = `/order/placed/${response.data.order.orderId}`; // Redirect to the orders page
                     });
 
@@ -886,7 +965,7 @@ console.log(deleveryCharge)
                     
                 })
                 .catch((error) => {
-                    // Error alert if something goes wrong
+                   
                     Swal.fire({
                         title: 'Error!',
                         text: 'Something went wrong while placing your order. Please try again.',
@@ -914,7 +993,7 @@ function initiateRazorpayPayment(razorpayOrderId, amount, currency,orderId,user)
         order_id: razorpayOrderId,
         orderId:orderId,
         handler: async function (response) {
-            verifyRazorpayPayment(response,orderId); // Call verification
+            verifyRazorpayPayment(response,orderId); 
         },
         prefill: {
             name: user.username,
@@ -927,6 +1006,19 @@ function initiateRazorpayPayment(razorpayOrderId, amount, currency,orderId,user)
     };
 
     const rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Payment Failed!',
+            html: `Reason: ${response.error.reason}<br>You can continue the order in your orders section and retry the payment.`,
+            confirmButtonText: 'Okey',
+            confirmButtonColor: '#d33'
+        }).then(() => {
+            location.reload()
+        });
+        
+        console.error("Payment failure details:", response.error); // Optional: Log detailed error information
+    });
     rzp1.open(); // Open the Razorpay checkout
 }
 
@@ -937,12 +1029,14 @@ function verifyRazorpayPayment(paymentData,orderId) {
         headers: { 'Content-Type': 'application/json' }
     })
     .then(response => {
+   
         const data = response.data;
         if (data.success) {
             
             window.location.href = `/order/placed/${orderId}`;// Redirect
         } else {
             alert('Payment verification failed.');
+            console.log("siyad")
         }
     })
     .catch(error => {

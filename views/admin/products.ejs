@@ -163,65 +163,62 @@
 <!--  pagination end -->
             
             <!-- Create Product Modal -->
-<div class="modal fade" id="createProductModal" tabindex="-1" role="dialog" aria-labelledby="createProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createProductModalLabel">Add New Product</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal fade" id="createProductModal" tabindex="-1" role="dialog" aria-labelledby="createProductModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="createProductModalLabel">Add New Product</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="createProductForm" onsubmit="createProduct(event)">
+                                <div class="form-group">
+                                    <label for="productName">Product Name</label>
+                                    <input type="text" class="form-control" id="productName" name="name" >
+                                    <div class="invalid-feedback" id="nameError" style="display: none;">Please enter a product name.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productCategory">Category</label>
+                                    <select class="form-control" id="productCategory" name="category" >
+                                        <% categories.forEach(category => { %>
+                                            <option value="<%= category._id %>"><%= category.name %></option>
+                                        <% }) %>
+                                    </select>
+                                    <div class="invalid-feedback" id="categoryError" style="display: none;">Please select a category.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productPrice">Price</label>
+                                    <input type="number" class="form-control" id="productPrice" name="price" >
+                                    <div class="invalid-feedback" id="priceError" style="display: none;">Please enter a valid price (not negative).</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productStock">Stock</label>
+                                    <input type="number" class="form-control" id="productStock" name="stock" >
+                                    <div class="invalid-feedback" id="stockError" style="display: none;">Please enter a valid stock (not negative).</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="productDescription">Description (Minimum 30 words)</label>
+                                    <textarea class="form-control" id="productDescription" name="description" rows="4" ></textarea>
+                                    <div class="invalid-feedback" id="descriptionError" style="display: none;">Please enter a description.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Upload Images</label>
+                                    <input type="file" class="form-control-file" id="productImages" accept="image/*" multiple required onchange="startCropperForMultipleImages(event)">
+                                    <div class="invalid-feedback" id="imagesError" style="display: none;">Please upload images.</div>
+                                </div>
+                                <div class="form-group" id="cropContainer" style="display:none;">
+                                    <label for="cropImagePreview">Crop Image</label>
+                                    <img id="cropImagePreview" src="" class="img-fluid" alt="Image Preview">
+                                    <button type="button" class="btn btn-primary mt-2" id="cropNextButton" onclick="cropNextImage()">Crop & Next</button>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create Product</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                <form id="createProductForm" onsubmit="createProduct(event)">
-                    <!-- Other input fields -->
-                    <div class="form-group">
-                        <label for="productName">Product Name</label>
-                        <input type="text" class="form-control" id="productName" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productCategory">Category</label>
-                        <select class="form-control" id="productCategory" name="category" required>
-                            <% categories.forEach(category => { %>
-                                <option value="<%= category._id %>"><%= category.name %></option>
-                            <% }) %>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="productPrice">Price</label>
-                        <input type="number" class="form-control" id="productPrice" name="price" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productStock">Stock</label>
-                        <input type="number" class="form-control" id="productStock" name="stock" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="productDescription">Description (Minimum 30 words)</label>
-                        <textarea class="form-control" id="productDescription" name="description" rows="4" required></textarea>
-                    </div>
-
-                    <!-- Image upload section with cropping -->
-                    <div class="form-group">
-                        <label>Upload Images</label>
-                        <input type="file" class="form-control-file" id="productImages" accept="image/*" multiple required onchange="startCropperForMultipleImages(event)">
-                    </div>
-
-                    <!-- Cropping Area -->
-                    <div class="form-group" id="cropContainer" style="display:none;">
-                        <label for="cropImagePreview">Crop Image</label>
-                        <img id="cropImagePreview" src="" class="img-fluid" alt="Image Preview">
-                        <button type="button" class="btn btn-primary mt-2" id="cropNextButton" onclick="cropNextImage()">Crop & Next</button>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Create Product</button>
-                </form>
-            </div>
-            
-        </div>
-        
-    </div>
-    
-</div>
             <!-- Edit Product Modal -->
        
 
@@ -239,40 +236,44 @@
                             <form id="editProductForm" onsubmit="submitEditedProduct(event)" enctype="multipart/form-data">
                                 <input type="hidden" id="editProductId" name="id" value="">
             
-                                <!-- Product Name -->
-                                <div class="form-group">
-                                    <label for="editProductName">Product Name</label>
-                                    <input type="text" class="form-control" id="editProductName" name="name" required>
-                                </div>
-            
-                                <!-- Category -->
-                                <div class="form-group">
-                                    <label for="editProductCategory">Category</label>
-                                    <select class="form-control" id="editProductCategory" name="category" required>
-                                        <% categories.forEach(category => { %>
-                                            <option value="<%= category._id %>"><%= category.name %></option>
-                                        <% }) %>
-                                    </select>
-                                </div>
-            
-                                <!-- Price -->
-                                <div class="form-group">
-                                    <label for="editProductPrice">Price</label>
-                                    <input type="number" class="form-control" id="editProductPrice" name="price" required>
-                                </div>
-            
-                                <!-- Stock -->
-                                <div class="form-group">
-                                    <label for="editProductStock">Stock</label>
-                                    <input type="number" class="form-control" id="editProductStock" name="stock" required>
-                                </div>
-            
-                                <!-- Description -->
-                                <div class="form-group">
-                                    <label for="editProductDescription">Description</label>
-                                    <textarea class="form-control" id="editProductDescription" name="description" rows="4" required></textarea>
-                                </div>
-            
+                                                                  <!-- Product Name -->
+                                  <div class="form-group">
+                                      <label for="editProductName">Product Name</label>
+                                      <input type="text" class="form-control" id="editProductName" name="name" required>
+                                      <div class="text-danger" id="productNameError"></div> <!-- Error message container -->
+                                  </div>
+                                  
+                                  <!-- Category -->
+                                  <div class="form-group">
+                                      <label for="editProductCategory">Category</label>
+                                      <select class="form-control" id="editProductCategory" name="category" required>
+                                          <% categories.forEach(category => { %>
+                                              <option value="<%= category._id %>"><%= category.name %></option>
+                                          <% }) %>
+                                      </select>
+                                      <div class="text-danger" id="productCategoryError"></div> <!-- Error message container -->
+                                  </div>
+                                  
+                                  <!-- Price -->
+                                  <div class="form-group">
+                                      <label for="editProductPrice">Price</label>
+                                      <input type="number" class="form-control" id="editProductPrice" name="price" required>
+                                      <div class="text-danger" id="productPriceError"></div> <!-- Error message container -->
+                                  </div>
+                                  
+                                  <!-- Stock -->
+                                  <div class="form-group">
+                                      <label for="editProductStock">Stock</label>
+                                      <input type="number" class="form-control" id="editProductStock" name="stock" required>
+                                      <div class="text-danger" id="productStockError"></div> <!-- Error message container -->
+                                  </div>
+                                  
+                                  <!-- Description -->
+                                  <div class="form-group">
+                                      <label for="editProductDescription">Description</label>
+                                      <textarea class="form-control" id="editProductDescription" name="description" rows="4" required></textarea>
+                                      <div class="text-danger" id="productDescriptionError"></div> <!-- Error message container -->
+                                  </div>
                                 <!-- Existing Images with Remove Option -->
                                 <div class="form-group">
                                     <label>Existing Images</label>

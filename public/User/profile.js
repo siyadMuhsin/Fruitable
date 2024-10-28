@@ -95,16 +95,15 @@ Swal.fire({
 //address submission
 
 function submitAddressForm(event) {
-    console.log("thodaghi")
     event.preventDefault();
-
 
     document.querySelectorAll('.error-message').forEach(function(el) {
         el.textContent = '';
     });
+
     // Get form field values
     const name = document.getElementById('name').value.trim();
-    const phone = document.getElementById('phone').value.trim();
+    const phone = document.getElementById('addressphone').value.trim();
     const pincode = document.getElementById('pincode').value.trim();
     const locality = document.getElementById('locality').value.trim();
     const district = document.getElementById('district').value.trim();
@@ -113,23 +112,26 @@ function submitAddressForm(event) {
     const address = document.getElementById('addressInput').value.trim();
     const addressType = document.querySelector('input[name="addressType"]:checked');
 
+    console.log(phone)
     // Regex patterns for validation
     const namePattern = /^[A-Za-z]+$/;
     const phonePattern = /^\d{10}$/;
     const pincodePattern = /^\d{6}$/;
 
- 
-   let isValid=true
+    let isValid = true;
 
-     
-       if (!namePattern.test(name)) {
+    if (!namePattern.test(name)) {
         document.getElementById('nameError').textContent = "Name should contain only characters with no spaces.";
         isValid = false;
     }
-    if (!phonePattern.test(phone)) {
-        document.getElementById('phoneError').textContent = "Phone number must be exactly 10 digits.";
+
+    // Validate phone number
+    const sameDigitPattern = /^(\d)\1{9}$/; // Pattern to check if all digits are the same
+    if (!phonePattern.test(phone) || phone === "0000000000" || sameDigitPattern.test(phone)) {
+        document.getElementById('phoneError').textContent = "Phone number must be exactly 10 digits, cannot be all zeros, and cannot consist of the same digit.";
         isValid = false;
     }
+
     if (!pincodePattern.test(pincode)) {
         document.getElementById('pincodeError').textContent = "PIN code must be exactly 6 digits.";
         isValid = false;
@@ -164,6 +166,7 @@ function submitAddressForm(event) {
     if (!isValid) {
         return false;
     }
+    
     const addAddressForm = document.getElementById('addAddressForm');
     const formData = new FormData(addAddressForm);
 
@@ -172,7 +175,6 @@ function submitAddressForm(event) {
         addressData[key] = value;
     });
 
-    
     Swal.fire({
         title: 'Confirm Submission',
         text: 'Are you sure you want to add this address?',
@@ -181,8 +183,8 @@ function submitAddressForm(event) {
         confirmButtonText: 'Yes, add it!',
         cancelButtonText: 'No, cancel!',
         customClass: {
-            confirmButton: 'btn btn-success', 
-            cancelButton: 'btn btn-danger' 
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-danger'
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -195,7 +197,7 @@ function submitAddressForm(event) {
                             icon: 'success',
                             confirmButtonText: 'OK',
                             customClass: {
-                                confirmButton: 'btn btn-success' 
+                                confirmButton: 'btn btn-success'
                             }
                         }).then(() => {
                             document.querySelector('#addAddressModal .btn-close').click(); // Close the modal
@@ -225,9 +227,6 @@ function submitAddressForm(event) {
         }
     });
 }
-
-
-
 
 
   // JavaScript to open the modal when the "Edit" button is clicked

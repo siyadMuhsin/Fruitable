@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify OTP</title>
     <link rel="stylesheet" href="User/css/loginsignup/otp.css">
-    
 </head>
 <body>
     <div class="otp-container">
-
         <h2>Verify OTP</h2>
       
         <% if (typeof errorMessage !== 'undefined') { %>
@@ -18,9 +16,9 @@
             </div>
         <% } %>
 
-           <!-- A place to show the dynamic text -->
-           <h3 id="dynamicText"></h3>
-    
+        <!-- A place to show the dynamic text -->
+        <h3 id="dynamicText"></h3>
+
         <form action="/verify-otp" method="POST">
             <div class="otp-field">
                 <div class="otp-box"><input type="text" name="otp1" maxlength="1" required></div>
@@ -31,79 +29,80 @@
             <input type="hidden" id="email" name="email" value="<%= email %>">
             <input type="hidden" id="username" name="username" value="<%= username %>">
             <input type="hidden" id="password" name="password" value="<%= password %>">
-            <div style="color: red;" class="timer" id="timer">Time left: 00:30</div>
+            <div style="color: red;" class="timer" id="timer">Time left: 01:00</div>
             
             <button type="submit">Verify</button>
-        
-            <!-- <button type="button" class="resend-btn" id="resendBtn">Resend OTP</button> -->
             <button type="button" class="resend-btn" id="resendBtn" style="display: none;">Resend OTP</button>
-
-           
-            
         </form>
     </div>
-    <div>
-        
-    </div>
-
-
-    
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-     
+        let timeLeft = 60; // Set initial time in seconds
+        const timerDisplay = document.getElementById('timer');
+        const resendBtn = document.getElementById('resendBtn');
+        let timer;
 
-        // Timer
-        let timeLeft = 60; // 30 seconds
-const timerDisplay = document.getElementById('timer');
-const resendBtn = document.getElementById('resendBtn');
+        function startTimer() {
+            timeLeft = 60; // Reset time
+            resendBtn.style.display = 'none'; // Hide resend button
+            timerDisplay.textContent = `Time left: 01:00`; // Reset display
 
-const timer = setInterval(() => {
-    timeLeft--;
+            clearInterval(timer); // Clear any existing timer
+            timer = setInterval(() => {
+                timeLeft--;
+                let seconds = timeLeft % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerDisplay.textContent = `Time left: ${seconds} seconds`;
 
-    let seconds = timeLeft % 60;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timerDisplay.textContent = 'Time expired';
+                    resendBtn.style.display = 'block';
+                }
+            }, 1000);
+        }
 
-    seconds = seconds < 10 ? '0' + seconds : seconds;
+        // Start the timer when the page loads
+        startTimer();
 
-    timerDisplay.textContent = `Time left: ${seconds} seconds`;
+        // Resend OTP Button Click Event
+        document.getElementById('resendBtn').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-    if (timeLeft <= 0) {
-        clearInterval(timer);
-        timerDisplay.textContent = 'Time expired';
-        resendBtn.style.display = 'block';
-    }
-}, 1000);
+            const response = await fetch('/resendOTP', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, username, password })
+            });
 
-document.getElementById('resendBtn').addEventListener('click',async ()=>{
-    console.log('sucess')
-    const email=document.getElementById('email').value;
-    const username=document.getElementById('username').value;
-    const password=document.getElementById('password').value;
-   
-  
-
-    const response = await fetch('/resendOTP', {
-    method: "POST",
-    headers: {
-        'Content-Type': 'application/json' // Corrected header
-    },
-    body: JSON.stringify({ email, username, password })
-});
-
-    console.log(response)
-    if(response.ok){
-        alert('OTP has been resent to your email!')
-
-    }else{
-        alert('Failed to resend OTP.');
-    }
-
-})
-
+            if (response.ok) {
+    Swal.fire({
+        icon: 'success',
+        title: 'OTP has been resent to your email!',
+        showConfirmButton: false,  // Removes the OK button
+        timer: 1500,  // Closes the alert after 1.5 seconds
+        timerProgressBar: true
+    });
+    startTimer(); 
+} else {
+    Swal.fire({
+        icon: 'error',
+        title: 'Failed to resend OTP.',
+        showConfirmButton: false,
+        timer: 1500,  // Closes the alert after 1.5 seconds
+        timerProgressBar: true
+    });
+}
+        });
 
 
-        // OTP Input Navigation
         const otpInputs = document.querySelectorAll('.otp-box input');
-
         otpInputs.forEach((input, index) => {
             input.addEventListener('input', () => {
                 if (input.value && index < otpInputs.length - 1) {

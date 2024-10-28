@@ -14,13 +14,16 @@ const uploadMultipleImages=require('../../controllers/admincontroller/multer')
 const {getCoupons,createCoupon,updateCoupon,couponStatus}=require('../../controllers/admincontroller/CouponsCTRL')
 const {getOfferPage,createOffer,updateOffer,activateOffer ,deactivateOffer}= require('../../controllers/admincontroller/offerCTLR')
 
+const {salesReport}= require('../../controllers/admincontroller/salesController')
+
+
 //Login Authentication
 router.get('/',noCache,adminAuth.adminGet)
 router.post('/login',noCache,adminAuth.admincheck)
 router.post('/logout',adminAuth.adminLogout)
 
 //Dashboard
-router.get('/dashboard',noCache,adminAuth.getDashboard)
+// router.get('/dashboard',noCache,adminAuth.getDashboard)
 
 //Users List
 router.get('/users',noCache,adminAuthenticate,userCtrl.getUsers)
@@ -41,7 +44,7 @@ const test=(req,res,next)=>{
     next()
 }
 // order controller
-router.get('/orders',adminAuthenticate,getOrders)
+router.get('/orders',noCache,adminAuthenticate,getOrders)
 router.get('/order/view/:id',adminAuthenticate,OrderView)
 router.post('/order/updateStatus/:id',statusUpdate)
 router.patch('/order/cancel',cancelOrder)
@@ -62,17 +65,20 @@ router.post('/product/edit/:id',uploadMultipleImages,editProduct)
 router.post('/product/remove-image',removeImage)
 
 // coupons Routes
-router.get('/coupons',adminAuthenticate,getCoupons)
+router.get('/coupons',noCache,adminAuthenticate,getCoupons)
 router.post('/coupons/create',createCoupon)
 router.put('/coupons/update/:id',updateCoupon)
 router.patch('/coupons/status/:id',couponStatus)
 
 
 // Offers Routes
-router.get('/offers',getOfferPage)
+router.get('/offers',noCache,adminAuthenticate,getOfferPage)
 router.post('/offers/create',test,createOffer)
 router.put('/offers/update/',test,updateOffer)
 router.patch('/offers/action/:id',test,activateOffer)
 router.put('/offers/ac/:id',deactivateOffer)
 
+
+router.get('/sales-report',noCache,adminAuthenticate,salesReport)
+// router.get('/sales-report',salesReportGet)
 module.exports=router 

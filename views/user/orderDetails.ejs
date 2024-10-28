@@ -680,10 +680,10 @@ img:hover {
 
 <script>
         function initiateRazorpayPayment(razorpayOrderId, amount, currency,orderId) {
-    console.log('hashim')
+
     const options = {
-        key: 'rzp_test_y9pYpW6GyA8Eir', // Razorpay Key ID
-        amount: amount * 100, // Amount in paise
+        key: 'rzp_test_y9pYpW6GyA8Eir', 
+        amount: amount * 100, 
         currency: currency,
         name: 'Siyad', // Business name
         description: 'Order Payment',
@@ -708,9 +708,7 @@ img:hover {
     rzp1.open(); // Open the Razorpay checkout
 }
 function verifyRazorpayPayment(paymentData,orderId) {
-    console.log('11:   ',orderId)
-    console.log(paymentData);
-    console.log("checkingg");
+  
 
     axios.post(`/order/verify_payment/${orderId}`, paymentData,{
         headers: { 'Content-Type': 'application/json' }

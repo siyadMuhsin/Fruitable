@@ -5,8 +5,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Wallet</title>
-    <link rel="stylesheet" href="/path/to/bootstrap.css"> <!-- Add your CSS framework -->
-    <link rel="stylesheet" href="/path/to/styles.css"> <!-- Your custom styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Raleway:wght@600;800&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="User/lib/lightbox/css/lightbox.min.css" rel="stylesheet">
+    <link href="User/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="User/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="User/css/style.css" rel="stylesheet">
+
 </head>
 <body>
     <style>
@@ -235,11 +252,64 @@ tr td[colspan="4"] {
   background-size: 1000px 100%;
   animation: shimmer 2s infinite linear;
 }
+.add-money-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Input styling */
+#addMoneyInput {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 200px;
+}
+
+#addMoneyInput:focus {
+    border-color: #1c4bcc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Button styling */
+.add-money-section button {
+    padding: 10px 20px;
+    background-color: #1c4bcc;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-money-section button:hover {
+    background-color: #1641a1;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.add-money-section button:active {
+    background-color: #0f3176;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
     </style>
+    <%- include('partials/header') %>
     <div class="wallet-container">
         <h2>My Wallet</h2>
         <p style="font-weight: 600; color: #1c4bcc;"><strong>Balance:</strong> ₹<%= wallet.balance %></p>
     
+        <div class="add-money-section">
+          <input type="number" placeholder="Enter amount" id="addMoneyInput" min="1">
+          <button onclick="addMoneyToWallet()">+ Add Money</button>
+      </div>
         <h3>Transaction History</h3>
         <table class="table">
             <thead>
@@ -273,6 +343,99 @@ tr td[colspan="4"] {
         </table>
     </div>
 
-    <script src="/path/to/your/javascript.js"></script> <!-- Include your JS file for handling wallet operations -->
-</body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/User/lib/easing/easing.min.js"></script>
+    <script src="/User/lib/waypoints/waypoints.min.js"></script>
+    <script src="/User/lib/lightbox/js/lightbox.min.js"></script>
+    <script src="/User/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Template Javascript -->
+    <script src="/User/main.js"></script> 
+
+    <script>
+     async function addMoneyToWallet() {
+        const amount = document.getElementById('addMoneyInput').value;
+        console.log(amount)
+
+        if (amount && amount > 0) {
+            try {
+
+                const orderResponse = await axios.post('/wallet/create-order', {
+                    amount: parseFloat(amount) * 100  // Convert to paise
+                });
+
+                const orderData = orderResponse.data;
+                console.log(orderData)
+
+                const keyId= orderData.keyId
+                if (!orderData.success) {
+                    return alert(orderData.message || 'Failed to create order');
+                }
+
+            
+                const options = {
+                    key: keyId, 
+                    amount: orderData.amount,
+                    currency: 'INR',
+                    name: 'Fruitable',
+                    description: 'Add Money to Wallet',
+                    order_id: orderData.orderId,
+                    handler: async function (response) {
+                       
+                        const verifyResponse = await axios.post('/wallet/verify-payment', {
+                            orderId: orderData.orderId,
+                            paymentId: response.razorpay_payment_id,
+                            signature: response.razorpay_signature,
+                            amount: orderData.amount // Send amount to update balance
+                        });
+
+                        const verifyData = verifyResponse.data;
+                        if (verifyData.success) {
+                              Swal.fire({
+                                  title: 'Success!',
+                                  text: `₹${amount} has been added to your wallet!`,
+                                  icon: 'success',
+                                  showConfirmButton: false,   // Hide the OK button
+                                  timer: 3000,                // Auto-close after 3 seconds
+                                  timerProgressBar: true,
+                              }).then(() => {
+                                  location.reload(); // Reload to show updated balance
+                              });
+                          } else {
+                              Swal.fire({
+                                  title: 'Error',
+                                  text: 'Payment verification failed',
+                                  icon: 'error',
+                                  showConfirmButton: false,   // Hide the OK button
+                                  timer: 3000,                // Auto-close after 3 seconds
+                                  timerProgressBar: true,
+                              });
+                          }
+                    },
+                    prefill: {
+                        name: 'Siyad',
+                        email: 'h',
+                        contact: '9947774065'
+                    },
+                    theme: {
+                        color: '#1c4bcc'
+                    }
+                };
+
+                const razorpay = new Razorpay(options);
+                razorpay.open();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        } else {
+            alert('Please enter a valid amount');
+        }
+    }
+  </script>
+  </body>
 </html>

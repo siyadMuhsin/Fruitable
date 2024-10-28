@@ -398,7 +398,6 @@ body {
 
     <div class="container order-details mt-5">
         <h1 class="text-center mb-4">Order Details</h1>
-    
         <div class="row">
             <div class="col-md-6">
                 <!-- Address Details Section -->
@@ -439,7 +438,7 @@ body {
                         <button class="btn btn-info" onclick="markAsReturned('<%= order._id %>')">Mark as Returned</button>
                     
                     <% } else if (order.status === "Returned") { %>
-                        <p>Your return has been completed. Thank you!</p>
+                        <p style="color: orange; font-weight: 600;">This Order has been Returned</p>
                     
                     <% } %>
                 <% } else { %>
@@ -524,25 +523,34 @@ body {
                     <td><%= item.quantity %></td>
                     <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
                     <td>
-                        <% if (item.status === 'Cancelled') { %>
-                            <strong style="color: red;">Cancelled</strong>
-                        <% } else if (item.status === 'Return Requested') { %>
-                            <span style="color: rgb(255, 0, 0);">Return Requested</span>
-                            <span style="display: inline-block; margin-left: 10px;">
-                                <i class="fas fa-check-circle" style="color: green; font-size: 20px; cursor: pointer;"
-                                   onclick="approveReturnItem('<%= item._id %>')"
-                                   title="Approve" onmouseover="this.style.color='darkgreen'" onmouseout="this.style.color='green'"></i>
-                                <i class="fas fa-times-circle" style="color: red; font-size: 20px; cursor: pointer; margin-left: 10px;"
-                                   onclick="rejectReturnItem('<%= item._id %>')"
-                                   title="Reject" onmouseover="this.style.color='darkred'" onmouseout="this.style.color='red'"></i>
-                            </span>
-                        <% } else if (item.status === 'Return Rejected') { %>
-                            <strong style="color: red;">Return Rejected</strong>
-                        <% } else if (item.status === 'Returned') { %>
-                            <strong style="color: green;">Returned</strong>
-                        <% } else { %>
-                            <span style="color: green;">Active</span> <!-- Display other statuses normally -->
-                        <% } %>
+                        <% if(order.status === 'Returned'){ %>
+                            <strong style="color: rgb(255, 102, 0);">Returned</strong>
+
+                        <% }else {%>
+                            <% if (item.status === 'Cancelled') { %>
+                                <strong style="color: red;">Cancelled</strong>
+                            <% } else if (item.status === 'Return Requested') { %>
+                                <span style="color: rgb(255, 0, 0);">Return Requested</span>
+                                <span style="display: inline-block; margin-left: 10px;">
+                                    <i class="fas fa-check-circle" style="color: green; font-size: 20px; cursor: pointer;"
+                                       onclick="approveReturnItem('<%= item._id %>')"
+                                       title="Approve" onmouseover="this.style.color='darkgreen'" onmouseout="this.style.color='green'"></i>
+                                    <i class="fas fa-times-circle" style="color: red; font-size: 20px; cursor: pointer; margin-left: 10px;"
+                                       onclick="rejectReturnItem('<%= item._id %>')"
+                                       title="Reject" onmouseover="this.style.color='darkred'" onmouseout="this.style.color='red'"></i>
+                                </span>
+                            <% } else if (item.status === 'Return Rejected') { %>
+                                <strong style="color: red;">Return Rejected</strong>
+                            <% } else if (item.status === 'Returned') { %>
+                                <strong style="color: green;">Returned</strong>
+                            <% } else { %>
+                                <span style="color: green;">Active</span> <!-- Display other statuses normally -->
+                            <% } %>
+
+                       <% } %>
+
+
+                       
                     </td>
                 </tr>
                 <% }); %>
@@ -847,7 +855,7 @@ function rejectReturnItem(itemId) {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- Include CSS for Alertify -->
+
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
 <!-- Include Alertify default theme -->
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/default.min.css"/>

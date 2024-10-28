@@ -8,17 +8,26 @@
     <!-- plugins:css -->
     <link rel="stylesheet" href="/admin/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/vendor.bundle.base.css">
-    <!-- endinject -->
-    <!-- Plugin css for this page -->
-    <!-- End Plugin css for this page -->
-    <!-- inject:css -->
-    <!-- endinject -->
-    <!-- Layout styles -->
+
     <link rel="stylesheet" href="/admin/assets/css/style.css">
-    <!-- End layout styles -->
+
     <link rel="shortcut icon" href="/admin/assets/images/favicon.png" />
   </head>
   <body>
+    <style>
+        .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    color: blue;
+}
+
+.pagination .btn {
+    background-color: rgb(9, 101, 223);
+    color: rgb(252, 252, 252);
+    margin: 0 5px;
+}
+    </style>
     <div class="container-scroller">
       <!-- partial:../../partials/_sidebar.html -->
       <%- include('_partials/_sidebar') %>
@@ -26,68 +35,75 @@
       <div class="container-fluid page-body-wrapper">
         <!-- partial:../../partials/_navbar.html -->
         <nav class="navbar p-0 fixed-top d-flex flex-row">
-          <!-- <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
-            <a class="navbar-brand brand-logo-mini" href="../../index.html"><img src="/admin/assets/images/logo-mini.svg" alt="logo" /></a>
-          </div> -->
+
          <%- include('_partials/_navbar') %>
         </nav>
         <div class="main-panel">
-          <div class="content-wrapper">
-              <div class="card">
-                  <div class="card-body">
-                      <h4 class="card-title">User List</h4>
-                      <div class="table-responsive">
-                          <table class="table">
-                              <thead>
-                                  <tr>
-                                      <th>Sl. No.</th>
-                                      <th>Name</th>
-                                      <th>Email</th>
-                                      <th>Google User</th>
-                                      <th>Status</th>
-                                      <th>Actions</th>
-                                  </tr>
-                              </thead>
-                              <tbody>
-                                  <% users.forEach((user, index) => { %>
-                                      <tr id="user-<%= user._id %>">
-                                          <td><%= index + 1 %></td>
-                                          <td><%= user.username %></td>
-                                          <td><%= user.email %></td>
-                                          <td>
-                                              <span class="badge <%= user.isGoogleUser ? 'badge-info' : 'badge-primary' %>">
-                                                  <%= user.isGoogleUser ? 'Yes' : 'No' %>
-                                              </span>
-                                          </td>
-                                          <td>
-                                              <span class="badge <%= user.isBlocked ? 'badge-danger' : 'badge-success' %>">
-                                                  <%= user.isBlocked ? 'Blocked' : 'Active' %>
-                                              </span>
-                                          </td>
-                                          <td>
-                                              <% if (!user.isBlocked) { %>
-                                                  <button class="btn btn-danger" onclick="blockUser('<%= user._id %>')">Block</button>
-                                              <% } else { %>
-                                                  <button class="btn btn-success" onclick="unblockUser('<%= user._id %>')">Unblock</button>
-                                              <% } %>
-                                          </td>
-                                      </tr>
-                                  <% }) %>
-                              </tbody>
-                          </table>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-       
-    <!-- container-scroller -->
-    <!-- plugins:js -->
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">User List</h4>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Sl. No.</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Google User</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% users.forEach((user, index) => { %>
+                                        <tr id="user-<%= user._id %>">
+                                            <td><%= (currentPage - 1) * limit + index + 1 %></td>
+                                            <td><%= user.username %></td>
+                                            <td><%= user.email %></td>
+                                            <td>
+                                                <span class="badge <%= user.isGoogleUser ? 'badge-info' : 'badge-primary' %>">
+                                                    <%= user.isGoogleUser ? 'Yes' : 'No' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge <%= user.isBlocked ? 'badge-danger' : 'badge-success' %>">
+                                                    <%= user.isBlocked ? 'Blocked' : 'Active' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <% if (!user.isBlocked) { %>
+                                                    <button class="btn btn-danger" onclick="blockUser('<%= user._id %>')">Block</button>
+                                                <% } else { %>
+                                                    <button class="btn btn-success" onclick="unblockUser('<%= user._id %>')">Unblock</button>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+        
+                        <!-- Pagination Controls -->
+                        <div class="pagination">
+                            <% if (currentPage > 1) { %>
+                                <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="btn btn-primary">Previous</a>
+                            <% } %>
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <a href="?page=<%= i %>&limit=<%= limit %>" 
+                                   class="btn <%= currentPage === i ? 'btn-secondary' : 'btn-outline-primary' %>">
+                                    <%= i %>
+                                </a>
+                            <% } %>
+                            <% if (currentPage < totalPages) { %>
+                                <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="btn btn-primary">Next</a>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     <script src="/admin/assets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
     <script src="/admin/assets/js/off-canvas.js"></script>
     <script src="/admin/assets/js/hoverable-collapse.js"></script>
     <script src="/admin/assets/js/misc.js"></script>
@@ -95,9 +111,6 @@
     <script src="/admin/assets/js/todolist.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page -->
-    <!-- End custom js for this page -->
 
     <script>
       // Function to block a user

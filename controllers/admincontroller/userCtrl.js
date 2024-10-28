@@ -1,13 +1,27 @@
 const User = require("../../models/usermodel")
 
-const getUsers=async (req,res)=>{
-    const users= await User.find()
-   
-    console.log("users listed")
-    res.render('../views/admin/users',{users})
-}
+const getUsers = async (req, res) => {
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 10; 
+    try {
+        const totalUsers = await User.countDocuments(); 
+        const totalPages = Math.ceil(totalUsers / limit); 
+        const users = await User.find()
+            .sort({ createdAt: -1 }) 
+            .skip((page - 1) * limit)
+            .limit(limit);
 
-
+        res.render('../views/admin/Users', {
+            users,
+            currentPage: page,
+            totalPages,
+            limit,
+        });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        res.status(500).send("Server Error");
+    }
+};
 const blockUser= async(req,res)=>{
   
     try{

@@ -8,121 +8,978 @@
     <!-- plugins:css -->
     <link rel="stylesheet" href="/admin/assets/vendors/mdi/css/materialdesignicons.min.css">
     <link rel="stylesheet" href="/admin/assets/vendors/css/vendor.bundle.base.css">
-    <!-- endinject -->
-    <!-- Plugin css for this page -->
-    <!-- End Plugin css for this page -->
-    <!-- inject:css -->
-    <!-- endinject -->
-    <!-- Layout styles -->
+
     <link rel="stylesheet" href="/admin/assets/css/style.css">
     <!-- End layout styles -->
     <link rel="shortcut icon" href="/admin/assets/images/favicon.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   </head>
+  <style>
+ .total-sales-box,
+.total-discount-box,
+.total-offer-discount-box ,
+.total-order-count-box{ /* Apply the same styles to both boxes */
+    border: 2px solid #28a745; /* Green border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px 10px; /* Padding for spacing */
+    margin: 5px 0; /* Space above and below the box */
+    background-color: #0f0e0e; /* Light background for contrast */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: transform 0.3s; /* Smooth transition for hover effect */
+}
+
+.total-sales-box:hover,
+.total-discount-box:hover ,
+.total-offer-discount-box:hover,
+.total-order-count-box:hover{ /* Add hover effect for both boxes */
+    transform: scale(1.05); /* Scale up on hover for a nice effect */
+}
+
+.total-sales-box p,
+.total-discount-box p
+ { /* Apply the same paragraph styles */
+    margin: 5px 0; /* Margin between paragraphs */
+}
+
+.sales-amount {
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    color: #28a745; 
+}
+
+.discount-amount {
+    font-size: 1.5rem; /* Same size as sales amount */
+    font-weight: bold; /* Same weight as sales amount */
+    color: #dc3545; /* Example color for discounts, change as needed */
+}
+.offer-discount-amount{
+  font-size: 1.5rem; /* Same size as sales amount */
+    font-weight: bold; /* Same weight as sales amount */
+    color: #da4c0b; 
+
+}
+.order-count{
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    color: #094ee3; 
+
+}
+.sales-report-header {
+    text-align: center;
+    margin-bottom: 10px; 
+    padding: 10px; 
+    background-color: #000000; 
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.sales-report-header h2 {
+    font-size: 2rem; /* Larger font size for the main heading */
+    color: #007bff; /* Primary color for the heading */
+    font-weight: bold; /* Bold font for emphasis */
+    margin: 0; /* Remove default margin */
+}
+
+.header-description {
+    font-size: 1.2rem; /* Slightly smaller font for the description */
+    color: #f0eeee; /* Dark gray color for contrast */
+    margin-top: 5px; /* Space above the description */
+}
+
+
+  </style>
+
+  <style>
+    .product-image-container {
+    position: relative;
+    display: inline-block;
+    width: 50px; /* Set initial image size */
+    height: 50px;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.zoom-preview {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 0;
+    left: 60px; /* Adjust the position as needed */
+    width: 150px; /* Size of zoomed preview */
+    height: 150px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    z-index: 10;
+}
+
+.product-image-container:hover .zoom-preview {
+    display: block; /* Show on hover */
+}
+
+.zoomed-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.dark-card {
+    border: none;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5); /* Stronger shadow for dark theme */
+    border-radius: 12px;
+    background-color: #333; /* Dark background */
+}
+
+.dark-card .card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    color: #f5f5f5; /* Light title color for contrast */
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.chart-subtitle {
+    font-size: 0.9rem;
+    color: #b0bec5; /* Light gray for subtitle */
+    margin-bottom: 15px;
+}
+  </style>
+
+<!-- Best selling sections -->
+<style>
+
+
+
+    .dashboard-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .stats-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        padding: 16px;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-title {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(90deg, #60a5fa 0%, #a855f7 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 2s infinite linear;
+    }
+
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .table-container {
+        background: rgba(12, 14, 17, 0.8);
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        backdrop-filter: blur(12px);
+        transition: transform 0.2s ease;
+    }
+
+    .table-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .table-header .icon {
+        width: 32px;
+        height: 32px;
+        margin-right: 12px;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .table-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #f8fafc;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 6px;
+    }
+
+    th {
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: #94a3b8;
+        padding: 8px 12px;
+        text-align: left;
+        letter-spacing: 0.05em;
+    }
+
+    td {
+        padding: 10px 12px;
+        font-size: 14px;
+        background: rgba(51, 65, 85, 0.4);
+        transition: all 0.2s ease;
+    }
+
+    tr td:first-child {
+        border-radius: 8px 0 0 8px;
+    }
+
+    tr td:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+
+    tbody tr {
+        transition: transform 0.2s ease;
+    }
+
+    tbody tr:hover td {
+        background: rgba(51, 65, 85, 0.6);
+    }
+
+    tbody tr:hover {
+        transform: translateX(4px);
+    }
+
+    .product-image {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        object-fit: cover;
+        border: 2px solid rgba(27, 133, 13, 0.863);
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes shimmer {
+        from {
+            background-position: 0% center;
+        }
+        to {
+            background-position: -200% center;
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .stats-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 12px;
+        }
+    }
+</style>
   <body>
     <div class="container-scroller">
-      <!-- partial:../../partials/_sidebar.html -->
       <%- include('_partials/_sidebar') %>
-      <!-- partial -->
       <div class="container-fluid page-body-wrapper">
-        <!-- partial:../../partials/_navbar.html -->
-        <nav class="navbar p-0 fixed-top d-flex flex-row">
-          <div class="navbar-brand-wrapper d-flex d-lg-none align-items-center justify-content-center">
-            <a class="navbar-brand brand-logo-mini" href="../../index.html"><img src="/admin/assets/images/logo-mini.svg" alt="logo" /></a>
-          </div>
-         <%- include('_partials/_navbar') %>
-
-          <!-- this is condent section -->
-          <div class="main-panel">
-            <div class="content-wrapper">
-          <div class="row">
-          <div class="col-lg-6 grid-margin stretch-card">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title">Hoverable Table</h4>
-                <p class="card-description"> Add class <code>.table-dark</code>
-                </p>
-                <div class="table-responsive">
-                  <table class="table table-hover">
-                    <thead>
-                      <tr>
-                        <th>User</th>
-                        <th>Product</th>
-                        <th>Sale</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Jacob</td>
-                        <td>Photoshop</td>
-                        <td class="text-danger"> 28.76% <i class="mdi mdi-arrow-down"></i></td>
-                        <td><label class="badge badge-danger">Pending</label></td>
-                      </tr>
-                      <tr>
-                        <td>Messsy</td>
-                        <td>Flash</td>
-                        <td class="text-danger"> 21.06% <i class="mdi mdi-arrow-down"></i></td>
-                        <td><label class="badge badge-warning">In progress</label></td>
-                      </tr>
-                      <tr>
-                        <td>John</td>
-                        <td>Premier</td>
-                        <td class="text-danger"> 35.00% <i class="mdi mdi-arrow-down"></i></td>
-                        <td><label class="badge badge-info">Fixed</label></td>
-                      </tr>
-                      <tr>
-                        <td>Peter</td>
-                        <td>After effects</td>
-                        <td class="text-success"> 82.00% <i class="mdi mdi-arrow-up"></i></td>
-                        <td><label class="badge badge-success">Completed</label></td>
-                      </tr>
-                      <tr>
-                        <td>Dave</td>
-                        <td>53275535</td>
-                        <td class="text-success"> 98.05% <i class="mdi mdi-arrow-up"></i></td>
-                        <td><label class="badge badge-warning">In progress</label></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-          </div>
-          </div>
-          </div>
-
-
-          
-          
-        </nav>
-        <!-- partial -->
-        <div class="main-panel">
-          <div class="content-wrapper">
-          </div>
-          <!-- content-wrapper ends -->
-          <!-- partial:../../partials/_footer.html -->
+          <nav class="navbar p-0 fixed-top d-flex flex-row">
+              
+              <%- include('_partials/_navbar') %>
+          </nav>
+         
+            <div class="main-panel">
+              <div class="content-wrapper">
+                <!-- Best selling Items  strat-->
+                <div class="dashboard-container" >
+                    <div class="table-container">
+                        <div class="table-header">
+                            <div class="icon">📦</div>
+                            <h2>Top Selling Products</h2>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Product</th>
+                                    <th>Sales</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% bestSellingProducts.forEach(product => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="product-image-container">
+                                                <img src="/images/<%= product.productImage %>" alt="<%= product.productName %>" class="product-image" />
+                                                <div class="zoom-preview">
+                                                    <img src="/images/<%= product.productImage %>" alt="<%= product.productName %>" class="zoomed-image" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td><%= product.productName %></td>
+                                        <td><%= product.totalSold %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
         
-          <!-- partial -->
-        </div>
-        <!-- main-panel ends -->
-      </div>
-      <!-- page-body-wrapper ends -->
+                    <div class="table-container" >
+                        <div class="table-header">
+                            <div class="icon">📊</div>
+                            <h2>Top Selling Categories</h2>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Total Sales</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% bestSellingCategories.forEach(category => { %>
+                                    <tr>
+                                        <td><%= category._id %></td>
+                                        <td><%= category.totalSold %></td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+               <!-- Best selling Items end-->
+                
+
+
+
+                <div class="row">
+                  <div class="col-12 grid-margin">
+                    <div class="card">
+                      <div class="card-body">
+                       
+                      <!-- Make sure Font Awesome is included in your project -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<div class="sales-report-header row align-items-center">
+    <!-- Filter Form Column on the Left -->
+    <div class="col-md-3">
+        <form style="max-width: 150px;" id="filterForm" action="/admin/sales-report" method="GET">
+            <div class="form-group">
+                <label for="filter">Filter By:</label>
+                <select name="filter" id="filter" class="form-control" onchange="handleFilterChange()">
+                    <option value="all" <%= reportFilter === 'all' ? 'selected' : '' %>>All</option>
+                    <option value="daily" <%= reportFilter === 'daily' ? 'selected' : '' %>>Daily</option>
+                    <option value="weekly" <%= reportFilter === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                    <option value="monthly" <%= reportFilter === 'monthly' ? 'selected' : '' %>>Monthly</option>
+                    <option value="yearly" <%= reportFilter === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                    <option value="custom" <%= reportFilter === 'custom' ? 'selected' : '' %>>Custom</option>
+                </select>
+            </div>
+
+            <!-- Custom Date Range Fields (Initially Hidden) -->
+            <div id="customDateFields" class="form-group" style="display: none;">
+                <label for="startDate">Start Date:</label>
+                <input type="date" name="startDate" id="startDate" class="form-control" value="<%= startDate || '' %>">
+                
+                <label for="endDate">End Date:</label>
+                <input type="date" name="endDate" id="endDate" class="form-control" value="<%= endDate || '' %>">
+            </div>
+
+            <button type="submit" id="submitButton" class="btn btn-primary" style="width: 100%;">Submit</button>
+        </form>
     </div>
-    <!-- container-scroller -->
-    <!-- plugins:js -->
-    <script src="../../assets/vendors/js/vendor.bundle.base.js"></script>
-    <!-- endinject -->
-    <!-- Plugin js for this page -->
-    <!-- End plugin js for this page -->
-    <!-- inject:js -->
-    <script src="../../assets/js/off-canvas.js"></script>
-    <script src="../../assets/js/hoverable-collapse.js"></script>
-    <script src="../../assets/js/misc.js"></script>
-    <script src="../../assets/js/settings.js"></script>
-    <script src="../../assets/js/todolist.js"></script>
-    <!-- endinject -->
-    <!-- Custom js for this page -->
-    <!-- End custom js for this page -->
+    
+    <!-- Header Section with Increased Width -->
+    <div class="col-md-6 text-md-left">
+        <h2 class="mb-0">
+            <%= reportFilter === 'all' ? 'Total Sales Report' : reportFilter + ' Sales Report' %>
+        </h2>
+        <% if (reportFilter === 'all') { %>
+            <p class="header-description">This report shows the total sales across all time.</p>
+        <% } else { %>
+            <p class="header-description">Showing sales report for: <strong><%= reportFilter %></strong>.</p>
+        <% } %>
+    </div>
+    
+    <!-- Download Buttons Column on the Right -->
+    <div class="col-md-3 d-flex justify-content-end">
+        <button id="downloadPDF" class="btn btn-primary mr-2" style="width: 110px;">
+            <i ></i> PDF <i class="fas fa-download"></i>
+        </button>
+        <button id="downloadExcel" class="btn btn-success" style="width: 110px;">
+            <i ></i> Excel <i class="fas fa-download"></i>
+        </button>
+    </div>
+</div>
+
+                        
+
+    <!-- Canvas element for the sales chart -->
+    <canvas id="salesChart" width="400" height="200"></canvas>
+                        
+                        
+                        <div class="" style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+                          <div>
+                            
+                            
+                          </div>
+                          
+                          <div class="d-flex">
+                            <div class="total-sales-box">
+                                <p><strong>Total Sales Amount <%= reportFilter %></strong></p>
+                                <p class="sales-amount">₹<%= totalSalesAmount.toFixed(2) %></p>
+                            </div>
+                        
+                            <div class="total-discount-box">
+                                <p><strong>Total Coupon Discount Amount</strong></p>
+                                <p class="discount-amount">₹<%= totalDiscountAmount.toFixed(2) %></p>
+                            </div>
+                        
+                            <div class="total-offer-discount-box">
+                                <p><strong>Total Offer Discount Amount</strong></p>
+                                <p class="offer-discount-amount">₹<%= totalOfferDiscountAmount.toFixed(2) %></p>
+                            </div>
+                        
+                            <!-- Total Order Count Box -->
+                            <div class="total-order-count-box">
+                                <p><strong>Total Order Count</strong></p>
+                                <p class="order-count"><%= totalOrderCount %></p>
+                            </div>
+                        </div>
+                          
+                        </div>
+                        
+                        <!-- Filter Form -->
+                       
+                        
+                        <div class="table-responsive">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th>Order ID</th>
+                                <th>Name</th>
+                                <th>Order Date</th>
+                                <th>Items </th>
+                                <th>Total <br> Amount (₹)</th>
+                                <th>Offer <br> Discount (₹)</th>
+                                <th>Coupon <br> Discount (₹)</th>
+                                <th>Final <br> Price (₹)</th>
+                                <th>Payment <br> Method</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% reportData.forEach(function(order) { %>
+                              <tr>
+                                <td> <%= order.orderId %> </td>
+                                <td> <%= order.clientName %> </td>
+                                <td> <%= order.orderDate %> </td>
+                                <td> <%= order.itemsCount %> </td>
+                                <td> ₹<%= order.totalAmount %> </td>
+                                <td> ₹<%= order.offerPrice %> </td>
+                                <td> ₹<%= order.couponDiscount %> </td>
+                                <td> ₹<%= order.finalPrice %> </td>
+                                <td>
+                                  <span class="badge badge-outline ">
+                                    <%= order.paymentMethod %>
+                                  </span>
+                                </td>
+                              </tr>
+                              <% }) %>
+                            </tbody>
+                           
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+    <script src="/admin/assets/vendors/js/vendor.bundle.base.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/admin/assets/vendors/js/vendor.bundle.base.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="/admin/assets/js/off-canvas.js"></script>
+    <script src="/admin/assets/js/hoverable-collapse.js"></script>
+    <script src="/admin/assets/js/misc.js"></script>
+    <script src="/admin/assets/js/settings.js"></script>
+    <script src="/admin/assets/js/todolist.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+    <script src="/admin/assets/js/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+
+  
+
+
+    <!-- graph -->
+    <script>
+       // Accessing sales data passed from the backend
+const initialData = <%- JSON.stringify(filteredSalesData) %>;
+
+// Prepare data for the chart
+const labels = initialData.map(item => item.date);
+const data = initialData.map(item => item.finalPrice);
+
+// Create gradient
+const ctx = document.getElementById('salesChart').getContext('2d');
+const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+gradient.addColorStop(0, 'rgba(54, 162, 235, 0.6)');
+gradient.addColorStop(1, 'rgba(54, 162, 235, 0.1)');
+
+// Initialize the chart with enhanced styling
+let salesChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Total Sales',
+            data: data,
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: gradient,
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+            pointHoverBorderWidth: 2,
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)',
+                    drawBorder: false
+                },
+                ticks: {
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    },
+                    padding: 10,
+                    color: '#666'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    font: {
+                        size: 12,
+                        weight: '500'
+                    },
+                    padding: 10,
+                    color: '#666'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    padding: 20,
+                    font: {
+                        size: 13,
+                        weight: '600'
+                    },
+                    usePointStyle: true,
+                    pointStyle: 'circle'
+                }
+            },
+            title: {
+                display: true,
+                text: 'Sales Report Over Time',
+                color: '#333',
+                font: {
+                    size: 18,
+                    weight: '600'
+                },
+                padding: {
+                    top: 20,
+                    bottom: 20
+                }
+            }
+        },
+        responsive: true,
+        interaction: {
+            mode: 'index',
+            intersect: false
+        },
+        animation: {
+            duration: 1000,
+            easing: 'easeInOutQuart'
+        },
+        elements: {
+            line: {
+                borderJoinStyle: 'round'
+            }
+        },
+        layout: {
+            padding: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+            }
+        }
+    }
+});
+
+// Update the chart based on the selected filter
+async function updateChart() {
+    const filter = document.getElementById('filter').value;
+    const response = await fetch(`/admin/sales-report?filter=${filter}`);
+    const data = await response.json();
+
+    const newLabels = data.filteredSalesData.map(item => item.date);
+    const newData = data.filteredSalesData.map(item => item.finalPrice);
+
+    salesChart.data.labels = newLabels;
+    salesChart.data.datasets[0].data = newData;
+    salesChart.update();
+}
+    </script>
+
+
+
+<!-- filter change function -->
+<script>
+function handleFilterChange() {
+    const filter = document.getElementById('filter').value;
+    const customDateFields = document.getElementById('customDateFields');
+    const submitButton = document.getElementById('submitButton'); // Select button by ID
+
+    // Toggle the custom date fields
+    if (filter === 'custom') {
+        customDateFields.style.display = 'block';
+    } else {
+        customDateFields.style.display = 'none';
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        clearErrorMessage();
+        submitButton.style.display = 'block'; 
+    }
+
+    // Validate custom dates
+    if (filter === 'custom') {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+
+        startDateInput.addEventListener('change', validateDates);
+        endDateInput.addEventListener('change', validateDates);
+
+        function validateDates() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); 
+
+            clearErrorMessage();
+
+            if (startDateInput.value && endDateInput.value) {
+                if (startDate > endDate) {
+                    showErrorMessage('Start date must be earlier than or equal to the end date.');
+                    submitButton.style.display = 'none'; // Hide submit button if there's an error
+                } 
+                else if (startDate > today || endDate > today) {
+                    showErrorMessage('Dates cannot be in the future.');
+                    submitButton.style.display = 'none'; // Hide submit button if there's an error
+                } else {
+                    submitButton.style.display = 'block'; // Show submit button if validation passes
+                }
+            }
+        }
+
+        function showErrorMessage(message) {
+            let errorDiv = document.getElementById('dateErrorMessage');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.id = 'dateErrorMessage';
+                errorDiv.style.color = 'red';
+                customDateFields.appendChild(errorDiv);
+            }
+            errorDiv.textContent = message;
+        }
+
+        function clearErrorMessage() {
+            const errorDiv = document.getElementById('dateErrorMessage');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+        }
+    }
+}
+</script>
+
+<!-- Pdf Downaload  -->
+<script>
+  document.getElementById('downloadPDF').addEventListener('click', function() {
+    const { jsPDF } = window.jspdf;
+
+    // Set custom page size (420mm x 297mm, larger than A3 size)
+    const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [420, 297]
+    });
+
+    // Define colors
+    const colors = {
+        primary: [41, 128, 185],    // Blue
+        secondary: [46, 204, 113],  // Green
+        accent: [155, 89, 182],     // Purple
+        warning: [243, 156, 18],    // Orange
+        header: [52, 73, 94],       // Dark Blue Gray
+        border: [189, 195, 199]     // Light Gray
+    };
+
+    // Add company logo placeholder
+    doc.setDrawColor(...colors.primary);
+    doc.setFillColor(...colors.primary);
+    doc.rect(20, 10, 50, 20, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.text('Fruitables', 28, 23);
+
+    // Add Title with styling, shifted right
+    const reportFilter = "<%= reportFilter === 'all' ? 'Total Sales Report' : reportFilter + ' Sales Report' %>";
+    doc.setFontSize(24);
+    doc.setTextColor(...colors.header);
+    doc.setFillColor(240, 240, 240);
+    doc.rect(0, 35, 420, 15, 'F');
+    doc.text(reportFilter, 130, 45, { align: 'center' }); // Shifted right
+
+    // Add Current Date with styling at the top right
+    const currentDate = new Date().toLocaleDateString();
+    doc.setFontSize(12);
+    doc.setTextColor(...colors.primary);
+    doc.text(`Date: ${currentDate}`, 240, 10); // Top right
+
+    // Style for table headers
+    let y = 60;
+    const headers = ['Order ID', 'Name', 'Date', 'Items', 'Amount', 'Offer', 'Coupon', 'Total Price', 'Payment Method'];
+    const positions = [20, 60, 100, 130, 150, 170, 195, 220, 250];
+    const colWidths = [40, 40, 30, 20, 20, 25, 25, 30, 30];
+
+    // Add header background
+    doc.setFillColor(...colors.header);
+    doc.rect(18, y - 7, 282, 12, 'F');
+
+    // Draw table headers with white text
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12);
+    headers.forEach((header, index) => {
+        doc.text(header, positions[index], y);
+    });
+
+    y += 10;
+
+    // Fetch data
+    const reportData = <%- JSON.stringify(reportData) %>;
+    const totalSalesAmount = Number(<%= totalSalesAmount %>);
+    const totalDiscountAmount = Number(<%= totalDiscountAmount %>);
+    const totalOfferDiscountAmount = Number(<%= totalOfferDiscountAmount %>);
+
+    // Alternate row colors
+    let isEvenRow = false;
+    reportData.forEach(order => {
+        if (isEvenRow) {
+            doc.setFillColor(245, 245, 245);
+            doc.rect(18, y - 5, 282, 10, 'F');
+        }
+
+        doc.setTextColor(...colors.header);
+        doc.setFontSize(11);
+
+        doc.text(order.orderId.toString(), positions[0], y);
+        doc.text(order.clientName, positions[1], y);
+        doc.text(order.orderDate, positions[2], y);
+        doc.text(order.itemsCount.toString(), positions[3], y);
+
+        doc.setTextColor(...colors.primary);
+        doc.text(Number(order.totalAmount).toFixed(), positions[4], y);
+        doc.setTextColor(...colors.warning);
+        doc.text(Number(order.offerPrice).toFixed(), positions[5], y);
+        doc.text(Number(order.couponDiscount).toFixed(), positions[6], y);
+        doc.setTextColor(...colors.secondary);
+        doc.text(Number(order.finalPrice).toFixed(), positions[7], y);
+        doc.setTextColor(...colors.accent);
+        doc.text(order.paymentMethod || 'N/A', positions[8], y);
+
+        y += 10;
+        isEvenRow = !isEvenRow;
+
+        if (y > 280) {
+            doc.addPage();
+            y = 20;
+            
+            doc.setFillColor(...colors.header);
+            doc.rect(18, y - 7, 282, 12, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(12);
+            headers.forEach((header, index) => {
+                doc.text(header, positions[index], y);
+            });
+            y += 10;
+        }
+    });
+
+    y += 10;
+    
+    // Add summary box
+    doc.setFillColor(240, 240, 240);
+    doc.rect(20, y - 5, 150, 45, 'F');
+    doc.setDrawColor(...colors.primary);
+    doc.setLineWidth(0.5);
+    doc.rect(20, y - 5, 150, 45);
+
+    // Add summary text
+    doc.setFontSize(14);
+    doc.setTextColor(...colors.primary);
+    doc.text('Total Sales Amount:', 30, y);
+    doc.text(`${totalSalesAmount.toFixed(2)}`, 140, y, { align: 'right' });
+    
+    y += 15;
+    doc.setTextColor(...colors.warning);
+    doc.text('Total Coupon Discount:', 30, y);
+    doc.text(`${totalDiscountAmount.toFixed(2)}`, 140, y, { align: 'right' });
+    
+    y += 15;
+    doc.setTextColor(...colors.secondary);
+    doc.text('Total Offer Discount:', 30, y);
+    doc.text(`${totalOfferDiscountAmount.toFixed(2)}`, 140, y, { align: 'right' });
+
+    y += 15;
+doc.setTextColor(...colors.accent);
+doc.text('Total Order Count:', 30, y);
+doc.text(`${reportData.length}`, 140, y, { align: 'right' });
+
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.setTextColor(...colors.header);
+        doc.text(`Page ${i} of ${pageCount}`, 210, 290, { align: 'center' });
+    }
+
+    // Save the PDF
+    doc.save(`${reportFilter}.pdf`);
+});
+
+</script>
+
+<!-- Excel Download -->
+ <script>
+ document.getElementById('downloadExcel').addEventListener('click', function() {
+    const XLSX = window.XLSX;
+    const workbook = XLSX.utils.book_new();
+
+    // Define the sheet name and add a header row
+    const sheetName = "Sales Report";
+    const reportData = <%- JSON.stringify(reportData) %>;
+    const totalSalesAmount = Number(<%= totalSalesAmount %>);
+    const totalDiscountAmount = Number(<%= totalDiscountAmount %>);
+    const totalOfferDiscountAmount = Number(<%= totalOfferDiscountAmount %>);
+
+    // Add the current date at the top of the sheet
+    const currentDate = new Date().toLocaleDateString();
+    const worksheetData = [
+        [`Generated on: ${currentDate}`], // Current date row
+        [], // Blank row for spacing
+        ["Order ID", "Name", "Date", "Items", "Amount", "Offer", "Coupon", "Total Price", "Payment Method"], // Header row
+        ...reportData.map(order => [
+            order.orderId,
+            order.clientName,
+            order.orderDate,
+            order.itemsCount,
+            Number(order.totalAmount).toFixed(),
+            Number(order.offerPrice).toFixed(),
+            Number(order.couponDiscount).toFixed(),
+            Number(order.finalPrice).toFixed(),
+            order.paymentMethod || 'N/A'
+        ]),
+        [], // Blank row for spacing
+        ["", "", "", "", "", "", "", "Total Sales Amount:", totalSalesAmount.toFixed(2)],
+        ["", "", "", "", "", "", "", "Total Coupon Discount:", totalDiscountAmount.toFixed(2)],
+        ["", "", "", "", "", "", "", "Total Offer Discount:", totalOfferDiscountAmount.toFixed(2)],
+        ["", "", "", "", "", "", "", "Total Order Count:", reportData.length] // Total Order Count row
+    ];
+
+    // Create worksheet from data array
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Optional: Set custom column widths
+    worksheet['!cols'] = [
+        { wch: 15 },  // Order ID width
+        { wch: 20 },  // Name width
+        { wch: 15 },  // Date width
+        { wch: 10 },  // Items width
+        { wch: 12 },  // Amount width
+        { wch: 12 },  // Offer width
+        { wch: 15 },  // Coupon width
+        { wch: 15 },  // Total Price width
+        { wch: 18 }   // Payment Method width
+    ];
+
+    // Append worksheet to workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+    // Trigger download
+    XLSX.writeFile(workbook, `${sheetName}.xlsx`);
+});
+
+ </script>
+
   </body>
 </html>

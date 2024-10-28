@@ -17,11 +17,7 @@ const ordersSchema=new mongoose.Schema({
         address: { type: String, required: true },
         district: { type: String, required: true },
         landmark:{type:String,required:true},
-        addressType:{type:String,enum: ['Home', 'Office', 'Other'],required:true},
-        
-        
-
-      
+        addressType:{type:String,enum: ['Home', 'Office', 'Other'],required:true},  
     },
     paymentMethod: { 
         type: String, 
@@ -38,7 +34,7 @@ const ordersSchema=new mongoose.Schema({
             discountApplied: { type: Number, default: 0 },
             status: {
                 type: String,
-                enum: ['Ordered', 'Cancelled','Return Requested','Return Rejected','Returned'],
+                enum: ['Ordered', 'Delivered','Cancelled','Return Requested','Return Rejected','Returned'],
                 default: 'Ordered'
             }
 
@@ -50,7 +46,6 @@ const ordersSchema=new mongoose.Schema({
     deleveryCharge:{type:Number,require:true},
     totalPrice:{type:Number,require:true},
     orderDate: { type: Date, default: Date.now },
-   
     status: {
         type: String,
         enum: [

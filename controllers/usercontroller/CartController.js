@@ -6,12 +6,11 @@ const getCart = async (req, res) => {
     const user = req.session.user;
 
     try {
-        // Fetch the user's cart and populate products and offers
         const cart = await Cart.findOne({ user: user })
             .populate({
                 path: 'items.product',
                 populate: {
-                    path: 'offer',  // Populate the offer inside the product
+                    path: 'offer',  
                 },
             });
 
@@ -19,38 +18,42 @@ const getCart = async (req, res) => {
             return res.render('../views/user/cart', { user, cartItems: [], cartTotal: 0, greatestDiscounts: [] });
         }
 
-        const cartItems = cart.items;
+        const filteredCartItems = cart.items.filter(item => item.product.isListed);
+        
+ 
+        if (filteredCartItems.length < cart.items.length) {
+            cart.items = filteredCartItems;
+            await cart.save();  // Save the updated cart to the database
+        }
 
-        // Calculate the cart total and the greatest discount for each product
-        const cartData = cartItems.map(item => {
+        
+        const cartData = filteredCartItems.map(item => {
             let itemPrice = item.product.price; // Original price
             let greatestDiscount = 0; // Default discount
 
             if (item.product.offer && item.product.offer.length > 0) {
-                // Filter offers to get only active ones
+              
                 const activeOffers = item.product.offer.filter(offer => offer.isActive);
 
                 if (activeOffers.length > 0) {
-                    // Calculate the greatest discount from active offers
+              
                     greatestDiscount = Math.max(...activeOffers.map(offer => offer.discount));
 
-                    // Apply the greatest discount to the item price
+                
                     const discountedPrice = itemPrice - (itemPrice * (greatestDiscount / 100));
                     itemPrice = discountedPrice;
                 }
             }
 
-            // Return the calculated data (including greatest discount) for each product in the cart
             return {
                 ...item._doc,
-                itemPrice,  // Add the calculated price after discount
-                greatestDiscount, // Pass the greatest discount
+                itemPrice,  
+                greatestDiscount, 
             };
         });
-        // Calculate total cart price based on discounted prices
+
         const cartTotal = Math.floor(cartData.reduce((total, item) => total + (item.itemPrice * item.quantity), 0));
 
-        // Extract the greatest discounts for rendering
         const greatestDiscounts = cartData.map(item => item.greatestDiscount);
 
         // Render the cart page with product details and greatest discounts

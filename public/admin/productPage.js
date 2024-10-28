@@ -78,6 +78,59 @@ function cropNextImage() {
 function createProduct(event) {
     event.preventDefault();
 
+    // Clear previous error messages
+    document.querySelectorAll('.invalid-feedback').forEach(el => el.style.display = 'none');
+
+    const name = document.getElementById('productName').value.trim();
+    const category = document.getElementById('productCategory').value;
+    const price = parseFloat(document.getElementById('productPrice').value);
+    const stock = parseInt(document.getElementById('productStock').value);
+    const description = document.getElementById('productDescription').value.trim();
+    const images = document.getElementById('productImages').files;
+
+    let isValid = true;
+
+    // Validate product name
+    if (!name) {
+        document.getElementById('nameError').style.display = 'block';
+        isValid = false;
+    }
+
+    // Validate category
+    if (!category) {
+        document.getElementById('categoryError').style.display = 'block';
+        isValid = false;
+    }
+
+    // Validate price
+    if (isNaN(price) || price < 0) {
+        document.getElementById('priceError').style.display = 'block';
+        isValid = false;
+    }
+
+    // Validate stock
+    if (isNaN(stock) || stock < 0) {
+        document.getElementById('stockError').style.display = 'block';
+        isValid = false;
+    }
+
+    // Validate description
+    if (description.length < 30) {
+        document.getElementById('descriptionError').style.display = 'block';
+        isValid = false;
+    }
+
+    // Validate images
+    if (images.length === 0) {
+        document.getElementById('imagesError').style.display = 'block';
+        isValid = false;
+    }
+
+    // If validation fails, stop the process
+    if (!isValid) {
+        return;
+    }
+
     // Ensure images are cropped
     if (croppedImages.length === 0 || croppedImages.length !== selectedFiles.length) {
         Swal.fire({
@@ -167,8 +220,53 @@ function createProduct(event) {
 function submitEditedProduct(e) {
     e.preventDefault(); // Prevent form submission
 
-    // Get the product ID
+    // Clear previous error messages
+    document.getElementById('productNameError').textContent = '';
+    document.getElementById('productCategoryError').textContent = '';
+    document.getElementById('productPriceError').textContent = '';
+    document.getElementById('productStockError').textContent = '';
+    document.getElementById('productDescriptionError').textContent = '';
+
+    // Get the form element and its inputs
+    const formElement = document.getElementById('editProductForm');
     const productId = document.getElementById('editProductId').value;
+    const productName = document.getElementById('editProductName').value.trim();
+    const productCategory = document.getElementById('editProductCategory').value;
+    const productPrice = parseFloat(document.getElementById('editProductPrice').value);
+    const productStock = parseInt(document.getElementById('editProductStock').value);
+    const productDescription = document.getElementById('editProductDescription').value.trim();
+
+    // Basic validation
+    let hasError = false;
+
+    if (!productName) {
+        document.getElementById('productNameError').textContent = 'Product Name is required.';
+        hasError = true;
+    }
+
+    if (!productCategory) {
+        document.getElementById('productCategoryError').textContent = 'Category is required.';
+        hasError = true;
+    }
+
+    if (isNaN(productPrice) || productPrice < 0) {
+        document.getElementById('productPriceError').textContent = 'Price must be a positive number.';
+        hasError = true;
+    }
+
+    if (isNaN(productStock) || productStock < 0) {
+        document.getElementById('productStockError').textContent = 'Stock must be a positive number.';
+        hasError = true;
+    }
+
+    if (!productDescription) {
+        document.getElementById('productDescriptionError').textContent = 'Description is required.';
+        hasError = true;
+    }
+
+    if (hasError) {
+        return; // Stop the function execution if there are validation errors
+    }
 
     // Show confirmation dialog
     Swal.fire({
@@ -181,20 +279,12 @@ function submitEditedProduct(e) {
     }).then((result) => {
         if (result.isConfirmed) {
             // Get the form data
-            const formElement = document.getElementById('editProductForm');
             const formData = new FormData(formElement);
 
             // Append the cropped image blob if available
-            editCroppedImages.forEach((editCroppedImages, index) => {
-                formData.append('croppedImages[]', editCroppedImages, `croppedImage_${index}.png`);
+            editCroppedImages.forEach((editCroppedImage, index) => {
+                formData.append('croppedImages[]', editCroppedImage, `croppedImage_${index}.png`);
             });
-
-            // Log form data for debugging
-            for (var pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]); // Log key-value pairs
-            }
-
-            console.log('Product ID:', productId); // Ensure correct ID is printed
 
             // Send the data to the server
             axios.post(`/admin/product/edit/${productId}`, formData, {
@@ -208,7 +298,7 @@ function submitEditedProduct(e) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success!',
-                         confirmButton: false,
+                        confirmButton: false,
                         text: response.data.message,
                     }).then(() => {
                         window.location.href = response.data.red; // Redirect after success
@@ -237,9 +327,6 @@ function submitEditedProduct(e) {
 
     return false; // Prevent the page from reloading
 }
-// create Products OnSubmit end
-
-// <!-- Create Product using Axios End -->
 
 
 

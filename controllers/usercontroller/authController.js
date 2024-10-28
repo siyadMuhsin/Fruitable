@@ -41,9 +41,16 @@ exports.requestOtp = async (req, res) => {
     }
 
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    // Check if email is already in use
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
         return res.render('user/signup', { msg: "Email already used" });
+    }
+
+    // Check if username is already in use
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+        return res.render('user/signup', { msg: "Username already used" });
     }
     const otp = crypto.randomInt(1000, 9999).toString();
     console.log(otp)
@@ -75,37 +82,43 @@ exports.requestOtp = async (req, res) => {
 
 
 exports.resendOTP=async (req,res)=>{
-    const {email}=req.body  
-    const user =await User.findOne({email})
-    if(!user){     
-        return res.status(400).send('User not found');    
-    }
-    
-    const currentTime= Date.now()
-    const otpEntry= await Otp.findOne({email})
-
-    if (otpEntry && otpEntry.expires>currentTime){
-        return res.status(400).sendd('please wait before requesting a new OTP')
-    }
-
-    // Generate and send new OTP
-    const otp =crypto.randomInt(1000,9999).toString()
-    console.log(otp)
-   await Otp.updateOne({eamil},{otp,expires:currentTime + 1 * 60 * 1000},{upsert:true})
-    const mailOptions={
-        from: 'muhsin4065@gmail.com',
-        to: email,
-        subject: 'Your OTP Code',
-        text: `Your new OTP code is ${otp}`,
-    };
-
-    transporter.sendMail(mailOptions,(error,info)=>{
-        if(error){
-            console.log(error);
-            return res.status(500).send('Failed to send OTP');
+    try {
+       
+        const {email}=req.body  
+        const user =await User.findOne({email})
+        if(user){     
+            return res.status(400).send('User not found');    
         }
-        res.redirect('/verify-otp')
-    })
+        console.log('helo',req.body)
+        
+        const currentTime= Date.now()
+        const otpEntry= await Otp.findOne({email})
+    
+        if (otpEntry && otpEntry.expires>currentTime){
+            return res.status(400).send('please wait before requesting a new OTP')
+        }
+        // Generate and send new OTP
+        const otp =crypto.randomInt(1000,9999).toString()
+        console.log(otp)
+       await Otp.updateOne({email},{otp,expires:currentTime + 1 * 60 * 1000},{upsert:true})
+        const mailOptions={
+            from: 'muhsin4065@gmail.com',
+            to: email,
+            subject: 'Your OTP Code',
+            text: `Your new OTP code is ${otp}`,
+        };
+    
+        transporter.sendMail(mailOptions,(error,info)=>{
+            if(error){
+                console.log(error);
+                return res.status(500).send('Failed to send OTP');
+            }
+            res.redirect('/')
+        })
+    } catch (error) {
+        console.log(error)
+    }
+   
 }
 
 exports.verifyOtp = async (req, res) => {
@@ -118,6 +131,13 @@ exports.verifyOtp = async (req, res) => {
     if (!otpEntry || otpEntry.otp !==otpInput){
         if(otpEntry && otpEntry.expires<Date.now()){
             await Otp.deleteOne({email})
+            return res.render('../views/user/otp',{
+                email,
+                username,
+                password,
+                errorMessage:'OTP expired'
+            })
+
         }
         return res.render('../views/user/otp',{
             email,
@@ -220,23 +240,15 @@ exports.checkDetails=async (req,res)=>{
 
 //logout 
 exports.logout = async (req, res) => {
-    console.log("logout")
-   
+    console.log("User logout");
     try {
-        req.session.destroy((err) => {
-            console.log("distroyed")
-            if (err) {
-                console.error("Error during logout:", err);
-                return res.status(500).send("Internal Server Error");
-            }
-            res.redirect('/home'); 
-        });
+        req.session.user = null; // Clear only user session
+        res.redirect('/home');
     } catch (error) {
         console.error("Error during logout:", error);
-        res.status(500).send("Internal Server Error");
+        return res.status(500).send("Internal Server Error");
     }
-};
-
+}
 exports.getForgetPassword=(req,res)=>{
     console.log("forget password get")
     res.render('../views/User/forgetPassword')

@@ -8,7 +8,7 @@ const adminGet=async (req,res)=>{
      // Check if admin is already logged in
     if(req.session.adminId){
         console.log(req.session.adminId,'test')
-        return res.redirect('/admin/dashboard')// Return here to stop further execution
+        return res.redirect('/admin/sales-report')// Return here to stop further execution
     }
     console.log("Rendering admin login page")
     res.render('../views/admin/login')
@@ -23,7 +23,7 @@ const admincheck=async (req,res)=>{
     if(email===adminEmail && password===adminPassword){
         req.session.adminId={email,password}// Set session variable for admin login
         console.log('Admin logged in');
-        return res.redirect('/admin/dashboard'); 
+        return res.redirect('/admin/sales-report'); 
     }else{
        return res.render('../views/admin/login',{msg:'Invalid Email Or Password'})
     }
@@ -44,11 +44,7 @@ const adminLogout=async (req,res)=>{
 // Admin dashboard handler
 const getDashboard=async (req,res)=>{
     
-    if(req.session.adminId){
-        return res.render('../views/admin/dashboard')
-    }else{
-        res.redirect('/admin/')// Redirect to login if not logged in
-    }
+    
 }
 module.exports={
     adminGet,
