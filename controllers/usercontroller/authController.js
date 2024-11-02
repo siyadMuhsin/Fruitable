@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
 const session=require('express-session')
 const crypto = require('crypto');
 const Wallet= require('../../models/WalletModel')
+const Products=require('../../models/Products')
 
 
 
@@ -22,11 +23,12 @@ exports.basic=async (req,res)=>{
 }
 ,
 exports.getHome=async (req,res)=>{
-   
-    const user=req.session.user
-    console.log('session user id ',user)
+   const products= await Products.find({isListed:true}).populate('category')
 
-   res.render('../views/user/index',{user});
+    const user=req.session.user
+  
+
+   res.render('../views/user/index',{user,products});
 }
 
 
@@ -53,7 +55,7 @@ exports.requestOtp = async (req, res) => {
         return res.render('user/signup', { msg: "Username already used" });
     }
     const otp = crypto.randomInt(1000, 9999).toString();
-    console.log(otp)
+   
     const otpExpires = Date.now() + 1 * 60 * 1000; // 1 minutes validity
 
     const otpEntry= new Otp({
@@ -89,7 +91,7 @@ exports.resendOTP=async (req,res)=>{
         if(user){     
             return res.status(400).send('User not found');    
         }
-        console.log('helo',req.body)
+       
         
         const currentTime= Date.now()
         const otpEntry= await Otp.findOne({email})
@@ -99,7 +101,7 @@ exports.resendOTP=async (req,res)=>{
         }
         // Generate and send new OTP
         const otp =crypto.randomInt(1000,9999).toString()
-        console.log(otp)
+     
        await Otp.updateOne({email},{otp,expires:currentTime + 1 * 60 * 1000},{upsert:true})
         const mailOptions={
             from: 'muhsin4065@gmail.com',
@@ -167,7 +169,7 @@ exports.verifyOtp = async (req, res) => {
 
 //login 
 exports.userLogin=async (req,res)=>{  
-    console.log("login getting")
+    
     // if(req.session.user){    
     //     res.redirect('/home')   
     // }else{
@@ -178,9 +180,9 @@ exports.userLogin=async (req,res)=>{
 
 //Check login Detailes..
 exports.checkDetails=async (req,res)=>{
-    console.log('check details')
+  
     const{email,password}=req.body
-    console.log(req.body)
+    
     try{
         const check= await User.findOne({email});
         if(!check){
@@ -240,7 +242,7 @@ exports.checkDetails=async (req,res)=>{
 
 //logout 
 exports.logout = async (req, res) => {
-    console.log("User logout");
+    
     try {
         req.session.user = null; // Clear only user session
         res.redirect('/home');
@@ -250,12 +252,12 @@ exports.logout = async (req, res) => {
     }
 }
 exports.getForgetPassword=(req,res)=>{
-    console.log("forget password get")
+
     res.render('../views/User/forgetPassword')
 }
 
 exports.forgetPassword=async (req,res)=>{
-    console.log("forget password function running")
+    
     const {email}=req.body
 
     try {
@@ -302,8 +304,7 @@ exports.forgetPassword=async (req,res)=>{
 exports. resetPasswordGet=async(req,res)=>{
     try {
         const { token }=req.params
-        console.log("reset password getting ",token)
-    console.log(Date.now())
+        
         const user = await User.findOne({
             resetPasswordToken: token,
             resetPasswordExpires: { $gt: Date.now() } // Ensure token has not expired
@@ -321,7 +322,7 @@ exports. resetPasswordGet=async(req,res)=>{
     }
 }
 exports .resetPassword= async(req,res)=>{
-    console.log("reset password running")
+    
     try {
         const {token}= req.params
         const {password}=req.body

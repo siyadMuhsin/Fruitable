@@ -26,7 +26,7 @@ const blockUser= async(req,res)=>{
   
     try{
        const  userId=req.params.id
-        console.log(userId)
+       
          // Find the user by ID and update the isBlocked status
         await User.findByIdAndUpdate(userId,{isBlocked:true})
 

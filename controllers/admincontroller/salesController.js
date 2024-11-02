@@ -64,7 +64,7 @@ async function getBestSellingCategories() {
 }
 
 const salesReport = async (req, res) => {
-    console.log("Sales report function is running..");
+    
     const bestSellingProducts = await getBestSellingProducts();
     const bestSellingCategories = await getBestSellingCategories();
     const filter = req.query.filter || 'all'; 
@@ -110,7 +110,18 @@ const salesReport = async (req, res) => {
         const totalDiscountAmount = orders.reduce((a, c) => a + (c.couponDiscount || 0), 0);
         const reportData = orders.filter(order => order.status === "Delivered").map(order => {
             const itemsCount = order.items.reduce((total, item) => total + item.quantity, 0);
-            const offer = order.subtotal >= 500 ? order.subtotal - order.totalPrice : order.subtotal + 40 - order.totalPrice;
+
+            let offer = 0
+            if(order.subtotal >= 500){
+               
+                offer=order.subtotal - order.totalPrice 
+            }else{
+               
+                offer = order.couponDiscount ===0 ? order.subtotal + 40 - order.totalPrice : order.subtotal + 40 - order.couponDiscount  -order.totalPrice
+               
+            }
+            // order.subtotal >= 500 ? order.subtotal - order.totalPrice : order.subtotal + 40 - order.totalPrice;
+            
             return {
                 orderId: order.orderId,
                 clientName: order.user.username,
@@ -119,7 +130,8 @@ const salesReport = async (req, res) => {
                 totalAmount: order.subtotal,
                 offerPrice: offer,
                 couponDiscount: order.couponDiscount || 0,
-                finalPrice: order.totalPrice - (order.couponDiscount || 0),
+                deliveryCharge:order.deleveryCharge,
+                finalPrice: order.totalPrice ,
                 paymentMethod: order.paymentMethod,
                 status: order.status
             };

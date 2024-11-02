@@ -67,7 +67,7 @@ const getCart = async (req, res) => {
 
 //Add to Cart 
 const addToCart =async(req,res)=>{
-    console.log('add To Cart running...')
+    
 
     try {
         const {productId,quantity}=req.body
@@ -79,10 +79,7 @@ const addToCart =async(req,res)=>{
             return res.status(404).json({success:false,message:'Product not Found'});
 
         }
-        if(product.offer){
-            console.log("helloi")
-            console.log(product.offer)
-        }
+        
        
         let cart =await Cart.findOne({user:req.session.user||req.session.GooggleId})
        
@@ -108,7 +105,7 @@ const addToCart =async(req,res)=>{
 
          cart.totalPrice+=product.price
          await cart.save()
-        console.log(cart)
+        
         res.json({ success: true, message: 'Product added to cart', cart });
     } catch (error) {
         console.log(error)
@@ -120,7 +117,7 @@ const addToCart =async(req,res)=>{
 
 //remove from cart
 const removeFromCart=async(req,res)=>{
-console.log("remove function runningg ")
+
 try {
     const userId=req.session.user
     const {productId}=req.body
@@ -150,7 +147,7 @@ try {
 
 // update cart quantity
 const updateQuantity = async (req, res) => {
-    console.log("Cart update running");
+    
     const { productId, quantity } = req.body;
 
     try {
@@ -199,7 +196,7 @@ const updateQuantity = async (req, res) => {
             return total + (item.quantity * itemProductPrice);
         }, 0);
 
-        console.log("cart totsl",cartTotal)
+        
         res.json({
             success: true,
             message: 'Cart Updated Successfully',

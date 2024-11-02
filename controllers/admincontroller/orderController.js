@@ -1,3 +1,4 @@
+const Coupon = require('../../models/CouponsModel')
 const Order=require('../../models/OrdersModel')
 const Product=require('../../models/Products')
 const Wallet = require("../../models/WalletModel")
@@ -5,7 +6,7 @@ const User= require("../../models/usermodel")
 const getOrders= async(req,res)=>{
     try {
         const page = parseInt(req.query.page)||1
-        const limit=parseInt(req.query.limit)||6
+        const limit=parseInt(req.query.limit)||10
         const skip=(page-1)*limit;
         const orders= await Order.find()
             .populate('user')
@@ -42,9 +43,7 @@ const OrderView= async(req,res)=>{
         }
 
         const nonCancelledItemCount = order.items.filter(item => item.status !== 'Cancelled').length;
-
-        console.log(order);
-        console.log('Order view page rendering');
+      
         res.render('../views/admin/OrderDetails', { order, nonCancelledItemCount });
     } catch (error) {
         console.error('Error fetching order:', error);
@@ -54,9 +53,9 @@ const OrderView= async(req,res)=>{
 
 const statusUpdate= async (req,res)=>{
     try{
-        console.log("status changing ...")
+      
         const orderId= req.params.id
-        console.log(orderId)
+  
         const newStatus= req.body.status
        const updatedOrder= await Order.findByIdAndUpdate(orderId,{status:newStatus},{new:true})
         
@@ -74,7 +73,7 @@ const statusUpdate= async (req,res)=>{
 
 //cancel order 
 const cancelOrder= async(req,res)=>{
-    console.log("cancel order running")
+  
     try {
         const {orderId}=req.body
         const order= await Order.findById(orderId)
@@ -104,7 +103,7 @@ const cancelOrder= async(req,res)=>{
 
 // Approve return 
 const approveReturn= async(req,res)=>{
-    console.log("approve return is running..")
+   
     const { orderId } = req.body;
     try {
         const order = await Order.findById(orderId);
@@ -147,7 +146,7 @@ const rejectReturn= async(req,res)=>{
 // mark as order returned
 
 const markOrderReturn = async (req, res) => {
-    console.log('Marking order as returned...');
+
     try {
         const { orderId } = req.body;
        
@@ -162,7 +161,7 @@ const markOrderReturn = async (req, res) => {
         const totalPrice = order.totalPrice; 
         const wallet = await Wallet.findOne({ user: order.user._id }); // Adjust if your wallet schema differs
         if (!wallet) {
-            console.log("bhcuefc")
+         
             return res.status(404).json({ success: false, message: 'Wallet not found for this user.' });
         }
         
@@ -187,7 +186,7 @@ const markOrderReturn = async (req, res) => {
 
 // Each item return function
 const returnitem = async (req, res) => {
-    console.log("Return item function running");
+
     const itemId = req.params.itemId;
 
     try {
@@ -203,6 +202,19 @@ const returnitem = async (req, res) => {
         }
         item.status = 'Returned';
     
+        const coupon= await Coupon.find({code:order.couponCode})
+        
+        let discount =0
+        if(coupon.length !==0){
+            discount = coupon[0].discount
+        }
+       
+        const returnAmount= (item.price* item.quantity)-(item.price*item.quantity)*discount/100 
+       
+
+
+
+
         const productId = item.productId; 
         const product = await Product.findById(productId);
         if (product) {
@@ -216,9 +228,9 @@ const returnitem = async (req, res) => {
         if(!wallet){
             return res.status(404).json({ success: false, message: 'User not found' });
         }
-        wallet.balance += item.price*item.quantity
+        wallet.balance += Math.floor(returnAmount)
         wallet.transactions.push({
-            amount: item.price*item.quantity,
+            amount: Math.floor(returnAmount),
             type: 'credit', // Change to credit for refund
             description: `Refund for Return Item: ${item.productName} from Order ${order.orderId}` , // Description with order ID
             date: new Date(),
@@ -234,7 +246,7 @@ const returnitem = async (req, res) => {
 
 // reject return each items
 const rejectReturnItem= async(req,res)=>{
-    console.log("reject return item running")
+  
     const itemId = req.params.itemId;
 
     try {

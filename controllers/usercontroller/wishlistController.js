@@ -4,14 +4,14 @@ const Wishlist=require("../../models/wishlistModal")
 
 //get Wishlist
 const getWishlist=async (req,res)=>{
-    console.log("getting wishlist")
+   
     try {
         const user=req.session.user
         const wishlist = await Wishlist.findOne({user:req.session.user}).populate('items.product')// Assuming `items.product` is a reference to the Product model
 
-const wishlistItems=wishlist.items
+        const wishlistItems = wishlist ? wishlist.items : [];
         if(!wishlist){
-           console.log("onnulla")
+       
         }
         res.render('../views/User/wishlist',{wishlist,user,wishlistItems})
         
@@ -25,22 +25,22 @@ const wishlistItems=wishlist.items
 
 //add to wishlist
 const addToWishlist=async(req,res)=>{
-    console.log('add to wishlist function running')
+   
     try {
         const userId=req.session.user
         const {productId}=req.body
-         // Find the user's wishlist or create one if it doesn't exist
+      
          let wishlist =await Wishlist.findOne({user:userId})
          if(!wishlist){
             wishlist= new Wishlist({user:userId,items:[]})
          }
 
-          // Check if the product is already in the wishlist
+   
         const productExists = wishlist.items.some(item => item.product.toString() === productId);
 
         if(!productExists){
-            //Add the product to the wishlist
-            wishlist.items.push({product:productId})
+
+   wishlist.items.push({product:productId})
             await wishlist.save()
 
             res.json({success:true,message:"Product added to wishlist"})

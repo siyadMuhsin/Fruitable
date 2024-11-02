@@ -4,6 +4,7 @@ const Product=require('../../models/Products')
 const Order=require('../../models/OrdersModel')
 const bcrypt = require('bcrypt'); 
 const Wallet= require('../../models/WalletModel')
+const Coupon=require('../../models/CouponsModel')
 
 const getProfile= async (req,res)=>{
     const user=req.session.user
@@ -17,7 +18,7 @@ const getProfile= async (req,res)=>{
 
 }
 const addAddress=async(req,res)=>{
-    console.log('address adding running..')
+  
     try {
         const { name, phone, alt_phone, pincode, locality, landmark, district, state, country, address, addressType } = req.body;
         
@@ -60,7 +61,7 @@ const addAddress=async(req,res)=>{
 }
 
 const editAddress=async (req,res)=>{
-    console.log(req.body)
+    
    
         const {  addressId, editName, editPhone,  editAddress, editLocality, editDistrict, editPincode, editState, editCountry } = req.body;
         try { 
@@ -75,7 +76,7 @@ const editAddress=async (req,res)=>{
             state:editState,
             country:editCountry
         })
-        console.log('heloi',updatedAddress)
+       
 
         if (updatedAddress) {
             return res.json({ success: true, message: 'Address updated successfully!' });
@@ -96,7 +97,7 @@ const editAddress=async (req,res)=>{
 
 //delete Addresses
 const deleteAddress= async(req,res)=>{
-    console.log('delete function running')
+  
 
     try {
         const addressId=req.params.id
@@ -117,7 +118,7 @@ const deleteAddress= async(req,res)=>{
 // edit profile details
 const editDetails= async (req,res)=>{
     try {
-        console.log("edit profile running", req.body);
+        
 
         const userId = req.session.user;
 
@@ -140,7 +141,7 @@ const editDetails= async (req,res)=>{
 
 // Change Password
 const changePassword = async (req, res) => {
-    console.log("Change Password");
+   
     try {
         const userId = req.session.user;
         const { currentPassword, newPassword } = req.body;
@@ -149,14 +150,14 @@ const changePassword = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found" });
         }
         if(!user.password){
-            console.log("google user")
+            
             return res.status(404).json({ success: false, message: "Its Google user  you cant change password" });
         }
 
        
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
-            console.log('Current password does not match');
+           
             return res.status(401).json({ success: false, message: 'Current password is incorrect' });
         }
 
@@ -167,7 +168,7 @@ const changePassword = async (req, res) => {
 
         // Hash the new password
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        console.log(hashedNewPassword)
+        
 
 
         // Update the user's password
@@ -190,17 +191,24 @@ const getOrders= async (req,res)=>{
 
 const getOrderDetails=async(req,res)=>{
     
-    console.log(req.params.id)
+   
     try {
         const user =req.session.user
         const order_Id=req.params.id
         const order = await Order.findById(order_Id).populate('items.productId')
-        console.log(order)
+      
 
         if(!order){
             return res.status(404).send('Order not Found')
         }
-        res.render('../views/user/orderDetails',{order,user})
+        let discount=0
+        if(order.couponCode !== ""){
+            const coupon = await Coupon.findOne({code:order.couponCode})
+            discount = coupon.discount
+
+        }
+        
+        res.render('../views/user/orderDetails',{order,user,discount})
 
     } catch (error) {
         console.error(error);
@@ -213,7 +221,7 @@ const getOrderDetails=async(req,res)=>{
 
 //cancel orderss
 const cancelOrder = async (req, res) => {
-    console.log('Cancel order process started...');
+  
     try {
         const { orderId } = req.body;
         const order = await Order.findById(orderId).populate('user');
@@ -235,7 +243,7 @@ const cancelOrder = async (req, res) => {
         order.status = "Cancelled";
         await order.save();
         if (order.paymentMethod !== 'Cash on Delivery') {
-            console.log("Non-COD order detected, refunding to wallet...");
+            
             let wallet = await Wallet.findOne({ user: order.user._id });
 
             if (!wallet) {
@@ -270,7 +278,7 @@ const cancelOrder = async (req, res) => {
 };
 
 const cancelItem=async(req,res)=>{
-    console.log('cancel item id:',req.body)
+  
     try {
         const {itemId}=req.body
 
@@ -342,7 +350,7 @@ const cancelItem=async(req,res)=>{
 
 
 const getWallet= async (req,res)=>{
-    console.log("wallet page getting...")
+  
 
 }
 
@@ -397,7 +405,7 @@ const returnItem = async(req,res)=>{
 
 // Download Invoice
 const downloadinvoice= async(req,res)=>{
-    console.log("download invoice is running")
+    
     const orderId = req.params.orderId;
 
     try {

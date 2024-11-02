@@ -304,7 +304,8 @@ tr td[colspan="4"] {
     <%- include('partials/header') %>
     <div class="wallet-container">
         <h2>My Wallet</h2>
-        <p style="font-weight: 600; color: #1c4bcc;"><strong>Balance:</strong> ₹<%= wallet.balance %></p>
+        <p style="font-weight: 600; color: #1c4bcc;"><strong>Balance:</strong> ₹<%= wallet.balance ? wallet.balance.toFixed(2) : '0.00' %></p>
+
     
         <div class="add-money-section">
           <input type="number" placeholder="Enter amount" id="addMoneyInput" min="1">
@@ -358,7 +359,7 @@ tr td[colspan="4"] {
     <script>
      async function addMoneyToWallet() {
         const amount = document.getElementById('addMoneyInput').value;
-        console.log(amount)
+       
 
         if (amount && amount > 0) {
             try {
@@ -368,7 +369,7 @@ tr td[colspan="4"] {
                 });
 
                 const orderData = orderResponse.data;
-                console.log(orderData)
+                
 
                 const keyId= orderData.keyId
                 if (!orderData.success) {

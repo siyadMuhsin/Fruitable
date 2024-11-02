@@ -14,7 +14,7 @@ const getProducts=async (req,res)=>{
     const limit=8
     const skip= (page -1)* limit
    try {
-    console.log("ivade")
+    
     const trotalProducts= await ProducDB.countDocuments()
     const totalPages=Math.ceil(trotalProducts/limit)
     const products= await ProducDB.find()

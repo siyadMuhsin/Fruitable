@@ -1,7 +1,7 @@
 const Coupon= require('../../models/CouponsModel')
 
 const getCoupons= async(req,res)=>{
-    console.log('coupons get functions running..')
+
     try{
         const page= parseInt(req.query.page) || 1
         const limit = parseInt(req.query.limit) || 5
@@ -26,7 +26,7 @@ const getCoupons= async(req,res)=>{
 
 
 const createCoupon= async (req,res)=>{
-    console.log('craete coupon function runnning..')
+
 
     try {
         const {code,discount,minPrice,startDate,endDate}=req.body
@@ -37,7 +37,7 @@ const createCoupon= async (req,res)=>{
 
         let changeCode= code.toUpperCase()
         const check = await Coupon.find({code:changeCode})
-        console.log(check)
+ 
         if(check.length>0){
             if(check){
                 return res.status(404).json({ success: false, message: 'Coupon Code Already used' });
@@ -66,7 +66,7 @@ const createCoupon= async (req,res)=>{
 
 // update coupons
 const updateCoupon = async( req,res)=>{
-    console.log('update coupon ruinning ')
+  
     try {
         const couponId = req.params.id
         const {code,discount,minPrice,startDate,endDate}=req.body
@@ -100,7 +100,7 @@ const updateCoupon = async( req,res)=>{
 }
 // coupon activate and deactivate 
 const couponStatus = async (req,res)=>{
-    console.log('coupon activatind deactivating function running..')
+    
     const couponId = req.params.id;
     const { active } = req.body;
 

@@ -5,11 +5,11 @@ const { userLogin } = require('./authController');
 
 
 const getWallet = async (req, res) => {
-    console.log('Fetching wallet page...');
+   
     try {
         const userId = req.session.user;
         const user = await User.findById(userId)
-        console.log(`User ID: ${userId}`);
+        
         const wallet = await Wallet.findOne({ user: userId }).populate('transactions');
         if (!wallet) {
             const newWallet = new Wallet({ user: userId, balance: 0, transactions: [] });

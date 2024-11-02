@@ -852,7 +852,6 @@ document.getElementById('cancelCouponBtn').addEventListener('click', function() 
 }
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
     
-    console.log(selectedPaymentMethod,selectedAddress)
     
    
 
@@ -900,7 +899,7 @@ document.getElementById('cancelCouponBtn').addEventListener('click', function() 
 
 }
     const deleveryCharge = '<%=  deleveryCharge %>'
-console.log(deleveryCharge)
+
     const orderData = {
         addressId: selectedAddress,
         paymentMethod: selectedPaymentMethod,
@@ -930,8 +929,8 @@ console.log(deleveryCharge)
                            let currency= response.data.currency;
                            let orderId= response.data.orderId;
                            let user= response.data.user
-                           console.log(orderId)
-                           console.log(razorpayOrderId,amount,currency)
+                           
+                           
 
                         await  initiateRazorpayPayment(razorpayOrderId,amount,currency,orderId,user);
                         
@@ -952,7 +951,7 @@ console.log(deleveryCharge)
                     });
 
                     }else{
-                        console.log('paisa illaa')
+                      
                         Swal.fire({
                             title: 'Error!',
                             text: response.data.message,
@@ -1036,7 +1035,7 @@ function verifyRazorpayPayment(paymentData,orderId) {
             window.location.href = `/order/placed/${orderId}`;// Redirect
         } else {
             alert('Payment verification failed.');
-            console.log("siyad")
+        
         }
     })
     .catch(error => {

@@ -188,7 +188,7 @@
 
     <script>
 async function submitEditCategory() {
-    console.log('testing')
+    
     const categoryId = document.getElementById('editCategoryId').value;
     const categoryName = document.getElementById('editCategoryName').value;
     const categoryDescription = document.getElementById('editCategoryDescription').value;
@@ -276,7 +276,7 @@ async function submitEditCategory() {
     //List and Unlist Category
       // Function to list a category
       async function listCategory(categoryId) {
-        console.log("testingg...")
+        
             const { value: confirmation } = await Swal.fire({
                 title: 'Are you sure?',
                 text: "Do you want to list this category?",

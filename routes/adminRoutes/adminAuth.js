@@ -39,10 +39,7 @@ router.patch('/category/unList/:id',category.unListCategory)
 router.put('/category/edit/:id',category.editCategory)
 
 
-const test=(req,res,next)=>{
-    console.log('testing...')
-    next()
-}
+
 // order controller
 router.get('/orders',noCache,adminAuthenticate,getOrders)
 router.get('/order/view/:id',adminAuthenticate,OrderView)
@@ -50,7 +47,7 @@ router.post('/order/updateStatus/:id',statusUpdate)
 router.patch('/order/cancel',cancelOrder)
 router.post('/approve-return',approveReturn)
 router.post('/reject-return',rejectReturn)
-router.post('/mark_order_returned',test,markOrderReturn)
+router.post('/mark_order_returned',markOrderReturn)
 // Each item return 
 router.post('/approve/returnItem/:itemId',returnitem)
 router.post('/reject/returnItem/:itemId',rejectReturnItem)
@@ -73,12 +70,12 @@ router.patch('/coupons/status/:id',couponStatus)
 
 // Offers Routes
 router.get('/offers',noCache,adminAuthenticate,getOfferPage)
-router.post('/offers/create',test,createOffer)
-router.put('/offers/update/',test,updateOffer)
-router.patch('/offers/action/:id',test,activateOffer)
+router.post('/offers/create',createOffer)
+router.put('/offers/update/',updateOffer)
+router.patch('/offers/action/:id',activateOffer)
 router.put('/offers/ac/:id',deactivateOffer)
 
 
 router.get('/sales-report',noCache,adminAuthenticate,salesReport)
 // router.get('/sales-report',salesReportGet)
-module.exports=router 
+module.exports=router

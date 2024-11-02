@@ -29,15 +29,14 @@ const getCategories=async(req,res)=>{
 
 // Create a new category
 const createCategory=async (req,res)=>{
-    console.log("hashim")
-    console.log(req.body)
+ 
     try {
         const {name,description,}=req.body
         let nameUpperCase=name.toUpperCase()
 
         const exisName=await CategoryDB.findOne({name:nameUpperCase})
         if(exisName){
-            console.log('Category name already exists.')
+           
            
 
 
@@ -113,7 +112,7 @@ const unListCategory=async (req,res)=>{
 
 //Edit Category
 const editCategory= async(req,res)=>{
-    console.log(req.body);
+   
     try{
         const _id=req.params.id
         const {name,description}=req.body

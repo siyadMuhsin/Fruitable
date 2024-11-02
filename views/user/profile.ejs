@@ -557,6 +557,7 @@ h4 {
                         <div class="wallet-balance">
                             <h5>Current Balance: <span style="color: #81C408;">₹<%= wallet.balance.toFixed(2) %></span></h5>
                         </div>
+                        <a style="font-weight: 600;" href="/wallet">Add Amount</a>
                     
                         <!-- Transaction History -->
                         <h5>Transaction History</h5>
@@ -839,11 +840,11 @@ h4 {
   function changePassword(event) {
     event.preventDefault();
 
-    console.log('Change password initiated');
+    
     const currentPassword = document.getElementById('current-password').value;
     const newPassword = document.getElementById('new-password').value;
     const confirmPassword = document.getElementById('confirm-new-password').value;
-    console.log(currentPassword, newPassword, confirmPassword);
+    
 
     document.getElementById('new-password-error').style.display = 'none';
     document.getElementById('confirm-password-error').style.display = 'none';

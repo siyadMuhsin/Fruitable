@@ -433,7 +433,7 @@ img:hover {
                         <td><%= item.productName %></td>
                         <td>₹<%= item.price %></td>
                         <td><%= item.quantity %></td>
-                        <td>₹<%= (item.price * item.quantity).toFixed(2) %></td>
+                        <td>₹<%= (item.price * item.quantity).toFixed(2) %></td> 
                         <td>
                             <!-- Cancel button for individual items -->
                             <% if (order.status !== 'Cancelled' && item.status !== 'Cancelled' && order.status !== 'Out for Delivery' && order.status !== 'Delivered' && order.status !== 'Return Requested' && order.status !== "Return Approved" && order.status !== "Return Rejected" && order.status !== 'Returned') { %>
@@ -449,7 +449,7 @@ img:hover {
                                     <p style="color: #da1d17; font-weight: bold;">Return Has Been Rejected</p>
                                     <% } else if (item.status === 'Returned') { %>
                                         <span style="color: #24b524; font-weight: bold;">Returned</span><br>
-                                        <span style="color: black;"> <span style="color: #1b4feb; font-weight: 600;">₹<%= (item.price * item.quantity).toFixed(2) %></span> Refunded</span>
+                                        <span style="color: black;"> <span style="color: #1b4feb; font-weight: 600;">₹<%= (item.price * item.quantity)-(item.price * item.quantity) * discount /100 %>  </span> Refunded</span>
                                     <% } %>
                             <% } else { %>
                                 <span class="text-muted">
@@ -655,8 +655,7 @@ img:hover {
 
       async function paymentNow(){
 
-            console.log(orderId)
-            console.log(totalPrice)
+        
             const checkdata={
                 orderId:orderId,
                 totalPrice:totalPrice
@@ -668,8 +667,7 @@ img:hover {
                            let amount=response.data.amount;
                            let currency= response.data.currency;
                            let orderId= response.data.orderId;
-                           console.log(orderId)
-                           console.log(razorpayOrderId,amount,currency)
+                           
 
                         await  initiateRazorpayPayment(razorpayOrderId,amount,currency,orderId);
                 }
@@ -690,8 +688,7 @@ img:hover {
         order_id: razorpayOrderId,
         orderId:orderId,
         handler: async function (response) {
-            console.log('10:   ',orderId)
-            console.log('Razorpay Response:', response); // Debugging
+            // Debugging
             verifyRazorpayPayment(response,orderId); // Call verification
         },
         prefill: {
@@ -728,7 +725,7 @@ function verifyRazorpayPayment(paymentData,orderId) {
 }
 
 function getsuccessPage(orderId){
-    console.log("check data",  orderId)
+   
     axios.get(`/order/placed/${orderId}`)
 }
   </script>
@@ -848,6 +845,7 @@ function getsuccessPage(orderId){
  <script>
  async function downloadInvoice(orderId) {
     try {
+       
         // Fetch the order data from your API
         const response = await axios.get(`/orders/${orderId}/details`);
         const order = response.data.order;
@@ -909,11 +907,19 @@ function getsuccessPage(orderId){
         
         // Shipping Information
         doc.setFont('helvetica', 'bold');
-        doc.text("SHIP TO:", 120, 95);
-        doc.setFont('helvetica', 'normal');
-        doc.text(order.address?.address || '', 120, 100);
-        doc.text(order.address?.locality|| '', 120, 105);
-        doc.text(order.address?.landmark || '', 120, 110);
+doc.text("SHIP TO:", 120, 95);
+doc.setFont('helvetica', 'normal');
+
+// Split address lines to prevent overflow
+const addressText = [
+    order.address?.address || '',
+    order.address?.locality || '',
+    order.address?.landmark || ''
+].join(", ");
+
+// Use splitTextToSize to wrap text within a specific width (e.g., 70)
+const wrappedAddressText = doc.splitTextToSize(addressText, 70);
+doc.text(wrappedAddressText, 120, 100);
 
         // Table Header
         let yPos = 130;
@@ -942,35 +948,41 @@ function getsuccessPage(orderId){
             
             doc.text(item.productName.substring(0, 35), 25, yPos);
             doc.text(item.quantity.toString(), 95, yPos);
-            doc.text(`$${item.price.toFixed(2)}`, 115, yPos);
+            doc.text(`${item.price.toFixed(2)}`, 115, yPos);
             doc.text(item.status, 145, yPos);
-            doc.text(`$${(item.price * item.quantity).toFixed(2)}`, 175, yPos);
+            doc.text(`${(item.price * item.quantity).toFixed(2)}`, 175, yPos);
             
             yPos += 10;
             isAlternate = !isAlternate;
         });
 
         // Summary Section
-        yPos += 10;
-        doc.setDrawColor(secondaryColor);
-        doc.line(120, yPos - 5, 190, yPos - 5);
-        
-        doc.setFont('helvetica', 'normal');
-        doc.text("Subtotal:", 145, yPos);
-        const subtotal = order.items.reduce((total, item) => total + (item.price * item.quantity), 0);
-        doc.text(`$${subtotal.toFixed(2)}`, 175, yPos);
+      // Summary Section
+yPos += 10;
+doc.setDrawColor(secondaryColor);
+doc.line(120, yPos - 5, 190, yPos - 5);
 
-        yPos += 8;
-        doc.text("Delivery Charge:", 145, yPos);
-        const deliveryCharge = order.deleveryCharge || 0;
-        doc.text(`$${deliveryCharge.toFixed(2)}`, 175, yPos);
+doc.setFont('helvetica', 'normal');
+doc.text("Subtotal:", 145, yPos);
+const subtotal = order.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+doc.text(`${subtotal.toFixed(2)}`, 175, yPos);
 
-        yPos += 8;
-        doc.setFont('helvetica', 'bold');
-        doc.text("Total:", 145, yPos);
-        const totalAmount = subtotal + deliveryCharge;
-        doc.text(`$${totalAmount.toFixed(2)}`, 175, yPos);
+yPos += 8;
+doc.text("Delivery Charge:", 145, yPos);
+const deliveryCharge = order.deleveryCharge || 0;
+doc.text(`${deliveryCharge.toFixed(2)}`, 175, yPos);
 
+// Add Discount Line
+yPos += 8;
+doc.text("Discount:", 145, yPos);
+const discountAmount = order.couponDiscount || 0;
+doc.text(`-${discountAmount.toFixed(2)}`, 175, yPos);
+
+yPos += 8;
+doc.setFont('helvetica', 'bold');
+doc.text("Total:", 145, yPos);
+const totalAmount = subtotal + deliveryCharge - discountAmount;
+doc.text(`${totalAmount.toFixed(2)}`, 175, yPos);
         // Footer
         doc.setFontSize(8);
         doc.setFont('helvetica', 'normal');

@@ -291,8 +291,14 @@
 </div>
 
     <script src="/admin/assets/vendors/js/vendor.bundle.base.js"></script>
-    <script src="/admin/assets/js/offers.js"></script>
+   
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/admin/assets/vendors/js/vendor.bundle.base.js"></script>
+    <script src="/admin/assets/js/off-canvas.js"></script>
+    <script src="/admin/assets/js/hoverable-collapse.js"></script>
+    <script src="/admin/assets/js/misc.js"></script>
+    <script src="/admin/assets/js/settings.js"></script>
+    <script src="/admin/assets/js/todolist.js"></script>
     <!-- Bootstrap CSS -->
 <!-- SweetAlert2 JavaScript -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -386,7 +392,7 @@ document.getElementById("createOfferForm").addEventListener("submit", function (
                     endDate
                 };
 
-                console.log(formData);
+               
 
                 // Send data to backend using Axios
                 axios.post('/admin/offers/create', formData)
@@ -472,7 +478,7 @@ function clearErrors() {
 
   
     $(document).on('click', '.edit-button', function () {
-    console.log('Button clicked' , $(this).data());
+   
     const dataAttributes = $(this).data();
    // Log all data attributes
     
@@ -486,16 +492,7 @@ function clearErrors() {
     const endDate = dataAttributes.endDate; // This should work
     const items  = dataAttributes.applicableItems
 
-    console.log('Details:', {
-        offerId,
-        offerName,
-        offerDescription,  
-        discountAmount,
-        applicableType,
-        startDate,
-        endDate,
-        items
-    });
+    
  
     // Check if any of these values are undefined
     $('#editOfferId').val(offerId);
@@ -529,7 +526,7 @@ function clearErrors() {
     // Reset checkboxes and pre-select previously selected categories and products
     $('#editCategorySelection input[type="checkbox"]').prop('checked', false);
     items.forEach(item => {
-        console.log(item._id)
+       
         $(`#edit-category-${item._id}`).prop('checked', true);
     });
 

@@ -7,12 +7,12 @@ const createProduct = async(req, res) => {
     try{
     const id=req.params.id
               const { name, category, price, stock, description } = req.body;
-            console.log(req.body)
+  
             const imageFiles = req.files.map(file => file.filename); 
-            console.log('Imgaea fileeeees:',imageFiles)
+          
             const exisName= await ProductDB.findOne({name})
             if(exisName){
-                console.log('Product Name Already Added')
+            
                 return res.status(400).json({
                     success:false,
                     message:'Products  Name already used !',
@@ -72,9 +72,9 @@ const getProducts=async (req,res)=>{
 
 const editProduct=async (req,res)=>{  
         try { 
-               console.log(req.files)     
+                  
                 const {id, name, category, price, stock, description, status } = req.body;
-                console.log(req.body)    
+                  
                 const product= await ProductDB.findById(id)
                 if(!product){
                     return res.status(404).json({
@@ -89,7 +89,7 @@ const editProduct=async (req,res)=>{
                product.stock=stock,
                product.description=description,
                product.status=status        
-               console.log('req.files:',req.files)
+               
                if (req.files && req.files.length > 0) {
                 const uploadedImages = req.files.map(file => file.filename);
                 product.images.push(...uploadedImages);
@@ -118,7 +118,7 @@ const editProduct=async (req,res)=>{
          {$pull:{images:imageName}},// Remove the image from the images array
          {new:true}
         )
-        console.log('Image removed successfully')
+        
        return res.status(200).json({success:true,msg:'Image removed successfully'});
 
         }catch(err){
@@ -130,7 +130,7 @@ const editProduct=async (req,res)=>{
 
 const listProduct=async(req,res)=>{
     try {
-        console.log('list product')
+       
         const {id}=req.params
        const product=await ProductDB.findByIdAndUpdate(id,{isListed:true},{new:true})
        if(!product){
@@ -145,7 +145,7 @@ const listProduct=async(req,res)=>{
 
 const unListProduct=async(req,res)=>{
     try {
-        console.log('unlist Product')
+      
         const { id } = req.params;
        const product= await ProductDB.findByIdAndUpdate(id, { isListed: false },{new:true});
        if(!product){

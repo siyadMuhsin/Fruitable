@@ -12,7 +12,7 @@ const {getProfile,addAddress,getOrders,requestReturnOrder,returnItem,
     editAddress,deleteAddress,editDetails,downloadinvoice,
     changePassword}=require('../../controllers/usercontroller/AddressController')
 const {getWallet}= require('../../controllers/usercontroller/WalletController')
-
+const Wallet=require('../../models/WalletModel')
 
 
 router.get('/signup', isGuest,noCache, authController.showSignup);
@@ -62,10 +62,7 @@ router.patch('/profile/edit',editDetails)
 //Change Password
 router.post('/profile/changePassword',changePassword)
 
-const test=(req,res,next)=>{
-    console.log('testing...')
-    next()
-}
+
 
 // orders section
 router.get('/orders',noCache,isBlocked,isAuthenticated,getOrders)
@@ -89,22 +86,28 @@ router.get('/auth/google',isGuest,passport.authenticate('google',{
     scope:['profile','email'] 
 }))
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),
-(req,res)=>{
+async(req,res)=>{
     req.session.user=req.user._id;
-    console.log(req.session.user)
+
+    let wallet = await Wallet.findOne({ user:req.session.user });
+
+    if (!wallet) {
+        wallet = new Wallet({ user: req.session.user });
+        await wallet.save();
+    }
   
 
     res.redirect('/home')
 })
 
 
-router.post('/order/verify_payment/:id',test,verifyPayment)
-router.post('/proceedToPayment',test,rePayment)
+router.post('/order/verify_payment/:id',verifyPayment)
+router.post('/proceedToPayment',rePayment)
 
 
 // wallet functions.
 
 router.get('/wallet',noCache,isBlocked,isAuthenticated,getWallet)
-router.post('/wallet/create-order',test,addMoneyToWallet)
-router.post('/wallet/verify-payment',test,walletVerifyPayment)
+router.post('/wallet/create-order',addMoneyToWallet)
+router.post('/wallet/verify-payment',walletVerifyPayment)
 module.exports = router;

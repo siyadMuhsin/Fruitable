@@ -504,6 +504,7 @@
                                 <th>Total <br> Amount (₹)</th>
                                 <th>Offer <br> Discount (₹)</th>
                                 <th>Coupon <br> Discount (₹)</th>
+                                <th>Delivery <br> Charge</th>
                                 <th>Final <br> Price (₹)</th>
                                 <th>Payment <br> Method</th>
                               </tr>
@@ -518,6 +519,7 @@
                                 <td> ₹<%= order.totalAmount %> </td>
                                 <td> ₹<%= order.offerPrice %> </td>
                                 <td> ₹<%= order.couponDiscount %> </td>
+                                <td>₹<%= order.deliveryCharge %> </td>
                                 <td> ₹<%= order.finalPrice %> </td>
                                 <td>
                                   <span class="badge badge-outline ">

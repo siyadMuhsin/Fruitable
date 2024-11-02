@@ -88,6 +88,7 @@ function createProduct(event) {
     const description = document.getElementById('productDescription').value.trim();
     const images = document.getElementById('productImages').files;
 
+    console.log(images)
     let isValid = true;
 
     // Validate product name

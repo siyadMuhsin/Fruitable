@@ -7,7 +7,7 @@ const Offer= require('../../models/Offermodel')
 
 
 const getOfferPage = async (req, res) => {
-    console.log('Get offer page is running');
+
     try {
         const offers = await Offer.find().populate({
             path: 'applicableItems',
@@ -27,13 +27,13 @@ const getOfferPage = async (req, res) => {
 
 // create offers
 const createOffer = async (req, res) => {
-    console.log('Create offer function is running');
+   
 
     try {
         const { offerName, offerDescription, discountAmount, applicableType, selectedItems, startDate, endDate } = req.body;
         const existingOffer = await Offer.findOne({ name: offerName });
         if (existingOffer) {
-            console.log("Offer name already used!");
+         
             return res.status(400).json({ success: false, message: 'Offer name already used!' });
         }
 
@@ -67,7 +67,7 @@ const createOffer = async (req, res) => {
             );
         }
 
-        console.log(Products);
+        
         res.status(201).json({ success: true, message: "Offer created successfully!" });
     } catch (error) {
         console.error('Error creating offer:', error);
@@ -77,7 +77,7 @@ const createOffer = async (req, res) => {
 
 // updateOffer
 const updateOffer = async (req, res) => {
-    console.log('Update offer page rendering');
+  
     try {
         const { offerId, name, description, discount, applicableType, applicableItems, startDate, endDate } = req.body;
         
@@ -165,7 +165,7 @@ const activateOffer= async(req,res)=>{
 
 
 const deactivateOffer= async(req,res)=>{
-    console.log('deactivate the offer running....')
+  
     try {
         const offerId= req.params.id;
         await Offer.findByIdAndUpdate(offerId,{isActive:false})

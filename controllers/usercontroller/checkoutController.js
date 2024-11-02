@@ -18,7 +18,7 @@ const razorpayInstance = new Razorpay({
 
 const getCheckout = async (req, res) => {
     try {
-        console.log("Checkout running...");
+        
         const userId = req.session.user;
         const addresses = await Address.find({ userId: userId });
         const cart = await Cart.findOne({ user: userId })
@@ -85,7 +85,7 @@ function generateOrderId(length) {
 
 const placeOrder = async (req, res) => {
     try {
-        console.log("Order placing function running");
+        
         const userId = req.session.user;
         const user = await User.findById(userId);
         const cart = await Cart.findOne({ user: userId }).populate('items.product'); 
@@ -107,7 +107,7 @@ const placeOrder = async (req, res) => {
         }
 
         if (paymentMethod === 'Wallet') {
-            console.log(wallet.balance, totalPrice);
+            
             if (wallet.balance < totalPrice) {
                 return res.json({ success: false, message: "Insufficient wallet balance Check your Wallet" });
             }
@@ -177,7 +177,7 @@ const placeOrder = async (req, res) => {
         await order.save();
         await Cart.deleteOne({ user: userId });
         const order_id = order._id;
-        console.log("order id:", order_id);
+        
         req.session.orderId = order.orderId;
 
         if (paymentMethod === 'Wallet') {
@@ -220,8 +220,7 @@ const placeOrder = async (req, res) => {
 
 const getSuccessPage=async (req,res)=>{
     const {orderId}=req.params
-    console.log(orderId)
-   console.log("success page running")
+   
         res.render('../views/user/orderSuccess',{
             title:'Order Successful',
             orderId:req.session.orderId || orderId
@@ -237,7 +236,7 @@ const verifyPayment = async (req, res) => {
     const orderId=req.params.id
 
     const order= await Order.findById(orderId)
-    console.log(order)
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
    
@@ -248,7 +247,7 @@ const verifyPayment = async (req, res) => {
     if (generated_signature === razorpay_signature) {
         order.status='Order placed'
         order.save()
-        console.log('Payment verified successfully!'); 
+       
         return res.json({ success: true, message: 'Payment verified successfully!' ,orderId:order.orderId});
     } else {
         return res.json({ success: false, message: 'Payment verification failed.' });
@@ -256,7 +255,7 @@ const verifyPayment = async (req, res) => {
 };
 const rePayment = async (req, res) => {
     try {
-        console.log("Retry payment function running");
+        
         const { orderId } = req.body; 
       
         const order = await Order.findById(orderId);
@@ -293,9 +292,9 @@ const rePayment = async (req, res) => {
     }
 };
 const addMoneyToWallet = async (req, res) => {
-    console.log(KeyId)
+   
     const { amount } = req.body; // Amount in paise (e.g., ₹100 = 10000 paise)
-console.log(amount)
+
     try {
 
         const order = await razorpayInstance.orders.create({
@@ -321,10 +320,10 @@ const walletVerifyPayment= async(req,res)=>{
        
         try {
             const userId = req.session.user; 
-            console.log(userId)
+           
             const wallet = await Wallet.findOne({ user:userId });
 
-            console.log(wallet)
+            
             if (!wallet) {
                 return res.json({ success: false, message: 'Wallet not found' });
             }
