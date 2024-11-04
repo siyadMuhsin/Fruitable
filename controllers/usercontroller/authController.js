@@ -274,7 +274,7 @@ exports.forgetPassword=async (req,res)=>{
         await user.save()
 
 
-        const resetUrl = `http://${req.headers.host}/reset-password/${token}`;
+        const resetUrl = `https://${process.env.DOMIN_NAME}/reset-password/${token}`;
         const mailOptions = {
             to: user.email,
             from: 'no-reply@fruitable.com',
