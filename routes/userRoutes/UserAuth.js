@@ -87,14 +87,17 @@ router.get('/auth/google',isGuest,passport.authenticate('google',{
 }))
 router.get('/auth/google/callback',passport.authenticate('google',{failureRedirect:'/signup'}),
 async(req,res)=>{
-    req.session.user=req.user._id;
+  
+        req.session.user=req.user._id;
 
-    let wallet = await Wallet.findOne({ user:req.session.user });
-
-    if (!wallet) {
-        wallet = new Wallet({ user: req.session.user });
-        await wallet.save();
-    }
+        let wallet = await Wallet.findOne({ user:req.session.user });
+    
+        if (!wallet) {
+            wallet = new Wallet({ user: req.session.user });
+            await wallet.save();
+        }
+        
+  
   
 
     res.redirect('/home')

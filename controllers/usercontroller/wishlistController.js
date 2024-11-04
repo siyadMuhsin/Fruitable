@@ -13,7 +13,7 @@ const getWishlist=async (req,res)=>{
         if(!wishlist){
        
         }
-        res.render('../views/User/wishlist',{wishlist,user,wishlistItems})
+        res.render('../views/user/wishlist',{wishlist,user,wishlistItems})
         
     } catch (error) {
         console.log(error)
