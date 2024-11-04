@@ -291,6 +291,7 @@ const cancelItem=async(req,res)=>{
             return res.status(404).json({ success: false, message: 'Item not found' });
         }
 
+       
         if (item.status === 'Cancelled') {
             return res.status(400).json({ success: false, message: 'Item already cancelled' });
         }
@@ -300,15 +301,24 @@ const cancelItem=async(req,res)=>{
             return res.status(404).json({ success: false, message: 'Product not found for item' });
         }
 
+        let discount= 0
+        if(order.couponCode !== ""){
+            const coupon = await Coupon.findOne({code:order.couponCode})
+            
+            discount=coupon.discount
+        }
         product.stock +=item.quantity;
         await product.save()
 
         item.status='Cancelled';
 
-        const cancelledItemSubtotal = item.price * item.quantity
+        console.log(discount)
+        let cancelledprice = (item.price * item.quantity)-(item.price * item.quantity)*discount/100
+        
+       
 
-        order.totalPrice -= cancelledItemSubtotal 
-        order.subtotal -= cancelledItemSubtotal
+        order.totalPrice -= cancelledprice
+        order.subtotal -= cancelledprice
 
         const allCancelled= order.items.every(i => i.status=== 'Cancelled')
         if(allCancelled){
@@ -325,11 +335,11 @@ const cancelItem=async(req,res)=>{
            
 
             // Add the cancelled amount to the wallet
-            wallet.balance += cancelledItemSubtotal;
+            wallet.balance += cancelledprice;
 
             // Record the transaction in the wallet's transaction history
             wallet.transactions.push({
-                amount: cancelledItemSubtotal,
+                amount: cancelledprice,
                 type: 'credit',
                 description: `Refund for cancelled item from Order ${order.orderId}`,
                 date: new Date(),
