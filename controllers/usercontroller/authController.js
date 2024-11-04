@@ -253,7 +253,7 @@ exports.logout = async (req, res) => {
 }
 exports.getForgetPassword=(req,res)=>{
 
-    res.render('../views/User/forgetPassword')
+    res.render('../views/user/forgetPassword')
 }
 
 exports.forgetPassword=async (req,res)=>{
