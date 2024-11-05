@@ -34,10 +34,7 @@ async (accessToken,refreshToken,profile,done)=>{
                 email:profile.emails[0].value,
                 //add more field (options) 
             })
-            await user.save()
-            
-
-            
+            await user.save();
         }
         
         return done(null,user);
@@ -48,7 +45,7 @@ async (accessToken,refreshToken,profile,done)=>{
 }
 ))
 
-// Serialize and deserialize user (for session handling)
+
 passport.serializeUser((user,done)=>{
     done(null,user.id);
 })

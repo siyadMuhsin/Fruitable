@@ -25,7 +25,7 @@ const isBlocked=async  (req,res,next)=>{
     
     const userId=req.session.user
     const check= await User.findById(userId)
-    console.log(check)
+  
     if(userId && check.isBlocked){
         req.session.destroy((err) => {
             if (err) {

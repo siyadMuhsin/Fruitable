@@ -30,7 +30,7 @@ router.get('/reset-password/:token',authController.resetPasswordGet)
 router.post('/reset-password/:token',authController.resetPassword)
 //Home page Rendering
 router.get('/',noCache,authController.basic)
-router.get('/home',noCache, authController.getHome); 
+router.get('/home',noCache, isBlocked,authController.getHome); 
 router.post('/logout', isAuthenticated, authController.logout);
 
 //Products Shop 

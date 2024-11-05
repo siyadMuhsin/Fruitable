@@ -7,23 +7,41 @@ const Offer= require('../../models/Offermodel')
 
 
 const getOfferPage = async (req, res) => {
-
     try {
-        const offers = await Offer.find().populate({
-            path: 'applicableItems',
-            select: 'name _id' // Only selecting 'name' and '_id'
-        });
-        
-        // Automatically populates based on ObjectId references
+       
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; 
+
+       
+        const totalOffers = await Offer.countDocuments();
+        const totalPages = Math.ceil(totalOffers / limit);
+
+      
+        const offers = await Offer.find()
+            .populate({
+                path: 'applicableItems',
+                select: 'name _id'
+            })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
         const products = await Products.find();
         const categories = await Categories.find();
 
-        res.render('../views/admin/offers', { products, categories, offers });
+        
+        res.render('../views/admin/offers', { 
+            products, 
+            categories, 
+            offers, 
+            currentPage: page, 
+            totalPages 
+        });
     } catch (error) {
         console.log(error);
         res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
     }
 };
+
 
 // create offers
 const createOffer = async (req, res) => {
