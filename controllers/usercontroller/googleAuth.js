@@ -16,7 +16,16 @@ passport.use(new GoogleStrategy({
 async (accessToken,refreshToken,profile,done)=>{
     try{
         //Find or create a new user
+        let ischeck= await User.findOne({email:profile.emails[0].value})
+
+        if(ischeck){
+            ischeck.GooggleId=profile.id,
+            ischeck.isGoogleUser=true
+
+        }
+        
         let user = await User.findOne({GooggleId:profile.id});
+       
         if(!user){
             user= new User({
                 GooggleId:profile.id,
@@ -25,7 +34,6 @@ async (accessToken,refreshToken,profile,done)=>{
                 email:profile.emails[0].value,
                 //add more field (options) 
             })
-            
             await user.save()
             
 

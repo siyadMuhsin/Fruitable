@@ -112,7 +112,7 @@ function submitAddressForm(event) {
     const address = document.getElementById('addressInput').value.trim();
     const addressType = document.querySelector('input[name="addressType"]:checked');
 
-    console.log(phone)
+    
     // Regex patterns for validation
     const namePattern = /^[A-Za-z]+$/;
     const phonePattern = /^\d{10}$/;
