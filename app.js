@@ -35,6 +35,17 @@ app.use('/', UserAuth);
 app.use('/admin',adminAuth)
 
 connectDB();
+
+// 404 Not Found handler
+app.use((req, res, next) => {
+    res.status(404).render('404Page');
+});
+
+// 500 Internal Server Error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack); // Log the error
+    res.status(500).render('500Page');
+});
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
