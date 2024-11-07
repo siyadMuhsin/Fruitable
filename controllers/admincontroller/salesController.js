@@ -139,7 +139,7 @@ const salesReport = async (req, res) => {
         const totalOrderCount= reportData.length
         const filteredSalesData = orders.map(order => ({
             date: order.orderDate.toLocaleDateString(),
-            finalPrice: order.totalPrice - (order.couponDiscount || 0)
+            finalPrice: order.totalPrice 
         }));
         res.render('../views/admin/dashboard', {
             reportData,
