@@ -243,7 +243,7 @@ function addToWishlist(productId) {
                 } else {
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error',
+                        title: 'Failed to Add!',
                         text: response.data.message // Use the error message from the response
                     });
                 }

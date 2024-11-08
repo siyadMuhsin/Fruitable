@@ -70,6 +70,9 @@ const addToCart =async(req,res)=>{
     
 
     try {
+        if(!req.session.user){
+            return res.send({success:false ,message:"Please login"})
+        }
         const {productId,quantity}=req.body
 
         const product= await Product.findById(productId).populate('offer')

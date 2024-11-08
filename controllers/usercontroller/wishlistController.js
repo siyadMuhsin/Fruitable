@@ -28,6 +28,10 @@ const addToWishlist=async(req,res)=>{
    
     try {
         const userId=req.session.user
+        if(!userId){
+
+            return res.send({success:false ,message:"Please login"})
+        }
         const {productId}=req.body
       
          let wishlist =await Wishlist.findOne({user:userId})

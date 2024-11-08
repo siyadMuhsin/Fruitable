@@ -35,6 +35,7 @@ const showProducts = async (req, res) => {
                 }
             }
         ]);
+        
 
         // Build query for products
         let query = { isListed: true };

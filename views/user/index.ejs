@@ -139,7 +139,7 @@
                                         </div>
                                         <div class="p-4 border border-secondary border-top-0 rounded-bottom">
                                             <h4><%= product.name %></h4>
-                                            <p><%= truncateDescription(product.description) %></p>
+                                            
                                             <div class="d-flex justify-content-between flex-lg-wrap">
                                                 <p class="text-dark fs-5 fw-bold mb-0">₹<%= product.price %> / kg</p> <!-- Changed to ₹ -->
                                                 
@@ -154,16 +154,7 @@
                 </div>
             </div>
         </div>
- <% 
-// Conversion rate from USD to INR
-const conversionRate = 75; 
 
-// Function to truncate description
-function truncateDescription(desc) {
-    const lines = desc.split('\n');
-    return lines.slice(0, 5).join('\n');
-} 
-%>
         <!-- Featurs End -->
 
 

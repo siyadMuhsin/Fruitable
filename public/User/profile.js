@@ -32,10 +32,13 @@ if(!username){
     document.getElementById('detailsName').textContent='name required'
     isValid=false
 }
-if (!phoneRegex.test(phone)) {
-    
+
+
+
+    const sameDigitPattern = /^(\d)\1{9}$/; // Pattern to check if all digits are the same
+    if (!phoneRegex.test(phone) || phone === "0000000000" || sameDigitPattern.test(phone)) {
     phoneInput.style.borderColor = 'red'; // Change border color to red
-    document.getElementById('detailsPhone').textContent='Please enter a valid 10-digit phone number.'   
+    document.getElementById('detailsPhone').textContent='Phone number must be exactly 10 digits, cannot be all zeros, and cannot consist of the same digit.'   
    isValid=false
 } else {
     phoneInput.style.borderColor = 'green';
@@ -261,8 +264,9 @@ function submitAddressForm(event) {
         document.getElementById('editNameError').textContent = "Name should be required.";
         isValid = false;
     }
-    if (!phonePattern.test(phone)) {
-        document.getElementById('editPhoneError').textContent = "Phone number must be exactly 10 digits.";
+    const sameDigitPattern = /^(\d)\1{9}$/;
+    if (!phonePattern.test(phone) || phone === "0000000000" || sameDigitPattern.test(phone)) {
+        document.getElementById('editPhoneError').textContent = "Phone number must be exactly 10 digits, cannot be all zeros, and cannot consist of the same digit.";
         isValid = false;
     }
     if (!pincodePattern.test(pincode)) {
