@@ -1,5 +1,5 @@
 const { check, validationResult } = require('express-validator')
-
+const httpStatus=require('../../types/HTTP_STATUS')
 const validateCategory = [
     check('name')
         .isLength({ min: 3, max: 50 })
@@ -13,7 +13,7 @@ const validateCategory = [
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            return res.status(httpStatus.BAD_REQUEST).json({ errors: errors.array() });
         }
         next(); // Proceed to the next middleware/controller
     }

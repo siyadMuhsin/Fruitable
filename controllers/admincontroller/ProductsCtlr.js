@@ -4,6 +4,7 @@ const CategoryDB=require("../../models/category")
 const multer=require("multer")
 const path=require("path")
 const { console } = require("inspector")
+const httpStatus=require('../../types/HTTP_STATUS')
 
 
 
@@ -31,7 +32,7 @@ const getProducts=async (req,res)=>{
     
    } catch (error) {
     console.log(error)
-    res.status(500).send(error);
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).send(error);
     
    }
      
@@ -44,7 +45,7 @@ const listProduct=async(req,res)=>{
         res.redirect('/admin/products')
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: 'Failed to list the product.' });   
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to list the product.' });   
     }  
 }
 
@@ -57,7 +58,7 @@ const unListProduct=async(req,res)=>{
     } catch (error) {
         // Handle any errors
         console.error(error);       
-        res.status(500).json({ success: false, message: 'Failed to unlist the product.' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to unlist the product.' });
     }
 }
 

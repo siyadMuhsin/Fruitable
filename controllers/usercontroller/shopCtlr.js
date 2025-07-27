@@ -1,6 +1,6 @@
 const ProducDB=require("../../models/Products")
 const CategoryDB=require("../../models/category")
-
+const httpStatus=require('../../types/HTTP_STATUS')
 const showProducts = async (req, res) => {
     const user = req.session.user || false;
     const selectedCategoryId = req.query.category || null;
@@ -101,7 +101,7 @@ const showProducts = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server Error');
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
     }
 };
 
@@ -118,7 +118,7 @@ const productDetail = async (req, res) => {
             .populate('offer'); // Assuming 'offer' is an array of offers
 
         if (!product) {
-            return res.status(404).send('Product not found');
+            return res.status(httpStatus.NOT_FOUND).send('Product not found');
         }
 
         // Calculate the greatest discount from all offers
@@ -135,7 +135,7 @@ const productDetail = async (req, res) => {
         res.render('../views/user/shop-detail', { product, greatestDiscount, user });
     } catch (error) {
         console.log('Error fetching product details:', error);
-        res.status(500).send('Server Error');
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
     }
 };
 

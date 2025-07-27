@@ -187,6 +187,9 @@ async function addToCart(productId, quantity) {
                             title: 'Failed to Add!',
                             text: response.data.message,
                         });
+                        if(response.data.href){
+                            window.location.href='/login'
+                        }
                     }
                 })
                 .catch((error) => {

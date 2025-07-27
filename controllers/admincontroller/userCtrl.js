@@ -1,5 +1,5 @@
 const User = require("../../models/usermodel")
-
+const httpStatus=require('../../types/HTTP_STATUS')
 const getUsers = async (req, res) => {
     const page = parseInt(req.query.page) || 1; 
     const limit = parseInt(req.query.limit) || 10; 
@@ -19,7 +19,7 @@ const getUsers = async (req, res) => {
         });
     } catch (error) {
         console.error("Error fetching users:", error);
-        res.status(500).send("Server Error");
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Server Error");
     }
 };
 const blockUser= async(req,res)=>{
@@ -30,13 +30,13 @@ const blockUser= async(req,res)=>{
          // Find the user by ID and update the isBlocked status
         await User.findByIdAndUpdate(userId,{isBlocked:true})
 
-        return res.status(200).json({message:'User Blocked Successfully'})
+        return res.status(httpStatus.OK).json({message:'User Blocked Successfully'})
 
          // Redirect back to the users page after blocking
         res.redirect('/admin/users')
     }catch(error){
         console.error(error);
-        res.status(500).json({ message: 'Failed to block user' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Failed to block user' });
     }
 
 }
@@ -49,7 +49,7 @@ const unblockUser=async (req,res)=>{
         
     } catch (error) {
         console.log(error)
-        res.status(500).json({ message: 'Failed to Unblock user' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Failed to Unblock user' });
         
     }
 }

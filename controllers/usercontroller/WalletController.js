@@ -1,7 +1,7 @@
 const Wallet= require('../../models/WalletModel')
 const User=require('../../models/usermodel');
 const { userLogin } = require('./authController');
-
+const httpStatus=require('../../types/HTTP_STATUS')
 
 
 const getWallet = async (req, res) => {
@@ -24,7 +24,7 @@ const getWallet = async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching wallet page:', error);
-        res.status(500).send('Server Error');
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
     }
 };
 

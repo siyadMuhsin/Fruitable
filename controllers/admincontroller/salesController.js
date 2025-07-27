@@ -1,6 +1,6 @@
 const Order= require('../../models/OrdersModel')
 const Products= require('../../models/Products')
-
+const httpStatus=require('../../types/HTTP_STATUS')
 
 
 
@@ -156,7 +156,7 @@ const salesReport = async (req, res) => {
         });
     } catch (error) {
         console.error('Error generating sales report:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
     }
 };
 module.exports={

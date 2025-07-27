@@ -1,6 +1,6 @@
 const express=require('express')
 const session=require('express-session')
-
+const HttpStatus=require('../../types/HTTP_STATUS')
 const adminEmail=process.env.ADMIN_EMAIL
 const adminPassword=process.env.ADMIN_PASSWORD
 // Admin login page handler
@@ -10,7 +10,6 @@ const adminGet=async (req,res)=>{
   
         return res.redirect('/admin/sales-report')// Return here to stop further execution
     }
-  
     res.render('../views/admin/login')
 
 }
@@ -29,7 +28,7 @@ const admincheck=async (req,res)=>{
     }
     }catch(err){
         console.error("Error during admin login:", err);
-        res.status(500).send("Internal Server Error");
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
     }
 }
 

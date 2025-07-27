@@ -1,125 +1,97 @@
-const Address=require('../../models/AddressModel')
-const User=require('../../models/usermodel')
-const Product=require('../../models/Products')
-const Order=require('../../models/OrdersModel')
-const bcrypt = require('bcrypt'); 
-const Wallet= require('../../models/WalletModel')
-const Coupon=require('../../models/CouponsModel')
+const Address = require('../../models/AddressModel');
+const User = require('../../models/usermodel');
+const Product = require('../../models/Products');
+const Order = require('../../models/OrdersModel');
+const bcrypt = require('bcrypt');
+const Wallet = require('../../models/WalletModel');
+const Coupon = require('../../models/CouponsModel');
+const httpStatus = require('../../types/HTTP_STATUS');
 
-const getProfile= async (req,res)=>{
-    const user=req.session.user
-    const userDetails=await User.findById(user)
-    const orders=await Order.find({user:user}).sort({ orderDate: -1 }).lean(); 
-    const wallet =await Wallet.findOne({user:user}).populate('transactions')
+const getProfile = async (req, res) => {
+    const user = req.session.user;
+    const userDetails = await User.findById(user);
+    const orders = await Order.find({ user }).sort({ orderDate: -1 }).lean();
+    const wallet = await Wallet.findOne({ user }).populate('transactions');
     const sortedTransactions = wallet.transactions.sort((a, b) => b.date - a.date);
+    const addresses = await Address.find({ userId: user });
+    res.render('../views/user/profile', { user, addresses, userDetails, orders, wallet, transactions: sortedTransactions });
+};
 
-    const addresses = await Address.find({userId:user})
-    res.render('../views/user/profile',{user,addresses,userDetails,orders,wallet:wallet,transactions: sortedTransactions})
-
-}
-const addAddress=async(req,res)=>{
-  
+const addAddress = async (req, res) => {
     try {
         const { name, phone, alt_phone, pincode, locality, landmark, district, state, country, address, addressType } = req.body;
-        
-          // Validate input
-    if (!name || !phone || !pincode || !locality || !district || !state || !country || !address || !addressType) {
-        return res.status(400).json({ success: false, message: 'All fields are required.' });
-    }
-        // Assuming req.user holds the authenticated user's information
-    const userId = req.session.user;
 
-    // Create the address object
-    const newAddress = new Address({
-        userId,
-        name,
-        phone,
-        pincode,
-        locality,
-        landmark,
-        district,
-        state,
-        country,
-        address,
-        addressType
-      });
+        if (!name || !phone || !pincode || !locality || !district || !state || !country || !address || !addressType) {
+            return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: 'All fields are required.' });
+        }
 
-       // Save the address to the database
-    await newAddress.save();
+        const userId = req.session.user;
 
-    // Return success response
-    res.json({ success: true, message: 'Address added successfully!' });
+        const newAddress = new Address({
+            userId,
+            name,
+            phone,
+            pincode,
+            locality,
+            landmark,
+            district,
+            state,
+            country,
+            address,
+            addressType
+        });
 
+        await newAddress.save();
 
-
+        res.json({ success: true, message: 'Address added successfully!' });
     } catch (error) {
         console.error('Error adding address:', error);
-        res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
-        
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again later.' });
     }
-   
-}
+};
 
-const editAddress=async (req,res)=>{
-    
-   
-        const {  addressId, editName, editPhone,  editAddress, editLocality, editDistrict, editPincode, editState, editCountry } = req.body;
-        try { 
-         // Update address in the database
-         const updatedAddress = await Address.findByIdAndUpdate(addressId, {
-            name:editName,
-            phone:editPhone,
-            address:editAddress,
-            locality:editLocality,
-            district:editDistrict,
-            pincode:editPincode,
-            state:editState,
-            country:editCountry
-        })
-       
+const editAddress = async (req, res) => {
+    const { addressId, editName, editPhone, editAddress, editLocality, editDistrict, editPincode, editState, editCountry } = req.body;
+    try {
+        const updatedAddress = await Address.findByIdAndUpdate(addressId, {
+            name: editName,
+            phone: editPhone,
+            address: editAddress,
+            locality: editLocality,
+            district: editDistrict,
+            pincode: editPincode,
+            state: editState,
+            country: editCountry
+        });
 
         if (updatedAddress) {
             return res.json({ success: true, message: 'Address updated successfully!' });
         } else {
-            return res.status(404).json({ success: false, message: 'Address not found.' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Address not found.' });
         }
-        
-     
-
-
     } catch (error) {
-
         console.error('Error updating address:', error);
-        return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
-        
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again later.' });
     }
-}
+};
 
-//delete Addresses
-const deleteAddress= async(req,res)=>{
-  
-
+const deleteAddress = async (req, res) => {
     try {
-        const addressId=req.params.id
-       // Find the address by ID and delete it
-       const deletedAddress = await Address.findByIdAndDelete(addressId);
-       if(deletedAddress){
-        return res.json({success:true,message:'Address deleted successfully'})
-       }else{
-        return res.status(404).json({success:false,message:'Address not found.'})
-       }
+        const addressId = req.params.id;
+        const deletedAddress = await Address.findByIdAndDelete(addressId);
+        if (deletedAddress) {
+            return res.json({ success: true, message: 'Address deleted successfully' });
+        } else {
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Address not found.' });
+        }
     } catch (error) {
         console.error('Error deleting address:', error);
-        return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
-        
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again later.' });
     }
-}
+};
 
-// edit profile details
-const editDetails= async (req,res)=>{
+const editDetails = async (req, res) => {
     try {
-        
-
         const userId = req.session.user;
 
         const updatedDetails = {
@@ -127,129 +99,107 @@ const editDetails= async (req,res)=>{
             phone: req.body.phone
         };
 
-        // Use async/await to update the user's details in the database
         const updatedUser = await User.findByIdAndUpdate(userId, updatedDetails, { new: true });
 
-        // If the update is successful, send a response with the updated user
-        res.status(200).json({ message: 'Details updated successfully', user: updatedUser });
+        res.status(httpStatus.OK).json({ message: 'Details updated successfully', user: updatedUser });
     } catch (err) {
-        // Handle errors with a try-catch block
         console.error('Error updating user details:', err);
-        res.status(500).json({ message: 'Error updating user details' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Error updating user details' });
     }
-}
+};
 
-// Change Password
 const changePassword = async (req, res) => {
-   
     try {
         const userId = req.session.user;
         const { currentPassword, newPassword } = req.body;
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ success: false, message: "User not found" });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
         }
-        if(!user.password){
-            
-            return res.status(404).json({ success: false, message: "Its Google user  you cant change password" });
+        if (!user.password) {
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "Its Google user you cant change password" });
         }
 
-       
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
-           
-            return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+            return res.status(httpStatus.UNAUTHORIZED).json({ success: false, message: 'Current password is incorrect' });
         }
 
-      
         if (newPassword === currentPassword) {
-            return res.status(400).json({ success: false, message: 'New password must be different from current password' });
+            return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: 'New password must be different from current password' });
         }
 
-        // Hash the new password
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        
-
-
-        // Update the user's password
         user.password = hashedNewPassword;
         await user.save();
 
-        return res.status(200).json({ success: true, message: 'Password changed successfully!' });
+        return res.status(httpStatus.OK).json({ success: true, message: 'Password changed successfully!' });
     } catch (error) {
         console.error('Error changing password:', error);
-        return res.status(500).json({ success: false, message: 'Internal server error. Please try again.' });
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Internal server error. Please try again.' });
     }
 };
-    
-// get orders
-const getOrders= async (req,res)=>{
-    const user=req.session.user
-    const orders=await Order.find({user:user}).sort({ orderDate: -1 }).lean(); 
-    res.render('../views/user/orders',{user,orders})
-}
 
-const getOrderDetails=async(req,res)=>{
-    
-   
+const getOrders = async (req, res) => {
+    const user = req.session.user;
+    const orders = await Order.find({ user }).sort({ orderDate: -1 }).lean();
+    res.render('../views/user/orders', { user, orders });
+};
+
+const getOrderDetails = async (req, res) => {
     try {
-        const user =req.session.user
-        const order_Id=req.params.id
-        const order = await Order.findById(order_Id).populate('items.productId')
-      
+        const user = req.session.user;
+        const order_Id = req.params.id;
+        const order = await Order.findById(order_Id).populate('items.productId');
 
-        if(!order){
-            return res.status(404).send('Order not Found')
+        if (!order) {
+            return res.status(httpStatus.NOT_FOUND).send('Order not Found');
         }
-        let discount=0
-        if(order.couponCode !== ""){
-            const coupon = await Coupon.findOne({code:order.couponCode})
-            discount = coupon.discount
 
+        let discount = 0;
+        if (order.couponCode !== "") {
+            const coupon = await Coupon.findOne({ code: order.couponCode });
+            discount = coupon.discount;
         }
-        
-        res.render('../views/user/orderDetails',{order,user,discount})
 
+        res.render('../views/user/orderDetails', { order, user, discount });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Servvdagvr gh dtshbeter Error');
-        
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server error');
     }
-}
+};
 
-
-
-//cancel orderss
 const cancelOrder = async (req, res) => {
-  
     try {
         const { orderId } = req.body;
         const order = await Order.findById(orderId).populate('user');
 
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Order not found' });
         }
         if (order.status === 'Cancelled') {
-            return res.status(400).json({ success: false, message: 'Order is already cancelled' });
+            return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: 'Order is already cancelled' });
         }
+
         for (const item of order.items) {
             const product = await Product.findById(item.productId);
             if (!product) {
-                return res.status(404).json({ success: false, message: `Product not found for item ${item.productName}` });
+                return res.status(httpStatus.NOT_FOUND).json({ success: false, message: `Product not found for item ${item.productName}` });
             }
             product.stock += item.quantity;
-            await product.save(); 
+            await product.save();
         }
+
         order.status = "Cancelled";
         await order.save();
+
         if (order.paymentMethod !== 'Cash on Delivery') {
-            
             let wallet = await Wallet.findOne({ user: order.user._id });
 
             if (!wallet) {
                 wallet = new Wallet({
                     user: order.user._id,
-                    balance: order.totalPrice, 
+                    balance: order.totalPrice,
                     transactions: [{
                         amount: order.totalPrice,
                         type: 'credit',
@@ -270,74 +220,65 @@ const cancelOrder = async (req, res) => {
         }
 
         return res.json({ success: true, message: 'Order cancelled and refunded successfully!' });
-
     } catch (error) {
         console.error('Error cancelling order:', error);
-        return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again later.' });
     }
 };
 
-const cancelItem=async(req,res)=>{
-  
+const cancelItem = async (req, res) => {
     try {
-        const {itemId}=req.body
+        const { itemId } = req.body;
 
-        const order= await Order.findOne({'items._id':itemId}).populate('user')
-        if(!order){
-            return res.status(404).json({success:false,message:'Item not found in any order'})
+        const order = await Order.findOne({ 'items._id': itemId }).populate('user');
+        if (!order) {
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Item not found in any order' });
         }
-        const item= order.items.id(itemId)
+        const item = order.items.id(itemId);
         if (!item) {
-            return res.status(404).json({ success: false, message: 'Item not found' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Item not found' });
         }
 
-       
         if (item.status === 'Cancelled') {
-            return res.status(400).json({ success: false, message: 'Item already cancelled' });
+            return res.status(httpStatus.BAD_REQUEST).json({ success: false, message: 'Item already cancelled' });
         }
 
-        const product=await Product.findById(item.productId)
-        if(!product){
-            return res.status(404).json({ success: false, message: 'Product not found for item' });
+        const product = await Product.findById(item.productId);
+        if (!product) {
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Product not found for item' });
         }
 
-        let discount= 0
-        if(order.couponCode !== ""){
-            const coupon = await Coupon.findOne({code:order.couponCode})
-            
-            discount=coupon.discount
+        let discount = 0;
+        if (order.couponCode !== "") {
+            const coupon = await Coupon.findOne({ code: order.couponCode });
+            discount = coupon.discount;
         }
-        product.stock +=item.quantity;
-        await product.save()
 
-        item.status='Cancelled';
+        product.stock += item.quantity;
+        await product.save();
 
-        console.log(discount)
-        let cancelledprice = (item.price * item.quantity)-(item.price * item.quantity)*discount/100
-        
-       
+        item.status = 'Cancelled';
 
-        order.totalPrice -= cancelledprice
-        order.subtotal -= cancelledprice
+        let cancelledprice = (item.price * item.quantity) - (item.price * item.quantity) * discount / 100;
 
-        const allCancelled= order.items.every(i => i.status=== 'Cancelled')
-        if(allCancelled){
-            order.status = 'Cancelled'
+        order.totalPrice -= cancelledprice;
+        order.subtotal -= cancelledprice;
 
+        const allCancelled = order.items.every(i => i.status === 'Cancelled');
+        if (allCancelled) {
+            order.status = 'Cancelled';
         }
-        await order.save()
+
+        await order.save();
+
         if (order.paymentMethod !== 'Cash on Delivery') {
-            const wallet = await Wallet.findOne({user:order.user._id})
+            const wallet = await Wallet.findOne({ user: order.user._id });
             if (!wallet) {
-                return res.status(404).json({ success: false, message: 'Wallet not found' });
+                return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Wallet not found' });
             }
 
-           
-
-            // Add the cancelled amount to the wallet
             wallet.balance += cancelledprice;
 
-            // Record the transaction in the wallet's transaction history
             wallet.transactions.push({
                 amount: cancelledprice,
                 type: 'credit',
@@ -345,92 +286,76 @@ const cancelItem=async(req,res)=>{
                 date: new Date(),
             });
 
-            await wallet.save(); // Save wallet changes
+            await wallet.save();
         }
+
         return res.json({ success: true, message: 'Item cancelled successfully!' });
-
-
     } catch (error) {
-        console.log(error)
         console.error('Error cancelling item:', error);
-        return res.status(500).json({ success: false, message: 'Server error. Please try again later.' });
-        
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error. Please try again later.' });
     }
-}
+};
 
-
-const getWallet= async (req,res)=>{
-  
-
-}
-
-
-// return order function..
-const requestReturnOrder= async(req,res)=>{
+const requestReturnOrder = async (req, res) => {
     const { orderId, reason } = req.body;
     try {
         const order = await Order.findById(orderId);
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Order not found' });
         }
 
         order.status = 'Return Requested';
-        order.returnReason = reason; // Assuming you have a returnReason field in your Order model
+        order.returnReason = reason;
         await order.save();
 
         res.json({ success: true, message: 'Return request submitted successfully' });
     } catch (error) {
-        console.log(error)
         console.error('Error processing return request:', error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' });
     }
-}
-// item return 
-const returnItem = async(req,res)=>{
+};
 
+const returnItem = async (req, res) => {
     const itemId = req.params.itemId;
     try {
-      
         const order = await Order.findOne({ "items._id": itemId });
 
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found." });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "Order not found." });
         }
+
         const item = order.items.id(itemId);
         if (!item) {
-            return res.status(404).json({ success: false, message: "Item not found in the order." });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: "Item not found in the order." });
         }
 
         item.status = 'Return Requested';
-     
-
         await order.save();
 
-        return res.status(200).json({ success: true, message: "Item returned successfully." });
+        return res.status(httpStatus.OK).json({ success: true, message: "Item returned successfully." });
     } catch (error) {
         console.error('Error returning item:', error);
-        return res.status(500).json({ success: false, message: "An error occurred while processing the return." });
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred while processing the return." });
     }
-}
+};
 
-// Download Invoice
-const downloadinvoice= async(req,res)=>{
-    
+const downloadinvoice = async (req, res) => {
     const orderId = req.params.orderId;
 
     try {
-        const order = await Order.findById(orderId).populate('items.productId user'); // Populate product and user
+        const order = await Order.findById(orderId).populate('items.productId user');
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Order not found' });
         }
 
         return res.json({ success: true, order });
     } catch (error) {
         console.error('Error fetching order:', error);
-        return res.status(500).json({ success: false, message: 'Error fetching order details' });
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error fetching order details' });
     }
-}
-module.exports={
+};
+
+module.exports = {
     getProfile,
     addAddress,
     editAddress,
@@ -444,5 +369,4 @@ module.exports={
     requestReturnOrder,
     returnItem,
     downloadinvoice
-   
-}
+};

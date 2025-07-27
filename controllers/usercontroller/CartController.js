@@ -1,7 +1,8 @@
-const Cart=require("../../models/cartModal")
-const Product =require("../../models/Products")
+const Cart = require("../../models/cartModal");
+const Product = require("../../models/Products");
+const httpStatus = require("../../types/HTTP_STATUS"); // optional but recommended
 
-// Get Cart Page
+// 📋 Get Cart Page
 const getCart = async (req, res) => {
     const user = req.session.user;
 
@@ -9,9 +10,7 @@ const getCart = async (req, res) => {
         const cart = await Cart.findOne({ user: user })
             .populate({
                 path: 'items.product',
-                populate: {
-                    path: 'offer',  
-                },
+                populate: { path: 'offer' }
             });
 
         if (!cart || cart.items.length === 0) {
@@ -19,27 +18,20 @@ const getCart = async (req, res) => {
         }
 
         const filteredCartItems = cart.items.filter(item => item.product.isListed);
-        
- 
+
         if (filteredCartItems.length < cart.items.length) {
             cart.items = filteredCartItems;
-            await cart.save();  // Save the updated cart to the database
+            await cart.save();
         }
 
-        
         const cartData = filteredCartItems.map(item => {
-            let itemPrice = item.product.price; // Original price
-            let greatestDiscount = 0; // Default discount
+            let itemPrice = item.product.price;
+            let greatestDiscount = 0;
 
             if (item.product.offer && item.product.offer.length > 0) {
-              
                 const activeOffers = item.product.offer.filter(offer => offer.isActive);
-
                 if (activeOffers.length > 0) {
-              
                     greatestDiscount = Math.max(...activeOffers.map(offer => offer.discount));
-
-                
                     const discountedPrice = itemPrice - (itemPrice * (greatestDiscount / 100));
                     itemPrice = discountedPrice;
                 }
@@ -47,169 +39,132 @@ const getCart = async (req, res) => {
 
             return {
                 ...item._doc,
-                itemPrice,  
-                greatestDiscount, 
+                itemPrice,
+                greatestDiscount,
             };
         });
 
         const cartTotal = Math.floor(cartData.reduce((total, item) => total + (item.itemPrice * item.quantity), 0));
-
         const greatestDiscounts = cartData.map(item => item.greatestDiscount);
 
-        // Render the cart page with product details and greatest discounts
         res.render('../views/user/cart', { user, cartItems: cartData, cartTotal, greatestDiscounts });
     } catch (error) {
         console.error('Error fetching cart:', error);
-        res.status(500).send('Server Error');
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
     }
 };
 
-
-//Add to Cart 
-const addToCart =async(req,res)=>{
-    
-
+// ➕ Add to Cart
+const addToCart = async (req, res) => {
     try {
-        if(!req.session.user){
-            return res.send({success:false ,message:"Please login"})
-        }
-        const {productId,quantity}=req.body
-
-        const product= await Product.findById(productId).populate('offer')
-      
-        
-        if(!product){
-            return res.status(404).json({success:false,message:'Product not Found'});
-
-        }
-        
-       
-        let cart =await Cart.findOne({user:req.session.user||req.session.GooggleId})
-       
-
-        if(!cart){
-            cart=new Cart({
-                user:req.session.user||req.session.GooggleId,
-                items:[],
-                totalAmount:0
-            })
+        if (!req.session.user) {
+            return res.json({ success: false, message: "Please login" ,href:'/login'});
         }
 
-        // Check if product is already in the cart
+        const { productId } = req.body;
+        const product = await Product.findById(productId).populate('offer');
+
+        if (!product) {
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Product not Found' });
+        }
+
+        let cart = await Cart.findOne({ user: req.session.user });
+        if (!cart) {
+            cart = new Cart({ user: req.session.user, items: [], totalAmount: 0 });
+        }
+
         const cartItemIndex = cart.items.findIndex(item => item.product.toString() === productId);
-         // Update quantity if product exists in the cart, else add the product
-         if(cartItemIndex >-1){
-           return res.json({ success: false, message: 'Product already added to cart Check Cart', cart });
+        if (cartItemIndex > -1) {
+            return res.json({ success: false, message: 'Product already added to cart. Check Cart', cart });
+        }
 
-         }else{
-            cart.items.push({product:productId,quantity:1})
+        cart.items.push({ product: productId, quantity: 1 });
+        cart.totalPrice += product.price;
+        await cart.save();
 
-         }
-
-         cart.totalPrice+=product.price
-         await cart.save()
-        
         res.json({ success: true, message: 'Product added to cart', cart });
     } catch (error) {
-        console.log(error)
-        res.status(500).json({ success: false, message: 'Error adding product to cart' });
+        console.error(error);
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error adding product to cart' });
     }
+};
 
+// 🗑️ Remove from Cart
+const removeFromCart = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { productId } = req.body;
 
-}
-
-//remove from cart
-const removeFromCart=async(req,res)=>{
-
-try {
-    const userId=req.session.user
-    const {productId}=req.body
-
-    //Find the users cart
-    const cart= await Cart.findOne({user:userId})
-    if(!cart){
-        return res.json({success:false,message:'Cart not Found'})
-    }
-  
-    // Remove the product from the cart
-    cart.items = cart.items.filter((item)=>{
-        if(item.product.toString() !== productId){
-            return item
+        const cart = await Cart.findOne({ user: userId });
+        if (!cart) {
+            return res.json({ success: false, message: 'Cart not Found' });
         }
-    })
-    await cart.save()
-    res.json({success:true,message:'Item removed from cart'})
 
-} catch (error) {
-    console.error('Error removing item from cart:', error);
-    res.json({ success: false, message: 'Internal server error' });
-    
-}
+        cart.items = cart.items.filter(item => item.product.toString() !== productId);
+        await cart.save();
 
-}
+        res.json({ success: true, message: 'Item removed from cart' });
+    } catch (error) {
+        console.error('Error removing item from cart:', error);
+        res.json({ success: false, message: 'Internal server error' });
+    }
+};
 
-// update cart quantity
+// 🔄 Update Cart Quantity
 const updateQuantity = async (req, res) => {
-    
     const { productId, quantity } = req.body;
 
     try {
-        // Find the cart by user ID or session
         const cart = await Cart.findOne({ user: req.session.user });
-
         if (!cart) {
-            return res.status(404).json({ success: false, message: 'Cart not found' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Cart not found' });
         }
 
-        // Find the cart item
         const cartItem = cart.items.find(item => item.product.toString() === productId);
-
         if (!cartItem) {
-            return res.status(404).json({ success: false, message: 'Product not found in cart' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Product not found in cart' });
         }
 
-        const product = await Product.findById(productId).populate('offer'); // Include the offer in the product
-
+        const product = await Product.findById(productId).populate('offer');
         if (!product) {
-            return res.status(404).json({ success: false, message: 'Product not found' });
+            return res.status(httpStatus.NOT_FOUND).json({ success: false, message: 'Product not found' });
         }
 
-        const maxQuantity = product.stock;
-        if (quantity > maxQuantity) {
+        if (quantity > product.stock) {
             return res.json({
                 success: false,
-                message: `You cannot add more than ${maxQuantity} items. Available stock: ${product.stock}`
+                message: `You cannot add more than ${product.stock} items. Available stock: ${product.stock}`
             });
         }
 
-        // Update the quantity in the cart
         cartItem.quantity = quantity;
         await cart.save();
 
-        // Calculate the price based on offer
         let productPrice = product.price;
         if (product.offer) {
-            // If an offer is available, calculate the discounted price
-            productPrice = product.price - (product.price * (product.offer.discount / 100));
+            productPrice -= product.price * (product.offer.discount / 100);
         }
 
-        // Recalculate cart total with the discounted or original price
         const cartTotal = cart.items.reduce((total, item) => {
-            const itemProductPrice = item.product.toString() === productId ? productPrice : item.product.price;
+            const itemProductPrice = item.product.toString() === productId ? productPrice : product.product.price;
             return total + (item.quantity * itemProductPrice);
         }, 0);
 
-        
         res.json({
             success: true,
             message: 'Cart Updated Successfully',
-            cartTotal: cartTotal.toFixed(2),  // Sending total with 2 decimal places
-            productPrice: productPrice.toFixed(2) // Send the price with the offer applied
+            cartTotal: cartTotal.toFixed(2),
+            productPrice: productPrice.toFixed(2)
         });
     } catch (error) {
         console.error('Error updating cart quantity:', error);
-        res.status(500).json({ success: false, message: 'Failed to update cart' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to update cart' });
     }
 };
 
-module.exports={getCart,addToCart,removeFromCart,updateQuantity}
+module.exports = {
+    getCart,
+    addToCart,
+    removeFromCart,
+    updateQuantity
+};

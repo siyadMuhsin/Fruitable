@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <my-tag></my-tag>
+
+    <p style="background-color: red;">nfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkadnfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdkfsdjbhf jsdbhu fsdjbhf jsdbhuijh</p>
+        <span style="background-color: yellow;">nfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkadnfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdk fsjkdfsjkad fsdjbhf jsdbhunfs fnsdhfjksld fsjdfnjsdkfsdjbhf jsdbhu fsdjbhf jsdbhuijh</span>
+
+        <button id="btn">click</button>
+</body>
+<script>
+    class Siyad extends HTMLElement{
+        constructor(){
+            super()
+            this.innerHTML='<h2>My name is siyad</h2>'
+        }
+        
+
+    }
+    customElements.define('my-tag',Siyad)
+    const myPromise=new Promise((res,rej)=>{
+//         setTimeout(()=>{
+// res("Its resolved")
+//         },1000)
+        
+    })
+    document.getElementById('btn').addEventListener("click",()=>{
+        myPromise.res('hello').then(res=>{
+            alert(res)
+        })
+    })
+    async function myBtn(){
+    return setTimeout(()=>{
+
+    },1000)
+}
+let fn=myBtn()
+console.log(fn)
+</script>
+</html>

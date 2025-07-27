@@ -1,5 +1,6 @@
 // Middleware to check if user is authenticated
 const User=require("../models/usermodel")
+const httpStatus=require("../types/HTTP_STATUS")
 const isAuthenticated=(req,res,next)=>{
     if(req.session && req.session.user){
         console.log('logine middleware')
@@ -30,7 +31,7 @@ const isBlocked=async  (req,res,next)=>{
         req.session.destroy((err) => {
             if (err) {
                 console.error("Error during logout:", err);
-                return res.status(500).send("Internal Server Error");
+                return res.status(httpStatus.INTERNAL_SERVER_ERROR).send("Internal Server Error");
             }
             return res.send(`
                                     <html>

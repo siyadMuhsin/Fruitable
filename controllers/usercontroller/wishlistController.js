@@ -1,7 +1,7 @@
 const Cart=require("../../models/cartModal")
 const Product =require("../../models/Products")
 const Wishlist=require("../../models/wishlistModal")
-
+const httpStatus=require('../../types/HTTP_STATUS')
 //get Wishlist
 const getWishlist=async (req,res)=>{
    
@@ -58,7 +58,7 @@ const addToWishlist=async(req,res)=>{
         
     } catch (error) {
         console.error('Error adding to wishlist:', error);
-        res.status(500).json({ success: false, message: 'Failed to add product to wishlist' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to add product to wishlist' });
         
     }
 }
@@ -78,12 +78,12 @@ try {
          await wishlist.save()
          res.json({ success: true, message: 'Product removed from wishlist' });
      }else{
-         res.status(404).json({success:false,nessage:'Product Not Found in wishlist'})
+         res.status(httpStatus.NOT_FOUND).json({success:false,nessage:'Product Not Found in wishlist'})
      }
     
 } catch (error) {
     console.error('Error removing product from wishlist:', error);
-    res.status(500).json({ success: false, message: 'Failed to remove product from wishlist' });
+    res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to remove product from wishlist' });
     
 }
    

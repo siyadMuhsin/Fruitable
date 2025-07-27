@@ -1,6 +1,6 @@
 const CategoryDB=require('../../models/category')
 
-
+const httpStatus=require('../../types/HTTP_STATUS')
 
 
 // Get all categories
@@ -22,7 +22,7 @@ const getCategories=async(req,res)=>{
         })
         }catch(error){
             console.log(error);
-        res.status(500).send('Server error');
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server error');
 
     }
 }
@@ -77,7 +77,7 @@ return res.send(`
   
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error');   
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).send('Server error');   
     }
 }
 
@@ -87,11 +87,11 @@ const listCategory =async(req,res)=>{
 
         const {id}=req.params
         await CategoryDB.findByIdAndUpdate(id,{isListed:true})
-       return res.status(200).json({success:true,message:'Category listed successfully'})
+       return res.status(httpStatus.OK).json({success:true,message:'Category listed successfully'})
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Failed to list category' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Failed to list category' });
         
     }
 }
@@ -101,11 +101,11 @@ const unListCategory=async (req,res)=>{
     try {
         const {id}=req.params
         await CategoryDB.findByIdAndUpdate(id,{isListed:false})
-       return res.status(200).json({success:true,message:'Category unlisted successfully'})
+       return res.status(httpStatus.OK).json({success:true,message:'Category unlisted successfully'})
         
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Failed to unlist category' });
+        res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Failed to unlist category' });
         
     }
 }
@@ -118,12 +118,12 @@ const editCategory= async(req,res)=>{
         const {name,description}=req.body
 
         if(!_id|| _id==''){
-            return res.status(400).json({message:'Invalid category ID'});
+            return res.status(httpStatus.BAD_REQUEST).json({message:'Invalid category ID'});
 
         }
         const exisName= await CategoryDB.findOne({name})
         if(exisName){
-            return res.status(400).json({success:false,message:'Category Name Already Used'});
+            return res.status(httpStatus.BAD_REQUEST).json({success:false,message:'Category Name Already Used'});
         }
         
        
@@ -132,7 +132,7 @@ const editCategory= async(req,res)=>{
             name:name.toUpperCase(),
             description
         },{new:true})
-       return res.status(200).json({success:true,message:'Category updated successfully.',red:'/admin/category'})
+       return res.status(httpStatus.OK).json({success:true,message:'Category updated successfully.',red:'/admin/category'})
        
 
     }catch(error){
