@@ -6,7 +6,7 @@ const app = express();
 const passport=require('passport')
 const morgan = require("morgan")
 
-require('./controllers/usercontroller/googleAuth')// Ensure Passport config is loaded
+require('./controllers/usercontroller/google.auth.controller')// Ensure Passport config is loaded
 
 // Session middleware
 app.use(session({
@@ -29,8 +29,8 @@ app.use(passport.session());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 // Import and use routes
-const UserAuth = require('./routes/userRoutes/UserAuth');
-const adminAuth=require('./routes/adminRoutes/adminAuth')
+const UserAuth = require('./routes/userRoutes/user.routes');
+const adminAuth=require('./routes/adminRoutes/admin.routes')
 app.use('/', UserAuth);
 app.use('/admin',adminAuth)
 

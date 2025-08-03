@@ -283,11 +283,31 @@ function submitEditedProduct(e) {
             const formData = new FormData(formElement);
 
             // Append the cropped image blob if available
+            // console.log('edit crop',editCroppedImages)
             editCroppedImages.forEach((editCroppedImage, index) => {
                 formData.append('croppedImages[]', editCroppedImage, `croppedImage_${index}.png`);
             });
-
+            for(let [key,val] of formData.entries()){
+                // if(key=='existingImages[]'){
+                //     console.log(val)
+                //     if(!val){
+                //        document.getElementById('EditProductError').textContent="Please select atleast one image"
+                //        return
+                //     }
+                // }
+                
+                console.log(key,val)
+            }
+            const existingImages=formData.get("existingImages[]")
+            const croppedImages=formData.get('croppedImages[]')
+            // console.log(imageLength)
+             if(!existingImages && !croppedImages){
+                       document.getElementById('EditProductError').textContent="Please select atleast one image"
+                       return
+                    }
+            // console.log(formData.has('existingImages[]'))
             // Send the data to the server
+            // return
             axios.post(`/admin/product/edit/${productId}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -311,7 +331,7 @@ function submitEditedProduct(e) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error!',
-                    text: 'Error updating product',
+                    text:error?.response?.data?.message || 'Error updating product',
                     confirmButtonText: 'OK'
                 });
             });

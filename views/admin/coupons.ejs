@@ -299,7 +299,9 @@ document.getElementById('createCouponForm').addEventListener('submit', (e) => {
         hasError = true;
     }
 
-    if (isNaN(startDate.getTime()) || startDate < new Date()) {
+    const today = new Date();
+today.setHours(0, 0, 0, 0); 
+    if (isNaN(startDate.getTime()) || startDate < today) {
         document.getElementById('startDate').classList.add('is-invalid');
         document.getElementById('startDateError').style.display = 'block';
         hasError = true;
