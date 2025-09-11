@@ -15,8 +15,12 @@ app.use(session({
     saveUninitialized: true,
 }));
 
-app.use(express.static('public'));
-app.use(express.static('uploads'));
+// app.use(express.static('public'));
+// app.use(express.static('uploads'));
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'uploads')));
+
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));

@@ -158,9 +158,13 @@
     let hasError = false;
 
     // Username Validation
-    if (username === '') {
+    if (!username.trim()) {
         showError('username', 'Username is required.');
         hasError = true;
+    }
+    if(username.length >15){
+        showError('username', 'Too many large.');
+        hasError=true
     }
 
     // Email Validation
